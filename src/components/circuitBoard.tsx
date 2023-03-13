@@ -7,6 +7,7 @@ import ReactFlow, {
   applyEdgeChanges,
   applyNodeChanges,
   Background,
+  BezierEdge,
   Controls,
   OnConnect,
   OnEdgesChange,
@@ -21,10 +22,10 @@ const NODE_TYPES = {
   unop: UnopNode,
 };
 
-// const EDGE_TYPES = {
-//   value: WireEdge,
-//   // TODO: add LIST edge types
-// };
+const EDGE_TYPES = {
+  value: BezierEdge,
+  // TODO: add LIST edge types
+};
 
 const CircuitBoard = () => {
   const [nodes, setNodes] = useState<CircuitNode[]>(INITIAL_NODES);
@@ -54,7 +55,7 @@ const CircuitBoard = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NODE_TYPES}
-        // edgeTypes={EDGE_TYPES}
+        edgeTypes={EDGE_TYPES}
       >
         <Background />
         <Controls />
