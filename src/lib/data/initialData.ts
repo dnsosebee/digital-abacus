@@ -13,7 +13,7 @@ export const INITIAL_NODES: CircuitNode[] = [
         x: 0,
         y: 0,
       },
-      mode: "single",
+      cartesian: true,
     },
   },
   {
@@ -25,7 +25,7 @@ export const INITIAL_NODES: CircuitNode[] = [
         x: 0,
         y: 0,
       },
-      mode: "single",
+      cartesian: true,
     },
   },
   {
@@ -43,6 +43,7 @@ export const INITIAL_NODES: CircuitNode[] = [
         x: 0,
         y: 0,
       },
+      cartesian: true,
     },
   },
 ];

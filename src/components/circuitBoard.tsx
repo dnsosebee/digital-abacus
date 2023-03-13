@@ -13,11 +13,11 @@ import ReactFlow, {
   OnNodesChange,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { EqualsNode } from "./nodes/equals";
 import { UnopNode } from "./nodes/unop";
-import { ValueNode } from "./nodes/value";
 
 const NODE_TYPES = {
-  value: ValueNode,
+  value: EqualsNode,
   unop: UnopNode,
 };
 
