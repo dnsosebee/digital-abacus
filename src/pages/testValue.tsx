@@ -6,4 +6,6 @@
 
 // export default Test;
 
-export {};
+export default function Test() {
+  return <> </>;
+}
