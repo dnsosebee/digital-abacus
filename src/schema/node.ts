@@ -14,7 +14,12 @@ export const baseNodeSchema = z.object({
 });
 
 // values
-export const valueSchema = baseNodeSchema.extend({
+const valueSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+});
+
+export const valueNodeSchema = baseNodeSchema.extend({
   type: z.literal("value"),
   data: z.object({
     value: z.object({
@@ -33,7 +38,10 @@ export const binopSchema = baseNodeSchema.extend({
   type: z.literal("binop"),
   data: z.object({
     carrying: carryingSchema,
+    operand1: valueSchema,
+    operand2: valueSchema,
     operator: z.union([z.literal("add"), z.literal("mult")]),
+    result: valueSchema,
   }),
 });
 
@@ -41,7 +49,9 @@ export const unopSchema = baseNodeSchema.extend({
   type: z.literal("unop"),
   data: z.object({
     carrying: carryingSchema,
+    operand: valueSchema,
     operator: z.union([z.literal("exp"), z.literal("conj")]),
+    result: valueSchema,
   }),
 });
 
@@ -53,10 +63,10 @@ export const stickySchema = baseNodeSchema.extend({
   }),
 });
 
-export const nodeSchema = z.union([valueSchema, binopSchema, unopSchema, stickySchema]);
+export const nodeSchema = z.union([valueNodeSchema, binopSchema, unopSchema, stickySchema]);
 
 export type CircuitNode = z.infer<typeof nodeSchema>;
-export type Value = z.infer<typeof valueSchema>;
+export type Value = z.infer<typeof valueNodeSchema>;
 export type Unop = z.infer<typeof unopSchema>;
 export type Binop = z.infer<typeof binopSchema>;
 export type Sticky = z.infer<typeof stickySchema>;

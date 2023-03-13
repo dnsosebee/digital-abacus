@@ -34,7 +34,15 @@ export const INITIAL_NODES: CircuitNode[] = [
     type: "unop",
     data: {
       carrying: "value",
+      operand: {
+        x: 0,
+        y: 0,
+      },
       operator: "exp",
+      result: {
+        x: 0,
+        y: 0,
+      },
     },
   },
 ];
@@ -44,16 +52,16 @@ export const INITIAL_EDGES: Wire[] = [
     id: genWireId(),
     source: INITIAL_NODE_IDS[0],
     target: INITIAL_NODE_IDS[2],
-    sourceHandle: "bottom",
-    targetHandle: "top",
+    sourceHandle: "valSource",
+    targetHandle: "operand",
     type: "value",
   },
   {
     id: genWireId(),
     source: INITIAL_NODE_IDS[2],
     target: INITIAL_NODE_IDS[1],
-    sourceHandle: "bottom",
-    targetHandle: "top",
+    sourceHandle: "result",
+    targetHandle: "valTarget",
     type: "value",
   },
 ];
