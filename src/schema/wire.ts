@@ -22,6 +22,7 @@ export const wireSchema = z.object({
   sourceHandle: handleSchema,
   target: z.string().length(NODE_ID_LENGTH),
   targetHandle: handleSchema,
+  animated: z.literal(true),
 });
 
 export type Wire = z.infer<typeof wireSchema>;

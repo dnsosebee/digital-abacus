@@ -15,17 +15,16 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import { UnopNode } from "./nodes/unop";
 import { ValueNode } from "./nodes/value";
-import { WireEdge } from "./wires/wire";
 
 const NODE_TYPES = {
   value: ValueNode,
   unop: UnopNode,
 };
 
-const EDGE_TYPES = {
-  value: WireEdge,
-  // TODO: add LIST edge types
-};
+// const EDGE_TYPES = {
+//   value: WireEdge,
+//   // TODO: add LIST edge types
+// };
 
 const CircuitBoard = () => {
   const [nodes, setNodes] = useState<CircuitNode[]>(INITIAL_NODES);
@@ -55,7 +54,7 @@ const CircuitBoard = () => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NODE_TYPES}
-        edgeTypes={EDGE_TYPES}
+        // edgeTypes={EDGE_TYPES}
       >
         <Background />
         <Controls />

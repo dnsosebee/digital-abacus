@@ -55,6 +55,7 @@ export const INITIAL_EDGES: Wire[] = [
     sourceHandle: "valSource",
     targetHandle: "operand",
     type: "value",
+    animated: true,
   },
   {
     id: genWireId(),
@@ -63,5 +64,6 @@ export const INITIAL_EDGES: Wire[] = [
     sourceHandle: "result",
     targetHandle: "valTarget",
     type: "value",
+    animated: true,
   },
 ];

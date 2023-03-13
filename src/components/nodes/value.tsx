@@ -14,10 +14,10 @@ export const ValueNode = ({
 }: ValueProps) => {
   return (
     <div>
-      <Handle id="valTarget" type="target" position={Position.Top} />
+      <Handle id="valTarget" type="target" position={Position.Left} />
       <p className="pl-3 bold font-extrabold text-4xl">Value Node</p>
       <p className="pl-3 font-extrabold text-2xl">{JSON.stringify({ x, y, mode })}</p>
-      <Handle id="valSource" type="source" position={Position.Bottom} />
+      <Handle id="valSource" type="source" position={Position.Right} />
     </div>
   );
 };
