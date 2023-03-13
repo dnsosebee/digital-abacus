@@ -14,12 +14,14 @@ import ReactFlow, {
   OnNodesChange,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { BinopNode } from "./nodes/binop";
 import { EqualsNode } from "./nodes/equals";
 import { UnopNode } from "./nodes/unop";
 
 const NODE_TYPES = {
   value: EqualsNode,
   unop: UnopNode,
+  binop: BinopNode,
 };
 
 const EDGE_TYPES = {

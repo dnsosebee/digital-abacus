@@ -12,7 +12,9 @@ export default function Home() {
       </Head>
       <main>
         <div className="flex flex-col h-full">
-          <p className="text-2xl font-bold text">The Digital Abacus</p>
+          <h1 className="text-2xl font-bold text-gray-800 bg-slate-300 shadow-xl px-2 py-1">
+            The Digital Abacus
+          </h1>
           <CircuitBoard />
         </div>
       </main>
