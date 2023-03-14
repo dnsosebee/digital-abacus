@@ -72,6 +72,14 @@ export const INITIAL_NODES: CircuitNode[] = [
       cartesian: true,
     },
   },
+  {
+    id: STICKY_NODE_ID,
+    position: { x: 550, y: 300 },
+    type: "sticky",
+    data: {
+      text: "Hello, world!",
+    },
+  },
 ];
 
 export const INITIAL_EDGES: Wire[] = [

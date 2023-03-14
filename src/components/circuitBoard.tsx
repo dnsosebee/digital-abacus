@@ -16,12 +16,14 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import { BinopNode } from "./nodes/binop";
 import { EqualsNode } from "./nodes/equals";
+import { StickyNode } from "./nodes/sticky";
 import { UnopNode } from "./nodes/unop";
 
 const NODE_TYPES = {
   value: EqualsNode,
   unop: UnopNode,
   binop: BinopNode,
+  sticky: StickyNode,
 };
 
 const EDGE_TYPES = {
