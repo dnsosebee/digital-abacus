@@ -27,12 +27,12 @@ export const INITIAL_NODES: CircuitNode[] = [
     data: {
       carrying: "value",
       operand: {
-        x: 10,
+        x: 2,
         y: 0,
       },
       operator: "exp",
       result: {
-        x: 10,
+        x: 7.38905609893,
         y: 0,
       },
       cartesian: true,
@@ -45,7 +45,7 @@ export const INITIAL_NODES: CircuitNode[] = [
     data: {
       carrying: "value",
       operand1: {
-        x: 10,
+        x: 7.38905609893,
         y: 0,
       },
       operand2: {
@@ -54,7 +54,7 @@ export const INITIAL_NODES: CircuitNode[] = [
       },
       operator: "add",
       result: {
-        x: 10,
+        x: 73.8905609893,
         y: 0,
       },
       cartesian: true,
@@ -66,7 +66,7 @@ export const INITIAL_NODES: CircuitNode[] = [
     type: "value",
     data: {
       value: {
-        x: 10,
+        x: 73.8905609893,
         y: 0,
       },
       cartesian: true,

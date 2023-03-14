@@ -11,7 +11,11 @@ export const StickyNode = ({ data, selected }: StickyProps) => {
     <div>
       <NodeShell selected={selected}>
         <h1 className="text-2xl font-bold">✍️</h1>
-        <textarea className="w-full h-full p-2 nodrag" value={data.text} readOnly={true} />
+        <textarea
+          className="w-full h-full p-2 nodrag border border-slate-300 rounded-lg"
+          value={data.text}
+          readOnly={true}
+        />
       </NodeShell>
     </div>
   );
