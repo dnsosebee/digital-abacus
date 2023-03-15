@@ -14,8 +14,8 @@ const Linkages = () => {
 
   if (typeof window !== "undefined" && state === null) {
     setState({
-      setup: window.setup,
-      draw: window.draw,
+      setup: (window as any).setup,
+      draw: (window as any).draw,
     });
   }
 
