@@ -10,7 +10,7 @@ export const StickyNode = ({ data, selected }: StickyProps) => {
   return (
     <div>
       <NodeShell selected={selected}>
-        <h1 className="text-2xl font-bold">✍️</h1>
+        <h1 className="text-2xl">✍️</h1>
         <textarea
           className="w-full h-full p-2 nodrag border border-slate-300 rounded-lg"
           value={data.text}
