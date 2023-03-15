@@ -1,6 +1,8 @@
 import CircuitBoard from "@/components/circuitBoard";
-import Linkages from "@/components/linkages";
+import dynamic from "next/dynamic";
 import Head from "next/head";
+
+const DynamicLinkages = dynamic(() => import("@/components/linkages"), { ssr: false });
 
 export default function Home() {
   return (
@@ -17,11 +19,11 @@ export default function Home() {
             The Digital Abacus
           </h1>
           <div className="flex-grow flex">
-            <div className="flex-1">
+            <div className="split">
               <CircuitBoard />
             </div>
-            <div className="flex-1">
-              <Linkages />
+            <div className="split">
+              <DynamicLinkages />
             </div>
           </div>
           <CircuitBoard />

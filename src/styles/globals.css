@@ -8,3 +8,7 @@ body,
 main {
   @apply h-screen;
 }
+
+.split {
+  width: 50vw;
+}
