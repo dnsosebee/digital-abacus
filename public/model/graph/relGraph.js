@@ -1,5 +1,7 @@
 // graph structure that tracks free/bound dependency for multiple relations
 // (technically this structure is a directed hypergraph, not strictly a graph)
+console.log("graph.js loaded");
+
 class RelGraph {
   // :RelGraph<T>
   // eq :T -> T -> bool - notion of equality for vertex data
