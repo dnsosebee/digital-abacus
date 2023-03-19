@@ -1,11 +1,6 @@
 import CircuitBoard from "@/components/circuitBoard";
-import dynamic from "next/dynamic";
+import Linkages from "@/components/linkages";
 import Head from "next/head";
-import { proxy } from "valtio";
-
-const DynamicLinkages = dynamic(() => import("@/components/linkages"), { ssr: false });
-
-const graphStore = proxy(new (window as any).LinkageGraph((window as any).UPDATE_MODE));
 
 export default function Home() {
   return (
@@ -26,7 +21,7 @@ export default function Home() {
               <CircuitBoard />
             </div>
             <div className="split overflow-scroll">
-              <DynamicLinkages />
+              <Linkages />
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
-import p5 from "p5";
+// import p5 from "p5";
+import { SketchProps } from "react-p5/@types";
 import { getMouse, getMousePx } from "./coord";
 import {
   ADDER_BUTTON,
@@ -15,17 +16,19 @@ import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./linkages/linkageop
 import { LinkagePoint } from "./linkages/linkagepoint";
 import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL, UPDATE_MODE } from "./settings";
 
+type p5 = Parameters<SketchProps["draw"]>[0];
+
 export let mainGraph: LinkageGraph | null = null;
 export let p: p5 | null = null;
 export const activeVertex = null;
 
-function setup(p5: p5, canvasParentRef: Element) {
+export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
   p5.createCanvas(1600, 900).parent(canvasParentRef);
   mainGraph = new LinkageGraph(UPDATE_MODE);
 }
 
-function draw(p: p5) {
+export function draw(p: p5) {
   //manage double tap
   if (settings.tappedOnce) {
     if (p!.millis() - settings.currentTime > settings.doubleTapTimer) {
@@ -131,7 +134,7 @@ export function touchStarted() {
   // tutorialClick();
 }
 
-function touchMoved() {
+export function touchMoved() {
   settings.pressAndHold = false;
   if (settings.activeVertex) {
     if (mainGraph!.mode == UPDATE_DIFFERENTIAL) {
@@ -144,7 +147,7 @@ function touchMoved() {
   return false;
 }
 
-function touchEnded() {
+export function touchEnded() {
   settings.pressAndHold = false;
   if (settings.activeVertex) {
     settings.activeVertex.value.notifyRelease();

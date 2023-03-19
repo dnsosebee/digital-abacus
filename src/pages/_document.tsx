@@ -5,7 +5,7 @@ export default function Document() {
     <Html lang="en">
       <Head>
         {/* <script src="/model/p5.min.js" /> */}
-        <script src="/model/coord.js" async />
+        {/* <script src="/model/coord.js" async />
         <script src="/model/settings.js" async />
         <script src="/model/sketch.js" async />
         <script src="/model/graph/vertex.js" async />
@@ -16,7 +16,7 @@ export default function Document() {
         <script src="/model/linkages/linkagepoint.js" async />
         <script src="/model/linkages/linkageop.js" async />
         <script src="/model/linkages/linkagegraph.js" async />
-        <script src="/model/graphics.js" async />
+        <script src="/model/graphics.js" async /> */}
       </Head>
       <body>
         <Main />
