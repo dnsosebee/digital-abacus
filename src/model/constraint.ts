@@ -1,9 +1,15 @@
 // data structure for representing relations
 // this base class is a trivial relation that only cares about the number of members
-class Constraint {
+
+export type Eq<T> = (dat1: T, dat2: T) => boolean;
+export type Cp<T> = (dat1: T, dat2: T) => T;
+
+export abstract class Constraint<T> {
   // :Constraint<T>
-  constructor(arity) {
-    this.arity = arity; // :index
+
+  arity: number; // :index
+  constructor(arity: number) {
+    this.arity = arity;
   }
 
   ///////////////////////////////////////
@@ -11,13 +17,10 @@ class Constraint {
   ///////////////////////////////////////
 
   // checks if two pieces of data are equal for purposes of this constraint
-  eq(dat1, dat2) {
-    // :T -> T -> bool
-    return true;
-  }
+  abstract eq: Eq<T>; // :T -> T -> bool
 
   // checks if the given data exactly satisfies the constraint
-  accepts(data) {
+  accepts(data: T[]) {
     // :[T] -> bool
     return this.checkArity(data);
   }
@@ -36,7 +39,7 @@ class Constraint {
   // note: we want all constraint classes to have the property that
   //       if invert(a,b) succeeds than a subsequent invert(b,a) will also succeed
   //       (we probably also want it to give back the original constraint)
-  invert(take, give) {
+  invert(take: number, give: number) {
     // : index -> index -> bool
     if (take == give) {
       return false;
@@ -48,7 +51,7 @@ class Constraint {
   }
 
   // change data in dependent/bound positions to fit the requirements of this constraint
-  update(data) {
+  update(data: T[]) {
     // :[T] -> [T]
     return data;
   }
@@ -57,25 +60,42 @@ class Constraint {
   // utility methods //
   /////////////////////
 
-  checkArity(data) {
+  checkArity(data: T[]) {
     // :[T] -> bool
     return this.arity == data.length;
   }
 }
 
+export class NonConstraint<T> extends Constraint<T> {
+  // :Constraint<T>
+
+  constructor(arity: number) {
+    super(arity);
+  }
+
+  eq: Eq<T> = (dat1: T, dat2: T) => true;
+}
+
 // constraint specifying that two data must be equal
-class EqualityConstraint extends Constraint {
+export class EqualityConstraint<T> extends Constraint<T> {
   // :Constraint<T>
   // eq - notion of equality
   // cp - "copy" function, sends data from 1st arg to 2nd arg
-  constructor(eq, cp) {
+
+  cp: Cp<T>; // :T -> T -> _
+  eq: Eq<T>; // :T -> T -> bool
+  primaryLeft: boolean; // :bool
+
+  constructor(eq: Eq<T>, cp: Cp<T>) {
+    // :T -> T -> bool -> T -> T -> _
     super(2);
     this.cp = cp; // T -> T -> _
     this.eq = eq; // T -> T -> bool
     this.primaryLeft = true; // bool
   }
 
-  accepts(data) {
+  accepts(data: T[]) {
+    // :[T] -> bool
     return super.accepts(data) && this.eq(data[0], data[1]);
   }
 
@@ -83,7 +103,7 @@ class EqualityConstraint extends Constraint {
     return [!this.primaryLeft, this.primaryLeft];
   }
 
-  invert(take, give) {
+  invert(take: number, give: number) {
     if (super.invert(take, give)) {
       this.primaryLeft = !this.primaryLeft;
       return true;
@@ -92,7 +112,8 @@ class EqualityConstraint extends Constraint {
     }
   }
 
-  update(data) {
+  update(data: T[]) {
+    // :[T] -> [T]
     let newdata = data.slice();
     if (this.primaryLeft) {
       newdata[1] = this.cp(data[1], data[0]);
@@ -103,7 +124,7 @@ class EqualityConstraint extends Constraint {
   }
 }
 
-function makeEqualityConstraintBuilder(eq, cp) {
+export function makeEqualityConstraintBuilder<T>(eq: Eq<T>, cp: Cp<T>) {
   // (T -> T -> bool) ->
   // (T -> T -> _) ->
   // (-> EqualityConstraint<T>)
@@ -112,21 +133,31 @@ function makeEqualityConstraintBuilder(eq, cp) {
   };
 }
 
-function defaultEqualityConstraintBuilder() {
+export function defaultEqualityConstraintBuilder<T>() {
   // :-> EqualityConstraint<T>
-  return makeEqualityConstraintBuilder(
+  return makeEqualityConstraintBuilder<T>(
     function (x, y) {
       return x === y;
     },
     function (xIn, xOut) {
-      xOut = xIn;
+      return xIn; // TODO verify this is correct
     }
   );
 }
 
-class OperatorConstraint extends Constraint {
+type Ops<T> = ((data: T[]) => any)[];
+type Check<T> = (data: T[]) => boolean;
+
+export class OperatorConstraint<T> extends Constraint<T> {
   // :Constraint<T>
-  constructor(updaters, eq, cp, check) {
+
+  ops: Ops<T>; // :[[T] -> T]
+  eq: Eq<T>; // :T -> T -> bool
+  cp: Cp<T>; // :T -> T -> T
+  check: Check<T>; // :[T] -> bool
+  bound: number; // :index
+
+  constructor(updaters: Ops<T>, eq: Eq<T>, cp: Cp<T>, check: Check<T>) {
     super(updaters.length);
     this.ops = updaters; // :[[T] -> T]
     this.eq = eq; // :T -> T -> bool
@@ -135,7 +166,8 @@ class OperatorConstraint extends Constraint {
     this.bound = updaters.length - 1; // :index
   }
 
-  accepts(data) {
+  accepts(data: T[]) {
+    // :[T] -> bool
     return super.accepts(data) && this.check(data);
   }
 
@@ -145,7 +177,7 @@ class OperatorConstraint extends Constraint {
     return deps;
   }
 
-  invert(take, give) {
+  invert(take: number, give: number) {
     if (take == this.bound && super.invert(take, give)) {
       this.bound = give;
       return true;
@@ -154,7 +186,8 @@ class OperatorConstraint extends Constraint {
     }
   }
 
-  update(data) {
+  update(data: T[]) {
+    // :[T] -> [T]
     let newdata = data.slice();
     newdata[this.bound] = this.cp(data[this.bound], this.ops[this.bound](data));
     return newdata;
