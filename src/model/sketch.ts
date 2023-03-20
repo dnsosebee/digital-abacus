@@ -11,21 +11,18 @@ import {
   MULTR_BUTTON,
   printToPlot,
 } from "./graphics";
-import { LinkageGraph } from "./linkages/linkagegraph";
 import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./linkages/linkageop";
 import { LinkagePoint } from "./linkages/linkagepoint";
-import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL, UPDATE_MODE } from "./settings";
+import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL } from "./settings";
+import { mainGraph, resetGraph } from "./store";
 
-type p5 = Parameters<SketchProps["draw"]>[0];
+type p5 = Parameters<SketchProps["setup"]>[0];
 
-export let mainGraph: LinkageGraph | null = null;
 export let p: p5 | null = null;
-export const activeVertex = null;
 
 export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
   p5.createCanvas(1600, 900).parent(canvasParentRef);
-  mainGraph = new LinkageGraph(UPDATE_MODE);
 }
 
 export function draw(p: p5) {
@@ -39,11 +36,11 @@ export function draw(p: p5) {
   //look for bind opportunities
   if (settings.pressAndHold) {
     if (p!.millis() - settings.timerStart > settings.holdLength) {
-      settings.indicatorFlash = mainGraph!.findUnify();
+      settings.indicatorFlash = mainGraph.findUnify();
     }
   }
 
-  mainGraph!.update(updateCycles);
+  mainGraph.update(updateCycles);
 
   p!.background(indicator);
 
@@ -55,7 +52,7 @@ export function draw(p: p5) {
     p!.background(0, 150);
   }
 
-  mainGraph!.display(settings.reversingOperator);
+  mainGraph.display(settings.reversingOperator);
 
   //digital readout for existing operators
   printToPlot();
@@ -88,29 +85,29 @@ console.log("setup defined");
 
 export function touchStarted() {
   if (settings.reversingOperator) {
-    mainGraph!.completeReversal();
+    mainGraph.completeReversal();
     settings.reversingOperator = false;
     return;
   }
 
   if (CLEAR_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph = new LinkageGraph(UPDATE_MODE);
+    resetGraph();
     return;
   }
   if (ADDER_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph!.addOperation(ADDER);
+    mainGraph.addOperation(ADDER);
     return;
   }
   if (MULTR_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph!.addOperation(MULTIPLIER);
+    mainGraph.addOperation(MULTIPLIER);
     return;
   }
   if (CONJ_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph!.addOperation(CONJUGATOR);
+    mainGraph.addOperation(CONJUGATOR);
     return;
   }
   if (EXP_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph!.addOperation(EXPONENTIAL);
+    mainGraph.addOperation(EXPONENTIAL);
     return;
   }
 
@@ -121,11 +118,11 @@ export function touchStarted() {
     settings.tappedOnce = true;
     settings.currentTime = p!.millis();
   } else {
-    settings.reversingOperator = mainGraph!.startReversal();
+    settings.reversingOperator = mainGraph.startReversal();
     settings.tappedOnce = false;
   }
 
-  settings.activeVertex = mainGraph!.findMouseover();
+  settings.activeVertex = mainGraph.findMouseover();
   if (settings.activeVertex && settings.activeVertex.value instanceof LinkagePoint) {
     settings.activeVertex.value.notifyClick(); // should probably check this returned true
   }
@@ -137,9 +134,9 @@ export function touchStarted() {
 export function touchMoved() {
   settings.pressAndHold = false;
   if (settings.activeVertex) {
-    if (mainGraph!.mode == UPDATE_DIFFERENTIAL) {
+    if (mainGraph.mode == UPDATE_DIFFERENTIAL) {
       let mouse = getMouse();
-      mainGraph!.applyDifferential(mouse.subtract(settings.activeVertex.value));
+      mainGraph.applyDifferential(mouse.subtract(settings.activeVertex.value));
     } else {
       settings.activeVertex.value.sendToMouse();
     }

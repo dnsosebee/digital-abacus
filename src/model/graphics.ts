@@ -1,7 +1,8 @@
 import { Coord } from "./coord";
 import { LinkageOp } from "./linkages/linkageop";
 import { CENTER_X, CENTER_Y, settings } from "./settings";
-import { mainGraph, p } from "./sketch";
+import { p } from "./sketch";
+import { mainGraph } from "./store";
 
 export function drawGrid() {
   //background grid

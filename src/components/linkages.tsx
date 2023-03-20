@@ -1,5 +1,6 @@
 import { draw, setup, touchEnded, touchMoved, touchStarted } from "@/model/sketch";
 import dynamic from "next/dynamic";
+// import Sketch from "react-p5";
 
 // declare global {
 //   setup: any,
