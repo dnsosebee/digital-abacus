@@ -9,7 +9,7 @@ import { p } from "../sketch";
 import { Coord } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
 import { CoordVertex } from "./coordVertex";
-import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER, NodeEdge, STANDALONE } from "./edges/nodeEdge";
+import { NodeEdge, OpType, OP_TYPE } from "./edges/nodeEdge";
 import { WireEdge } from "./edges/wireEdge";
 
 const logger = parentLogger.child({ module: "CoordGraph" });
@@ -51,25 +51,25 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
   }
 
   // use this instead of addRelated
-  addOperation(type: number, position = { x: 0, y: 0 }) {
+  addOperation(type: OpType, position = { x: 0, y: 0 }) {
     const nodeId = genNodeId();
 
     let vs: CoordVertex[] = [];
-    if (type == ADDER) {
+    if (type == OP_TYPE.ADDER) {
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 1 }));
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 2 }));
-    } else if (type == MULTIPLIER) {
+    } else if (type == OP_TYPE.MULTIPLIER) {
       vs.push(this.addFree(1, 0, { node: nodeId, handle: 0 }));
       vs.push(this.addFree(1, 0, { node: nodeId, handle: 1 }));
       vs.push(this.addFree(1, 0, { node: nodeId, handle: 2 }));
-    } else if (type == CONJUGATOR) {
+    } else if (type == OP_TYPE.CONJUGATOR) {
       vs.push(this.addFree(0, 1, { node: nodeId, handle: 0 }));
       vs.push(this.addFree(0, -1, { node: nodeId, handle: 1 }));
-    } else if (type == EXPONENTIAL) {
+    } else if (type == OP_TYPE.EXPONENTIAL) {
       vs.push(this.addFree(0, p!.PI, { node: nodeId, handle: 0 }));
       vs.push(this.addFree(-1, 0, { node: nodeId, handle: 1 }));
-    } else if (type == STANDALONE) {
+    } else if (type == OP_TYPE.STANDALONE) {
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
     } else {
       return null;

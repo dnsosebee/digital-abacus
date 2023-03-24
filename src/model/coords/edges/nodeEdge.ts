@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/constraint";
 import { Edge } from "../../graph/edge";
 import {
@@ -28,20 +29,23 @@ import {
   IterativeComplexMultiplier,
 } from "../operations";
 
-// operator type
-export const ADDER = 0;
-export const MULTIPLIER = 1;
-export const CONJUGATOR = 2;
-export const EXPONENTIAL = 3;
-export const STANDALONE = 4;
+export const OP_TYPE = {
+  ADDER: "adder" as const,
+  MULTIPLIER: "multiplier" as const,
+  CONJUGATOR: "conjugator" as const,
+  EXPONENTIAL: "exponential" as const,
+  STANDALONE: "standalone" as const,
+};
 
-// export enum NodeType {
-//   ADDER = "adder",
-//   MULTIPLIER = "multiplier",
-//   CONJUGATOR = "conjugator",
-//   EXPONENTIAL = "exponential",
-//   STANDALONE = "standalone",
-// }
+export const opTypeSchema = z.union([
+  z.literal(OP_TYPE.ADDER),
+  z.literal(OP_TYPE.MULTIPLIER),
+  z.literal(OP_TYPE.CONJUGATOR),
+  z.literal(OP_TYPE.EXPONENTIAL),
+  z.literal(OP_TYPE.STANDALONE),
+]);
+
+export type OpType = z.infer<typeof opTypeSchema>;
 
 // these should be in settings.js
 export const STEP_SIZE = searchSize;
@@ -52,28 +56,28 @@ type CircuitPosition = { x: number; y: number };
 export class NodeEdge extends Edge<Coord, CoordVertex> {
   // :Edge<LinkagePoint>
 
-  type: number; // :operator type
+  type: OpType; // :operator type
   hidden: boolean; // :whether to draw this operator
   position: CircuitPosition;
 
-  constructor(v: CoordVertex[], type: number, mode: number, id: string, position: CircuitPosition) {
+  constructor(v: CoordVertex[], type: OpType, mode: number, id: string, position: CircuitPosition) {
     let c = null;
     switch (mode) {
       case UPDATE_IDEAL:
         switch (type) {
-          case ADDER:
+          case OP_TYPE.ADDER:
             c = new IdealComplexAdder();
             break;
-          case MULTIPLIER:
+          case OP_TYPE.MULTIPLIER:
             c = new IdealComplexMultiplier();
             break;
-          case CONJUGATOR:
+          case OP_TYPE.CONJUGATOR:
             c = new IdealComplexConjugator();
             break;
-          case EXPONENTIAL:
+          case OP_TYPE.EXPONENTIAL:
             c = new IdealComplexExponent(false);
             break;
-          case STANDALONE:
+          case OP_TYPE.STANDALONE:
             c = new StandaloneConstraint();
             break;
           default:
@@ -83,19 +87,19 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
         break;
       case UPDATE_ITERATIVE:
         switch (type) {
-          case ADDER:
+          case OP_TYPE.ADDER:
             c = new IterativeComplexAdder(STEP_SIZE, ITERATIONS);
             break;
-          case MULTIPLIER:
+          case OP_TYPE.MULTIPLIER:
             c = new IterativeComplexMultiplier(STEP_SIZE, ITERATIONS);
             break;
-          case CONJUGATOR:
+          case OP_TYPE.CONJUGATOR:
             c = new IterativeComplexConjugator(STEP_SIZE, ITERATIONS);
             break;
-          case EXPONENTIAL:
+          case OP_TYPE.EXPONENTIAL:
             c = new IterativeComplexExponent(STEP_SIZE, ITERATIONS);
             break;
-          case STANDALONE:
+          case OP_TYPE.STANDALONE:
             c = new StandaloneConstraint();
             break;
           default:
@@ -105,19 +109,19 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
         break;
       case UPDATE_DIFFERENTIAL:
         switch (type) {
-          case ADDER:
+          case OP_TYPE.ADDER:
             c = new DifferentialComplexAdder();
             break;
-          case MULTIPLIER:
+          case OP_TYPE.MULTIPLIER:
             c = new DifferentialComplexMultiplier();
             break;
-          case CONJUGATOR:
+          case OP_TYPE.CONJUGATOR:
             c = new DifferentialComplexConjugator();
             break;
-          case EXPONENTIAL:
+          case OP_TYPE.EXPONENTIAL:
             c = new DifferentialComplexExponent();
             break;
-          case STANDALONE:
+          case OP_TYPE.STANDALONE:
             c = new StandaloneConstraint();
             break;
           default:
@@ -144,7 +148,7 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
     p!.noFill();
     p!.strokeWeight(1);
 
-    if (this.type == ADDER) {
+    if (this.type == OP_TYPE.ADDER) {
       p!.stroke(30, 200, 255);
       p!.beginShape();
       p!.vertex(CENTER_X, CENTER_Y);
@@ -153,13 +157,13 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
       p!.vertex(this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
       p!.vertex(CENTER_X, CENTER_Y);
       p!.endShape();
-    } else if (this.type == MULTIPLIER) {
+    } else if (this.type == OP_TYPE.MULTIPLIER) {
       p!.stroke(255, 0, 0);
       p!.line(CENTER_X, CENTER_Y, this.vertices[2].value.getXPx(), this.vertices[2].value.getYPx());
       p!.stroke(255, 100, 0);
       p!.line(CENTER_X, CENTER_Y, this.vertices[0].value.getXPx(), this.vertices[0].value.getYPx());
       p!.line(CENTER_X, CENTER_Y, this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
-    } else if (this.type == CONJUGATOR) {
+    } else if (this.type == OP_TYPE.CONJUGATOR) {
       p!.stroke(30, 30, 200);
       p!.line(CENTER_X, CENTER_Y, this.vertices[0].value.getXPx(), this.vertices[0].value.getYPx());
       p!.line(CENTER_X, CENTER_Y, this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
@@ -169,7 +173,7 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
         this.vertices[1].value.getXPx(),
         this.vertices[1].value.getYPx()
       );
-    } else if (this.type == EXPONENTIAL) {
+    } else if (this.type == OP_TYPE.EXPONENTIAL) {
       p!.stroke(200, 100, 200);
       if (this.vertices[0].dragging || this.vertices[1].dragging) {
         // still need to work out correct values for a and b
@@ -200,7 +204,7 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
   }
 
   toString() {
-    if (this.type == ADDER) {
+    if (this.type == OP_TYPE.ADDER) {
       return (
         this.vertices[0].value.toString(0) +
         " + " +
@@ -208,7 +212,7 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
         " = " +
         this.vertices[2].value.toString(0)
       );
-    } else if (this.type == MULTIPLIER) {
+    } else if (this.type == OP_TYPE.MULTIPLIER) {
       return (
         this.vertices[0].value.toString(0) +
         " x " +
@@ -216,11 +220,11 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
         " = " +
         this.vertices[2].value.toString(0)
       );
-    } else if (this.type == CONJUGATOR) {
+    } else if (this.type == OP_TYPE.CONJUGATOR) {
       return (
         "conj" + this.vertices[0].value.toString(0) + " = " + this.vertices[1].value.toString(0)
       );
-    } else if (this.type == EXPONENTIAL) {
+    } else if (this.type == OP_TYPE.EXPONENTIAL) {
       return (
         "exp" + this.vertices[0].value.toString(0) + " = " + this.vertices[1].value.toString(0)
       );

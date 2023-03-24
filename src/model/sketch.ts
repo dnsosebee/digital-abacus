@@ -2,7 +2,7 @@
 import { SketchProps } from "react-p5/@types";
 import { getMouse, getMousePx } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
-import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./coords/edges/nodeEdge";
+import { OP_TYPE } from "./coords/edges/nodeEdge";
 import {
   ADDER_BUTTON,
   CLEAR_BUTTON,
@@ -95,19 +95,19 @@ export function touchStarted() {
     return;
   }
   if (ADDER_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph.addOperation(ADDER);
+    mainGraph.addOperation(OP_TYPE.ADDER);
     return;
   }
   if (MULTR_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph.addOperation(MULTIPLIER);
+    mainGraph.addOperation(OP_TYPE.MULTIPLIER);
     return;
   }
   if (CONJ_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph.addOperation(CONJUGATOR);
+    mainGraph.addOperation(OP_TYPE.CONJUGATOR);
     return;
   }
   if (EXP_BUTTON.isNear(getMousePx(), 10)) {
-    mainGraph.addOperation(EXPONENTIAL);
+    mainGraph.addOperation(OP_TYPE.EXPONENTIAL);
     return;
   }
 

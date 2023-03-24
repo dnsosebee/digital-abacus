@@ -1,4 +1,4 @@
-import { Sticky, Unop } from "@/schema/node";
+import { Sticky } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { NodeShell } from "./nodeShell";
 
@@ -19,15 +19,4 @@ export const StickyNode = ({ data, selected }: StickyProps) => {
       </NodeShell>
     </div>
   );
-};
-
-const getSymbol = (operator: Unop["data"]["operator"]): string => {
-  switch (operator) {
-    case "exp":
-      return "e^";
-    case "conj":
-      return "z̄";
-    default:
-      return "???";
-  }
 };

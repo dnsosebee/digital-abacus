@@ -1,24 +1,21 @@
-import { Equals } from "@/schema/node";
-import { Handle, Node, NodeProps, Position } from "reactflow";
+import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
+import { DualHandle } from "./dualHandle";
+import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
-export type EqualsNodeData = Equals["data"];
-export type EqualsNode = Node<EqualsNodeData>;
-export type EqualsProps = NodeProps<EqualsNodeData>;
-
-export const EqualsNode = ({ data, selected }: EqualsProps) => {
+export const StandaloneNode = ({ data, selected }: MathProps) => {
   return (
     <div>
-      <Handle id="valTarget" type="target" position={Position.Left} />
+      <DualHandle idx={0} bound={data.vertices[0].bound} position={Position.Left} />
       <NodeShell row selected={selected}>
         {/* <p className="pl-3 bold font-extrabold text-4xl">Equals Node</p>
         <p className="pl-3 font-extrabold text-2xl">{JSON.stringify(data)}</p> */}
         <Symbol text="=" />
-        <NumericInput value={data.value} readOnly={false} />
+        <NumericInput {...data.vertices[0]} />
       </NodeShell>
-      <Handle id="valSource" type="source" position={Position.Right} />
+      <DualHandle idx={1} bound={data.vertices[1].bound} position={Position.Right} />
     </div>
   );
 };

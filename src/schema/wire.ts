@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { genId } from "./id";
-import { carryingSchema, NODE_ID_LENGTH } from "./node";
+import { NODE_ID_LENGTH } from "./node";
 
 export const WIRE_ID_LENGTH = 8;
 
@@ -19,7 +19,7 @@ const handleSchema = z.string();
 
 export const wireSchema = z.object({
   id: z.string().length(WIRE_ID_LENGTH),
-  type: carryingSchema,
+  type: z.union([z.literal("coord"), z.literal("list")]),
   source: z.string().length(NODE_ID_LENGTH),
   sourceHandle: handleSchema,
   target: z.string().length(NODE_ID_LENGTH),

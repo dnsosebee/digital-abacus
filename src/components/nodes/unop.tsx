@@ -1,34 +1,30 @@
-import { Unop } from "@/schema/node";
-import { Handle, Node, NodeProps, Position } from "reactflow";
+import { OpType, OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
+import { DualHandle } from "./dualHandle";
+import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
-export type UnopNodeData = Unop["data"];
-export type UnopNode = Node<UnopNodeData>;
-export type UnopProps = NodeProps<UnopNodeData>;
-
-export const UnopNode = ({ data, selected }: UnopProps) => {
+export const UnopNode = ({ data, selected }: MathProps) => {
   return (
     <div>
-      <Handle id="operand" type="target" position={Position.Top} />
+      <DualHandle idx={0} bound={data.vertices[0].bound} position={Position.Top} />
       <NodeShell selected={selected}>
-        <NumericInput value={data.operand} readOnly={false} />
-        {/* <p className="pl-3 bold font-extrabold text-4xl">Unop Node</p>
-        <p className="pl-3 font-extrabold text-2xl">{JSON.stringify(data)}</p> */}
-        <Symbol text={getSymbol(data.operator)} />
-        <NumericInput value={data.result} readOnly={true} />
+        <NumericInput {...data.vertices[0]} />
+        <Symbol text={getSymbol(data.opType)} />
+        <NumericInput {...data.vertices[1]} />
       </NodeShell>
-      <Handle id="result" type="source" position={Position.Bottom} />
+      <DualHandle idx={1} bound={data.vertices[1].bound} position={Position.Bottom} />
     </div>
   );
 };
 
-const getSymbol = (operator: Unop["data"]["operator"]): string => {
-  switch (operator) {
-    case "exp":
+const getSymbol = (opType: OpType): string => {
+  switch (opType) {
+    case OP_TYPE.EXPONENTIAL:
       return "e^";
-    case "conj":
+    case OP_TYPE.CONJUGATOR:
       return "z̄";
     default:
       return "???";
