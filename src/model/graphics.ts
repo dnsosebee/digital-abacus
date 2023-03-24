@@ -1,5 +1,5 @@
 import { Coord } from "./coord";
-import { LinkageOp } from "./linkages/linkageop";
+import { NodeEdge } from "./linkages/nodeEdge";
 import { CENTER_X, CENTER_Y, settings } from "./settings";
 import { p } from "./sketch";
 import { mainGraph } from "./store";
@@ -76,7 +76,7 @@ export function printToPlot() {
 
   let h = p!.height - 40;
   for (let i = 0; i < mainGraph!.edges.length; i++) {
-    if (mainGraph!.edges[i] instanceof LinkageOp) {
+    if (mainGraph!.edges[i] instanceof NodeEdge) {
       p!.fill(150);
       p!.noStroke();
       h = h - 40;

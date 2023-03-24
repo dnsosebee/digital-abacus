@@ -11,8 +11,8 @@ import {
   MULTR_BUTTON,
   printToPlot,
 } from "./graphics";
-import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./linkages/linkageop";
 import { LinkagePoint } from "./linkages/linkagepoint";
+import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./linkages/nodeEdge";
 import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL } from "./settings";
 import { mainGraph, resetGraph } from "./store";
 

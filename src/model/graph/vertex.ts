@@ -1,10 +1,18 @@
+export type VertexId = { node: string; handle: number };
+
+export function vertexIdEq(v1: VertexId, v2: VertexId) {
+  return v1.node == v2.node && v1.handle == v2.handle;
+}
+
+export type Dep = { vertex: VertexId; edge: string };
+
 export class Vertex<T> {
   // :Vertex<T>
 
   value: T; // :T
-  id: number; // :index(graph.vertices)
-  deps: [number, number][]; // :[index(graph.vertices) x index(graph.edges)]
-  constructor(datum: T, id: number, deps: [number, number][]) {
+  id: VertexId; // :index(graph.vertices)
+  deps: Dep[]; // :[index(graph.vertices) x index(graph.edges)]
+  constructor(datum: T, id: VertexId, deps: Dep[] = []) {
     this.value = datum; // :T
     this.id = id; // :index(graph.vertices)
     this.deps = deps; // :[index(graph.vertices) x index(graph.edges)]
@@ -20,13 +28,9 @@ export class Vertex<T> {
   // get index of the edge that captures this vertex's dependency on the given vertex
   // (i.e. return the edge index paired with v.id in this.deps)
   // returns -1 if this vertex is not dependent on the given vertex
-  bindingEdge(v: Vertex<T>) {
+  bindingEdge(v: VertexId) {
     // :Vertex<T> -> index(graph.edges)
-    for (const p of this.deps) {
-      if (p[0] == v.id) {
-        return p[1];
-      }
-    }
-    return -1;
+    const dep = this.deps.find((d) => vertexIdEq(d.vertex, v));
+    return dep ? dep.edge : undefined;
   }
 }

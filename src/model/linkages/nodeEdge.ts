@@ -1,4 +1,4 @@
-import { Constraint, NonConstraint } from "../constraint";
+import { Constraint, NonConstraint, StandaloneConstraint } from "../constraint";
 import { Coord, Polar } from "../coord";
 import { Edge } from "../graph/edge";
 import { Vertex } from "../graph/vertex";
@@ -34,18 +34,36 @@ export const ADDER = 0;
 export const MULTIPLIER = 1;
 export const CONJUGATOR = 2;
 export const EXPONENTIAL = 3;
+export const STANDALONE = 4;
+
+// export enum NodeType {
+//   ADDER = "adder",
+//   MULTIPLIER = "multiplier",
+//   CONJUGATOR = "conjugator",
+//   EXPONENTIAL = "exponential",
+//   STANDALONE = "standalone",
+// }
 
 // these should be in settings.js
 export const STEP_SIZE = searchSize;
 export const ITERATIONS = iterations;
 
-export class LinkageOp extends Edge<LinkagePoint> {
+type CircuitPosition = { x: number; y: number };
+
+export class NodeEdge extends Edge<LinkagePoint> {
   // :Edge<LinkagePoint>
 
   type: number; // :operator type
   hidden: boolean; // :whether to draw this operator
+  position: CircuitPosition;
 
-  constructor(v: Vertex<LinkagePoint>[], type: number, mode: number, id: number) {
+  constructor(
+    v: Vertex<LinkagePoint>[],
+    type: number,
+    mode: number,
+    id: string,
+    position: CircuitPosition
+  ) {
     let c = null;
     switch (mode) {
       case UPDATE_IDEAL:
@@ -61,6 +79,9 @@ export class LinkageOp extends Edge<LinkagePoint> {
             break;
           case EXPONENTIAL:
             c = new IdealComplexExponent(false);
+            break;
+          case STANDALONE:
+            c = new StandaloneConstraint();
             break;
           default:
             console.log("Warning: Unsupported Operator Type");
@@ -81,6 +102,9 @@ export class LinkageOp extends Edge<LinkagePoint> {
           case EXPONENTIAL:
             c = new IterativeComplexExponent(STEP_SIZE, ITERATIONS);
             break;
+          case STANDALONE:
+            c = new StandaloneConstraint();
+            break;
           default:
             console.log("Warning: Unsupported Operator Type");
             c = new NonConstraint<Coord>(2);
@@ -100,6 +124,9 @@ export class LinkageOp extends Edge<LinkagePoint> {
           case EXPONENTIAL:
             c = new DifferentialComplexExponent();
             break;
+          case STANDALONE:
+            c = new StandaloneConstraint();
+            break;
           default:
             console.log("Warning: Unsupported Operator Type");
             c = new NonConstraint<Coord>(2);
@@ -111,13 +138,13 @@ export class LinkageOp extends Edge<LinkagePoint> {
     }
     super(v, c as Constraint<LinkagePoint>, id);
     this.type = type;
-
+    this.position = position;
     this.hidden = false;
   }
 
   // display connecting lines related to this operation
   // note: does not draw the vertices themselves
-  display() {
+  displayLinkage() {
     if (this.hidden) {
       return;
     }

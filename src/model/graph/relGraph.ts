@@ -1,5 +1,6 @@
 // graph structure that tracks free/bound dependency for multiple relations
 
+import { genNodeId } from "@/schema/node";
 import {
   Constraint,
   defaultEqualityConstraintBuilder,
@@ -7,7 +8,7 @@ import {
   NonConstraint,
 } from "../constraint";
 import { Edge } from "./edge";
-import { Vertex } from "./vertex";
+import { Dep, Vertex, VertexId } from "./vertex";
 
 // (technically this structure is a directed hypergraph, not strictly a graph)
 console.log("graph.js loaded");
@@ -34,28 +35,28 @@ export class RelGraph<T> {
 
   // add a new vertex that is not connected to any relation
   // returns the vertex
-  addFree(datum: T) {
+  _addFree(datum: T, id: VertexId) {
     // :T -> Vertex<T>
-    let v = new Vertex(datum, this.vertices.length, []);
+    let v = new Vertex(datum, id, []);
     this.vertices.push(v);
     return v;
   }
 
-  // add a set of vertices and a constraint relating them to the graph as an edge
-  // returns the edge, or null if given data do not satisfy given constraint
-  addRelated(data: T[], constraint: Constraint<T>) {
-    // :[T] -> Constraint<T> -> Edge<T>
-    if (constraint.accepts(data)) {
-      // add all the needed vertices to the graph
-      let vs = []; // :[Vertex<T>]
-      for (let i = 0; i < data.length; i++) {
-        vs.push(this.addFree(data[i]));
-      }
-      return this._addEdge(vs, constraint);
-    } else {
-      return null;
-    }
-  }
+  // // add a set of vertices and a constraint relating them to the graph as an edge
+  // // returns the edge, or null if given data do not satisfy given constraint
+  // addRelated(data: T[], constraint: Constraint<T>) {
+  //   // :[T] -> Constraint<T> -> Edge<T>
+  //   if (constraint.accepts(data)) {
+  //     // add all the needed vertices to the graph
+  //     let vs = []; // :[Vertex<T>]
+  //     for (let i = 0; i < data.length; i++) {
+  //       vs.push(this._addFree(data[i]));
+  //     }
+  //     return this._addEdge(vs, constraint);
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   getFreeVertices() {
     // :-> [Vertex<T>]
@@ -93,10 +94,7 @@ export class RelGraph<T> {
   // returns a list of vertices that should be able to invert with the given bound vertex
   getDepends(v: Vertex<T>) {
     // :Vertex<T> -> [Vertex<T>]
-    let vs = this.vertices;
-    return this._leafDeps(v).map(function (p) {
-      return vs[p[0]];
-    });
+    return this._leafDeps(v).map((p) => this._getVertex(p.vertex));
   }
 
   // attempt to gain control of a vertex by giving up control of another vertex
@@ -144,42 +142,53 @@ export class RelGraph<T> {
   // internal methods //
   //////////////////////
 
+  _getEdge(id: string) {
+    return this.edges.find((e) => e.id === id);
+  }
+
+  _getVertex(id: VertexId) {
+    const parent = this._getEdge(id.node)!;
+    return parent.vertices[id.handle];
+  }
+
   // find free nodes in the given vertex's dependency tree
-  _leafDeps(v: Vertex<T>, seen: number[] = []) {
+  _leafDeps(v: Vertex<T>, seen: VertexId[] = []) {
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {
       // loop detection
       return [];
     }
-    let deps: [number, number][] = [];
+    let deps: Dep[] = [];
     for (const p of v.deps) {
-      if (this.vertices[p[0]].isFree()) {
+      const vertex = this._getVertex(p.vertex)!;
+      if (vertex?.isFree()) {
         deps.push(p);
       } else {
         seen.push(v.id);
-        deps = deps.concat(this._leafDeps(this.vertices[p[0]], seen));
+        deps = deps.concat(this._leafDeps(vertex, seen));
       }
     }
     return deps;
   }
 
   // find bound nodes in the given vertex's dependency tree
-  _intermedDeps(v: Vertex<T>, seen: number[] = []) {
+  _intermedDeps(v: Vertex<T>, seen: VertexId[] = []) {
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {
       // loop detection
       return [];
     }
-    let deps: [number, number][] = [];
+    let deps: Dep[] = [];
     for (const p of v.deps) {
-      if (this.vertices[p[0]].isFree()) {
+      const vertex = this._getVertex(p.vertex)!;
+      if (vertex?.isFree()) {
         continue;
       } else {
         deps.push(p);
         seen.push(v.id);
-        deps = deps.concat(this._intermedDeps(this.vertices[p[0]], seen));
+        deps = deps.concat(this._intermedDeps(vertex, seen));
       }
     }
     return deps;
@@ -187,7 +196,7 @@ export class RelGraph<T> {
 
   _addEdge(vs: Vertex<T>[], constraint: Constraint<T>) {
     // :[Vertex<T>] -> Constraint<T> -> Edge<T>
-    let e = new Edge(vs, constraint, this.edges.length);
+    let e = new Edge(vs, constraint, genNodeId());
     this.edges.push(e);
     e.updateDependencies();
     return e;
@@ -196,7 +205,7 @@ export class RelGraph<T> {
   _unify(v1: Vertex<T>, v2: Vertex<T>) {
     // :Vertex<T> -> Vertex<T> -> Edge<T>
     this.history.unshift(this.edges.length); // history is LIFO
-    let e = new Edge([v1, v2], this.buildEqualityConstraint(), this.edges.length); // TODO: added extra parens to buildEqualityConstraint
+    let e = new Edge([v1, v2], this.buildEqualityConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
     this.edges.push(e);
     e.updateDependencies();
     return e;
@@ -246,9 +255,10 @@ export class RelGraph<T> {
     }
 
     // see if a direct (single-step) dependency exists
-    let idxE = take.bindingEdge(give); // :index(this.edges)
-    if (idxE >= 0) {
-      let e = this.edges[idxE];
+    const idxE = take.bindingEdge(give.id); // :index(this.edges)
+    const edge = idxE ? this._getEdge(idxE) : undefined;
+    if (edge) {
+      let e = edge;
       let idxT = e.vertices.indexOf(take); // :index(e.vertices)
       let idxG = e.vertices.indexOf(give); // :index(e.vertices)
       if (
@@ -274,13 +284,13 @@ export class RelGraph<T> {
       // try to find an intermediate vertex to invert through
       for (const p of this._intermedDeps(take)) {
         // see if this vertex can invert with the target in one step
-        if (this._invert(this.vertices[p[0]], give, false)) {
+        if (this._invert(this._getVertex(p.vertex), give, false)) {
           // success! now do the rest
-          if (this._invert(take, this.vertices[p[0]], true)) {
+          if (this._invert(take, this._getVertex(p.vertex), true)) {
             return true;
           } else {
             // recursive step failed, so undo the last step
-            if (this._invert(give, this.vertices[p[0]], false)) {
+            if (this._invert(give, this._getVertex(p.vertex), false)) {
               console.log("Warning: Failure during multi-step inversion.");
             } else {
               console.log(
@@ -303,7 +313,7 @@ export class RelGraph<T> {
     for (let i = 0; i < this.vertices.length; i++) {
       str = str + i + ": ";
       for (let j = 0; j < this.vertices[i].deps.length; j++) {
-        str = str + "[" + this.vertices[i].deps[j] + "]";
+        str = str + "[" + JSON.stringify(this.vertices[i].deps[j]) + "]";
       }
       str = str + "\n";
     }

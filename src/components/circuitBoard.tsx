@@ -1,4 +1,4 @@
-import { INITIAL_EDGES, INITIAL_NODES } from "@/lib/data/initialData";
+import { INITIAL_EDGES as INITIAL_WIRES, INITIAL_NODES } from "@/lib/data/initialData";
 import { CircuitNode } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { useCallback, useState } from "react";
@@ -33,7 +33,7 @@ const EDGE_TYPES = {
 
 const CircuitBoard = () => {
   const [nodes, setNodes] = useState<CircuitNode[]>(INITIAL_NODES);
-  const [edges, setEdges] = useState<Wire[]>(INITIAL_EDGES);
+  const [wires, setWires] = useState<Wire[]>(INITIAL_WIRES);
 
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
@@ -41,21 +41,22 @@ const CircuitBoard = () => {
     []
   );
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds) as Wire[]),
+    (changes) => setWires((eds) => applyEdgeChanges(changes, eds) as Wire[]),
     []
   );
 
   const onConnect: OnConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds) as Wire[]),
+    (params) => setWires((eds) => addEdge(params, eds) as Wire[]),
     []
   );
 
   return (
     <div className="h-full grow">
+      {/* <p>{store.edges.length}</p> */}
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}
-        edges={edges}
+        edges={wires}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={NODE_TYPES}

@@ -1,5 +1,4 @@
 // data structure for representing relations
-// this base class is a trivial relation that only cares about the number of members
 
 export type Eq<T> = (dat1: T, dat2: T) => boolean;
 export type Cp<T> = (dat1: T, dat2: T) => T;
@@ -74,6 +73,14 @@ export class NonConstraint<T> extends Constraint<T> {
   }
 
   eq: Eq<T> = (dat1: T, dat2: T) => true;
+}
+
+export class StandaloneConstraint<T> extends NonConstraint<T> {
+  // :Constraint<Coord>
+
+  constructor() {
+    super(1);
+  }
 }
 
 // constraint specifying that two data must be equal

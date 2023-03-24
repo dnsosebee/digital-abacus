@@ -4,17 +4,17 @@ import { settings } from "../settings";
 import { p } from "../sketch";
 
 export class LinkagePoint extends Coord {
-  canDrag: any;
+  canDrag: () => boolean;
   dragging: boolean;
   hidden: boolean;
   delta: Coord;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, canDrag: () => boolean) {
     // position of point
     super(x, y);
 
     // is this point user-moveable?
-    this.canDrag = null;
+    this.canDrag = canDrag;
 
     this.dragging = false;
     this.hidden = false;
@@ -23,14 +23,14 @@ export class LinkagePoint extends Coord {
   }
 
   copy(parent: Vertex<LinkagePoint> | null = null) {
-    let z = new LinkagePoint(this.x, this.y);
+    console.log("copying linkage point");
+    let canDrag = this.canDrag;
     if (parent) {
-      z.canDrag = function () {
+      canDrag = () => {
         return parent.isFree();
       };
-    } else {
-      z.canDrag = this.canDrag;
     }
+    let z = new LinkagePoint(this.x, this.y, canDrag);
     z.dragging = this.dragging;
     z.hidden = this.hidden;
     z.delta = this.delta.copy();
@@ -89,6 +89,7 @@ export class LinkagePoint extends Coord {
   }
 
   _drawRing() {
+    console.log("drawing ring");
     p!.noFill();
     p!.stroke(255, 200);
     p!.strokeWeight(3);
@@ -96,6 +97,8 @@ export class LinkagePoint extends Coord {
   }
 
   display(reversing = false) {
+    console.log("displaying linkage point");
+    console.log("this instanceof linkagePoint:", this instanceof LinkagePoint);
     // :bool -> void
     if (this.hidden) {
       return;
@@ -103,7 +106,8 @@ export class LinkagePoint extends Coord {
 
     this._drawNode(reversing);
 
-    if (this.canDrag && this.canDrag()) {
+    if (this.canDrag()) {
+      console.log("can drag");
       // check for method existing, then call
       this._drawRing();
     }

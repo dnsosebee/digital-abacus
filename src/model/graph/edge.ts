@@ -4,9 +4,9 @@ import { Vertex } from "./vertex";
 export class Edge<T> {
   vertices: Vertex<T>[]; // :[Vertex<T>]
   constraint: Constraint<T>; // :Constraint<T>
-  id: number; // :index(graph.edges)
+  id: string; // :index(graph.edges)
   // :Edge<T>
-  constructor(v: Vertex<T>[], c: Constraint<T>, id: number) {
+  constructor(v: Vertex<T>[], c: Constraint<T>, id: string) {
     this.vertices = v;
     this.constraint = c;
     this.id = id;
@@ -47,11 +47,14 @@ export class Edge<T> {
     let eid = this.id;
     for (let v of this.vertices) {
       v.deps = v.deps.filter(function (p) {
-        return p[1] != eid;
+        return p.edge != eid;
       });
     }
     let free = this.getFreeVertices().map(function (v) {
-      return [v.id, eid] as [number, number];
+      return {
+        vertex: v.id,
+        edge: eid,
+      };
     });
     for (let v of this.getBoundVertices()) {
       v.deps = v.deps.concat(free.slice());

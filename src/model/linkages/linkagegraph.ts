@@ -1,11 +1,14 @@
+import { genNodeId } from "@/schema/node";
+import { genWireId } from "@/schema/wire";
 import { makeEqualityConstraintBuilder } from "../constraint";
 import { Coord } from "../coord";
 import { RelGraph } from "../graph/relGraph";
-import { Vertex } from "../graph/vertex";
+import { Vertex, VertexId } from "../graph/vertex";
 import { UPDATE_IDEAL } from "../settings";
 import { p } from "../sketch";
-import { ADDER, CONJUGATOR, EXPONENTIAL, LinkageOp, MULTIPLIER } from "./linkageop";
 import { LinkagePoint } from "./linkagepoint";
+import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER, NodeEdge, STANDALONE } from "./nodeEdge";
+import { WireEdge } from "./wireEdge";
 
 export class LinkageGraph extends RelGraph<LinkagePoint> {
   // :RelGraph<LinkagePoint>
@@ -42,38 +45,69 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   }
 
   // use this instead of addRelated
-  addOperation(type: number) {
+  addOperation(type: number, position = { x: 0, y: 0 }) {
+    const nodeId = genNodeId();
+
     let vs: Vertex<LinkagePoint>[] = [];
     if (type == ADDER) {
-      vs.push(this.addFreeXY(0, 0));
-      vs.push(this.addFreeXY(0, 0));
-      vs.push(this.addFreeXY(0, 0));
+      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 2 }));
     } else if (type == MULTIPLIER) {
-      vs.push(this.addFreeXY(1, 0));
-      vs.push(this.addFreeXY(1, 0));
-      vs.push(this.addFreeXY(1, 0));
+      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 2 }));
     } else if (type == CONJUGATOR) {
-      vs.push(this.addFreeXY(0, 1));
-      vs.push(this.addFreeXY(0, -1));
+      vs.push(this.addFreeXY(0, 1, { node: nodeId, handle: 0 }));
+      vs.push(this.addFreeXY(0, -1, { node: nodeId, handle: 1 }));
     } else if (type == EXPONENTIAL) {
-      vs.push(this.addFreeXY(0, p!.PI));
-      vs.push(this.addFreeXY(-1, 0));
+      vs.push(this.addFreeXY(0, p!.PI, { node: nodeId, handle: 0 }));
+      vs.push(this.addFreeXY(-1, 0, { node: nodeId, handle: 1 }));
+    } else if (type == STANDALONE) {
+      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 0 }));
     } else {
       return null;
     }
 
-    let e = new LinkageOp(vs, type, this.mode, this.edges.length);
+    let e = new NodeEdge(vs, type, this.mode, nodeId, position);
     this.edges.push(e);
     e.updateDependencies();
+    // log free and bound vertices
+    console.log("free: " + JSON.stringify(e.getFreeVertices().map((v) => v.value.canDrag())));
+    console.log("bound: " + JSON.stringify(e.getBoundVertices()));
     return e;
   }
 
-  addFreeXY(x: number, y: number) {
-    let z = super.addFree(new LinkagePoint(x, y));
-    z.value.canDrag = function () {
+  addFreeXY(x: number, y: number, id: VertexId) {
+    console.log("addFreeXY: " + x + ", " + y + ", " + JSON.stringify(id));
+    const linkagePoint = new LinkagePoint(x, y, () => {
+      console.log("dummy canDrag");
+      // return false;
+      throw new Error("canDrag not defined");
+    });
+    let z = super._addFree(linkagePoint, id);
+    const canDrag = () => {
+      console.log("actual canDrag");
       return z.isFree();
     };
+    linkagePoint.canDrag = canDrag;
+    console.log("equasls", linkagePoint.canDrag === canDrag);
     return z;
+  }
+
+  addWire(source: VertexId, target: VertexId) {
+    const id = genWireId();
+    const c = this.buildEqualityConstraint();
+    const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];
+    const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
+    if (vTarget.isFree()) {
+      const e = new WireEdge([vSource, vTarget], id, source, target, c);
+      this.edges.push(e);
+      e.updateDependencies();
+      return e;
+    } else {
+      return null;
+    }
   }
 
   // must provide the hidden vertex in order to resume display
@@ -94,8 +128,8 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
 
   display(reversing = false) {
     for (const e of this.edges) {
-      if (e instanceof LinkageOp) {
-        e.display();
+      if (e instanceof NodeEdge) {
+        e.displayLinkage();
       }
     }
     for (const v of this.vertices) {
