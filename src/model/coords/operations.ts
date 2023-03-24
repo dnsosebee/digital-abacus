@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 // "ideal" constraints that simply perform the relevant calculation all at once //
 
-import { Cp, Eq, EqualityConstraint, OperatorConstraint } from "./constraint";
-import { Coord, Polar } from "./coord";
-import { LinkagePoint } from "./linkages/linkagepoint";
-import { p } from "./sketch";
+import { Cp, Eq, EqualityConstraint, OperatorConstraint } from "../graph/constraint";
+import { p } from "../sketch";
+import { Coord, Polar } from "./coord/coord";
+import { DifferentialCoord } from "./coord/differentialCoord";
 
 //////////////////////////////////////////////////////////////////////////////////
 export class IdealComplexAdder extends OperatorConstraint<Coord> {
@@ -403,7 +403,7 @@ export class DifferentialComplexAdder extends IdealComplexAdder {
     super();
   }
 
-  update(data: LinkagePoint[]) {
+  update(data: DifferentialCoord[]) {
     switch (this.bound) {
       case 0:
         data[0].delta = data[2].delta.subtract(data[1].delta);
@@ -427,7 +427,7 @@ export class DifferentialComplexMultiplier extends IdealComplexMultiplier {
     super();
   }
 
-  update(data: LinkagePoint[]) {
+  update(data: DifferentialCoord[]) {
     let fprimeg, fgprime, gsquare;
     switch (this.bound) {
       case 0:
@@ -460,7 +460,7 @@ export class DifferentialComplexConjugator extends IdealComplexConjugator {
     super();
   }
 
-  update(data: LinkagePoint[]) {
+  update(data: DifferentialCoord[]) {
     // we need the conjugate at the next step, not here!
     // delta gets multiplied by the actual movement of the input,
     // but there's no factor we can give here to do that
@@ -479,7 +479,7 @@ export class DifferentialComplexExponent extends IdealComplexExponent {
     this.one = new Coord(1, 0);
   }
 
-  update(data: LinkagePoint[]) {
+  update(data: DifferentialCoord[]) {
     switch (this.bound) {
       case 0:
         data[0].delta = data[1].delta.divide(data[1]);

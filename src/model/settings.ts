@@ -1,5 +1,4 @@
-import { Vertex } from "./graph/vertex";
-import { LinkagePoint } from "./linkages/linkagepoint";
+import { CoordVertex } from "./coords/coordVertex";
 
 export const UPDATE_IDEAL = 0;
 export const UPDATE_ITERATIVE = 1;
@@ -56,5 +55,5 @@ export const settings = {
   showDifferentials: true,
 
   // activeVertex
-  activeVertex: null as null | Vertex<LinkagePoint>,
+  activeVertex: null as null | CoordVertex,
 };

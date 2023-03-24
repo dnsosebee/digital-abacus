@@ -1,6 +1,8 @@
 // import p5 from "p5";
 import { SketchProps } from "react-p5/@types";
-import { getMouse, getMousePx } from "./coord";
+import { getMouse, getMousePx } from "./coords/coord/coord";
+import { DifferentialCoord } from "./coords/coord/differentialCoord";
+import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./coords/edges/nodeEdge";
 import {
   ADDER_BUTTON,
   CLEAR_BUTTON,
@@ -11,8 +13,6 @@ import {
   MULTR_BUTTON,
   printToPlot,
 } from "./graphics";
-import { LinkagePoint } from "./linkages/linkagepoint";
-import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER } from "./linkages/nodeEdge";
 import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL } from "./settings";
 import { mainGraph, resetGraph } from "./store";
 
@@ -123,8 +123,8 @@ export function touchStarted() {
   }
 
   settings.activeVertex = mainGraph.findMouseover();
-  if (settings.activeVertex && settings.activeVertex.value instanceof LinkagePoint) {
-    settings.activeVertex.value.notifyClick(); // should probably check this returned true
+  if (settings.activeVertex && settings.activeVertex.value instanceof DifferentialCoord) {
+    settings.activeVertex.notifyClick(); // should probably check this returned true
   }
 
   //update tutorial...
@@ -138,7 +138,7 @@ export function touchMoved() {
       let mouse = getMouse();
       mainGraph.applyDifferential(mouse.subtract(settings.activeVertex.value));
     } else {
-      settings.activeVertex.value.sendToMouse();
+      settings.activeVertex.sendToMouse();
     }
   }
   return false;
@@ -147,7 +147,7 @@ export function touchMoved() {
 export function touchEnded() {
   settings.pressAndHold = false;
   if (settings.activeVertex) {
-    settings.activeVertex.value.notifyRelease();
+    settings.activeVertex.notifyRelease();
     settings.activeVertex = null;
     //        mainGraph.update(updateCycles*500);
   }

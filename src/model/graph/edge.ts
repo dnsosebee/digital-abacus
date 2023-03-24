@@ -1,12 +1,12 @@
-import { Constraint } from "../constraint";
+import { Constraint } from "./constraint";
 import { Vertex } from "./vertex";
 
-export class Edge<T> {
-  vertices: Vertex<T>[]; // :[Vertex<T>]
+export class Edge<T, V extends Vertex<T> = Vertex<T>> {
+  vertices: V[]; // :[Vertex<T>]
   constraint: Constraint<T>; // :Constraint<T>
   id: string; // :index(graph.edges)
   // :Edge<T>
-  constructor(v: Vertex<T>[], c: Constraint<T>, id: string) {
+  constructor(v: V[], c: Constraint<T>, id: string) {
     this.vertices = v;
     this.constraint = c;
     this.id = id;

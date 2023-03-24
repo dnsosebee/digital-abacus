@@ -1,19 +1,20 @@
 import { genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
-import { makeEqualityConstraintBuilder } from "../constraint";
-import { Coord } from "../coord";
+import { makeEqualityConstraintBuilder } from "../graph/constraint";
 import { RelGraph } from "../graph/relGraph";
-import { Vertex, VertexId } from "../graph/vertex";
+import { VertexId } from "../graph/vertex";
 import { UPDATE_IDEAL } from "../settings";
 import { p } from "../sketch";
-import { LinkagePoint } from "./linkagepoint";
-import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER, NodeEdge, STANDALONE } from "./nodeEdge";
-import { WireEdge } from "./wireEdge";
+import { Coord } from "./coord/coord";
+import { DifferentialCoord } from "./coord/differentialCoord";
+import { CoordVertex } from "./coordVertex";
+import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER, NodeEdge, STANDALONE } from "./edges/nodeEdge";
+import { WireEdge } from "./edges/wireEdge";
 
-export class LinkageGraph extends RelGraph<LinkagePoint> {
+export class CoordGraph extends RelGraph<Coord, CoordVertex> {
   // :RelGraph<LinkagePoint>
 
-  focus: Vertex<LinkagePoint> | null;
+  focus: CoordVertex | null;
   mode: number;
 
   // for reviewing history
@@ -21,13 +22,15 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   record: number;
 
   constructor(updateMode = UPDATE_IDEAL) {
-    let f_eq = function (z1: LinkagePoint, z2: LinkagePoint) {
-      return z1.equals(z2) && z1.delta.equals(z2.delta);
+    let f_eq = function (z1: Coord, z2: Coord) {
+      return z1.equals(z2);
     };
-    let f_cp = function (zOld: LinkagePoint, zNew: LinkagePoint) {
+    let f_cp = function (zOld: Coord, zNew: Coord) {
       let z = zOld.copy();
       z.mut_sendTo(zNew);
-      z.delta.mut_avg(zNew.delta);
+      if (z instanceof DifferentialCoord && zNew instanceof DifferentialCoord) {
+        z.delta.mut_avg(zNew.delta);
+      }
       return z;
     };
     let eq = makeEqualityConstraintBuilder(f_eq, f_cp);
@@ -48,23 +51,23 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   addOperation(type: number, position = { x: 0, y: 0 }) {
     const nodeId = genNodeId();
 
-    let vs: Vertex<LinkagePoint>[] = [];
+    let vs: CoordVertex[] = [];
     if (type == ADDER) {
-      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 0 }));
-      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 1 }));
-      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 2 }));
+      vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(0, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFree(0, 0, { node: nodeId, handle: 2 }));
     } else if (type == MULTIPLIER) {
-      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 0 }));
-      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 1 }));
-      vs.push(this.addFreeXY(1, 0, { node: nodeId, handle: 2 }));
+      vs.push(this.addFree(1, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(1, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFree(1, 0, { node: nodeId, handle: 2 }));
     } else if (type == CONJUGATOR) {
-      vs.push(this.addFreeXY(0, 1, { node: nodeId, handle: 0 }));
-      vs.push(this.addFreeXY(0, -1, { node: nodeId, handle: 1 }));
+      vs.push(this.addFree(0, 1, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(0, -1, { node: nodeId, handle: 1 }));
     } else if (type == EXPONENTIAL) {
-      vs.push(this.addFreeXY(0, p!.PI, { node: nodeId, handle: 0 }));
-      vs.push(this.addFreeXY(-1, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFree(0, p!.PI, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(-1, 0, { node: nodeId, handle: 1 }));
     } else if (type == STANDALONE) {
-      vs.push(this.addFreeXY(0, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
     } else {
       return null;
     }
@@ -72,32 +75,18 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
     let e = new NodeEdge(vs, type, this.mode, nodeId, position);
     this.edges.push(e);
     e.updateDependencies();
-    // log free and bound vertices
-    console.log("free: " + JSON.stringify(e.getFreeVertices().map((v) => v.value.canDrag())));
-    console.log("bound: " + JSON.stringify(e.getBoundVertices()));
     return e;
   }
 
-  addFreeXY(x: number, y: number, id: VertexId) {
-    console.log("addFreeXY: " + x + ", " + y + ", " + JSON.stringify(id));
-    const linkagePoint = new LinkagePoint(x, y, () => {
-      console.log("dummy canDrag");
-      // return false;
-      throw new Error("canDrag not defined");
-    });
-    let z = super._addFree(linkagePoint, id);
-    const canDrag = () => {
-      console.log("actual canDrag");
-      return z.isFree();
-    };
-    linkagePoint.canDrag = canDrag;
-    console.log("equasls", linkagePoint.canDrag === canDrag);
-    return z;
+  addFree(x: number, y: number, id: VertexId) {
+    let v = new CoordVertex(new DifferentialCoord(x, y), id);
+    this.vertices.push(v);
+    return v;
   }
 
   addWire(source: VertexId, target: VertexId) {
     const id = genWireId();
-    const c = this.buildEqualityConstraint();
+    const c = this.buildWireConstraint();
     const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];
     const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
     if (vTarget.isFree()) {
@@ -111,9 +100,9 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   }
 
   // must provide the hidden vertex in order to resume display
-  disunify(v: Vertex<LinkagePoint>) {
+  disunify(v: CoordVertex) {
     if (this._disunify(v)) {
-      v.value.hidden = false;
+      v.hidden = false;
       return true;
     } else {
       return false;
@@ -122,7 +111,7 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
 
   applyDifferential(delta: Coord) {
     for (let v of this.vertices) {
-      v.value.mut_applyDifferential(delta);
+      (v.value as DifferentialCoord).mut_applyDifferential(delta);
     }
   }
 
@@ -134,11 +123,11 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
     }
     for (const v of this.vertices) {
       if (reversing && this.focus && this.getDepends(this.focus).includes(v)) {
-        v.value.display(reversing);
+        v.display(reversing);
       } else {
         // need more than 2 states! want depends to look more distinct
         // from other free vertices
-        v.value.display();
+        v.display();
       }
     }
   }
@@ -147,9 +136,9 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   // if none, returns a bound vertex close to the cursor
   // if no vertices are close to the cursor, returns null
   findMouseover() {
-    let result: Vertex<LinkagePoint> | null = null;
+    let result: CoordVertex | null = null;
     for (const v of this.vertices) {
-      if (v.value.checkMouseover()) {
+      if (v.checkMouseover()) {
         if (v.isFree()) {
           return v;
         } else {
@@ -188,39 +177,14 @@ export class LinkageGraph extends RelGraph<LinkagePoint> {
   findUnify() {
     let v1 = this.findMouseover();
     if (v1) {
-      v1.value.hidden = true;
+      v1.hidden = true;
       let v2 = this.findMouseover();
-      v1.value.hidden = false;
+      v1.hidden = false;
       if (v2 && this.unify(v1, v2)) {
-        v2.value.hidden = true;
+        v2.hidden = true;
         return true;
       }
     }
     return false;
-  }
-
-  saveFrame() {
-    if (this.record > 0) {
-      let fr: string[] = [];
-      for (const v of this.vertices) {
-        fr.push(v.value.delta.toString());
-      }
-      this.frames.push(fr);
-      this.record--;
-    }
-  }
-
-  update(iters = 1) {
-    if (this.record > 0) {
-      this.saveFrame();
-    }
-    super.update(iters);
-  }
-
-  recordNext(nframes: number, clearOld = false) {
-    this.record = nframes;
-    if (clearOld) {
-      this.frames = [];
-    }
   }
 }

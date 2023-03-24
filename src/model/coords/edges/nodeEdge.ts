@@ -1,7 +1,18 @@
-import { Constraint, NonConstraint, StandaloneConstraint } from "../constraint";
-import { Coord, Polar } from "../coord";
-import { Edge } from "../graph/edge";
-import { Vertex } from "../graph/vertex";
+import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/constraint";
+import { Edge } from "../../graph/edge";
+import {
+  CENTER_X,
+  CENTER_Y,
+  iterations,
+  searchSize,
+  settings,
+  UPDATE_DIFFERENTIAL,
+  UPDATE_IDEAL,
+  UPDATE_ITERATIVE,
+} from "../../settings";
+import { p } from "../../sketch";
+import { Coord, Polar } from "../coord/coord";
+import { CoordVertex } from "../coordVertex";
 import {
   DifferentialComplexAdder,
   DifferentialComplexConjugator,
@@ -16,18 +27,6 @@ import {
   IterativeComplexExponent,
   IterativeComplexMultiplier,
 } from "../operations";
-import {
-  CENTER_X,
-  CENTER_Y,
-  iterations,
-  searchSize,
-  settings,
-  UPDATE_DIFFERENTIAL,
-  UPDATE_IDEAL,
-  UPDATE_ITERATIVE,
-} from "../settings";
-import { p } from "../sketch";
-import { LinkagePoint } from "./linkagepoint";
 
 // operator type
 export const ADDER = 0;
@@ -50,20 +49,14 @@ export const ITERATIONS = iterations;
 
 type CircuitPosition = { x: number; y: number };
 
-export class NodeEdge extends Edge<LinkagePoint> {
+export class NodeEdge extends Edge<Coord, CoordVertex> {
   // :Edge<LinkagePoint>
 
   type: number; // :operator type
   hidden: boolean; // :whether to draw this operator
   position: CircuitPosition;
 
-  constructor(
-    v: Vertex<LinkagePoint>[],
-    type: number,
-    mode: number,
-    id: string,
-    position: CircuitPosition
-  ) {
+  constructor(v: CoordVertex[], type: number, mode: number, id: string, position: CircuitPosition) {
     let c = null;
     switch (mode) {
       case UPDATE_IDEAL:
@@ -136,7 +129,7 @@ export class NodeEdge extends Edge<LinkagePoint> {
         console.log("Warning: Invalid Update Mode");
         c = new NonConstraint<Coord>(2);
     }
-    super(v, c as Constraint<LinkagePoint>, id);
+    super(v, c as Constraint<Coord>, id);
     this.type = type;
     this.position = position;
     this.hidden = false;
@@ -178,7 +171,7 @@ export class NodeEdge extends Edge<LinkagePoint> {
       );
     } else if (this.type == EXPONENTIAL) {
       p!.stroke(200, 100, 200);
-      if (this.vertices[0].value.dragging || this.vertices[1].value.dragging) {
+      if (this.vertices[0].dragging || this.vertices[1].dragging) {
         // still need to work out correct values for a and b
         let b = this.vertices[0].value.getX() / this.vertices[0].value.getY();
         let a = 1;

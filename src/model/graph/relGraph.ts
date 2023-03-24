@@ -6,22 +6,22 @@ import {
   defaultEqualityConstraintBuilder,
   EqualityConstraint,
   NonConstraint,
-} from "../constraint";
+} from "./constraint";
 import { Edge } from "./edge";
 import { Dep, Vertex, VertexId } from "./vertex";
 
 // (technically this structure is a directed hypergraph, not strictly a graph)
 console.log("graph.js loaded");
 
-export class RelGraph<T> {
+export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
   // :RelGraph<T>
   // eq :T -> T -> bool - notion of equality for vertex data
   // cp :T -> T -> void - function that copies data from 1st arg to 2nd arg
   //                      TODO: default for cp doesn't really make sense
 
-  vertices: Vertex<T>[]; // :[Vertex<T>]
-  edges: Edge<T>[]; // :[Edge<T>]
-  buildEqualityConstraint: () => EqualityConstraint<T>; // :-> EqualityConstraint<T>
+  vertices: V[]; // :[Vertex<T>]
+  edges: Edge<T, V>[]; // :[Edge<T>]
+  buildWireConstraint: () => EqualityConstraint<T>; // :-> EqualityConstraint<T>
   history: number[]; // :[index(this.edges)]
 
   constructor(eq = defaultEqualityConstraintBuilder<T>()) {
@@ -29,17 +29,8 @@ export class RelGraph<T> {
     this.edges = []; // :[Edge<T>]
 
     // internal
-    this.buildEqualityConstraint = eq; // :-> EqualityConstraint<T>
+    this.buildWireConstraint = eq; // :-> EqualityConstraint<T>
     this.history = []; // :[index(this.edges)]
-  }
-
-  // add a new vertex that is not connected to any relation
-  // returns the vertex
-  _addFree(datum: T, id: VertexId) {
-    // :T -> Vertex<T>
-    let v = new Vertex(datum, id, []);
-    this.vertices.push(v);
-    return v;
   }
 
   // // add a set of vertices and a constraint relating them to the graph as an edge
@@ -74,7 +65,7 @@ export class RelGraph<T> {
 
   // link two free vertices to the same datum by adding an equality constraint
   // returns the new Edge, or null if unification could not be performed
-  unify(v1: Vertex<T>, v2: Vertex<T>) {
+  unify(v1: V, v2: V) {
     // :Vertex<T> -> Vertex<T> -> Edge<T>
     if (v1.isFree() && v2.isFree()) {
       return this._unify(v1, v2);
@@ -86,20 +77,20 @@ export class RelGraph<T> {
   // remove the most recently created unification involving vertex v
   // returns true if disunification successful, false if not
   // WARNING: repeated unification & disunification creates a small memory leak
-  disunify(v: Vertex<T>) {
+  disunify(v: V) {
     // :Vertex<T> -> bool
     return this._disunify(v);
   }
 
   // returns a list of vertices that should be able to invert with the given bound vertex
-  getDepends(v: Vertex<T>) {
+  getDepends(v: V) {
     // :Vertex<T> -> [Vertex<T>]
     return this._leafDeps(v).map((p) => this._getVertex(p.vertex));
   }
 
   // attempt to gain control of a vertex by giving up control of another vertex
   // returns true if successful
-  invert(take: Vertex<T>, give: Vertex<T>) {
+  invert(take: V, give: V) {
     // :Vertex<T> -> Vertex<T> -> bool
     // if vertex to take is already free, nothing to do
     if (take.isFree()) {
@@ -152,7 +143,7 @@ export class RelGraph<T> {
   }
 
   // find free nodes in the given vertex's dependency tree
-  _leafDeps(v: Vertex<T>, seen: VertexId[] = []) {
+  _leafDeps(v: V, seen: VertexId[] = []) {
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {
@@ -173,7 +164,7 @@ export class RelGraph<T> {
   }
 
   // find bound nodes in the given vertex's dependency tree
-  _intermedDeps(v: Vertex<T>, seen: VertexId[] = []) {
+  _intermedDeps(v: V, seen: VertexId[] = []) {
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {
@@ -194,7 +185,7 @@ export class RelGraph<T> {
     return deps;
   }
 
-  _addEdge(vs: Vertex<T>[], constraint: Constraint<T>) {
+  _addEdge(vs: V[], constraint: Constraint<T>) {
     // :[Vertex<T>] -> Constraint<T> -> Edge<T>
     let e = new Edge(vs, constraint, genNodeId());
     this.edges.push(e);
@@ -202,16 +193,16 @@ export class RelGraph<T> {
     return e;
   }
 
-  _unify(v1: Vertex<T>, v2: Vertex<T>) {
+  _unify(v1: V, v2: V) {
     // :Vertex<T> -> Vertex<T> -> Edge<T>
     this.history.unshift(this.edges.length); // history is LIFO
-    let e = new Edge([v1, v2], this.buildEqualityConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
+    let e = new Edge([v1, v2], this.buildWireConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
     this.edges.push(e);
     e.updateDependencies();
     return e;
   }
 
-  _disunify(v: Vertex<T>) {
+  _disunify(v: V) {
     // :Vertex<T> -> bool
     for (let i = 0; i < this.history.length; i++) {
       let idxE = this.history[i]; // :index(this.edges)
@@ -244,7 +235,7 @@ export class RelGraph<T> {
     return false;
   }
 
-  _invert(take: Vertex<T>, give: Vertex<T>, recur: boolean) {
+  _invert(take: V, give: V, recur: boolean) {
     // :Vertex<T> -> Vertex<T> -> bool -> bool
     // check argument validity
     if (take.isFree() || give.isBound()) {

@@ -1,5 +1,5 @@
-import { Coord } from "./coord";
-import { NodeEdge } from "./linkages/nodeEdge";
+import { Coord } from "./coords/coord/coord";
+import { NodeEdge } from "./coords/edges/nodeEdge";
 import { CENTER_X, CENTER_Y, settings } from "./settings";
 import { p } from "./sketch";
 import { mainGraph } from "./store";

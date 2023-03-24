@@ -1,5 +1,5 @@
-import { CENTER_X, CENTER_Y, settings } from "./settings";
-import { p } from "./sketch";
+import { CENTER_X, CENTER_Y, settings } from "../../settings";
+import { p } from "../../sketch";
 
 export class Coord {
   x: number;
