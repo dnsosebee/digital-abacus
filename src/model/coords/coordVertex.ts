@@ -1,8 +1,11 @@
+import { logger as parentLogger } from "@/lib/logger";
 import { Vertex, VertexId } from "../graph/vertex";
 import { settings } from "../settings";
 import { p } from "../sketch";
 import { Coord, getMouse, getMousePx } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
+
+const logger = parentLogger.child({ module: "CoordVertex" });
 
 export class CoordVertex extends Vertex<Coord> {
   dragging: boolean;

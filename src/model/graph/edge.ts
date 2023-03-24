@@ -1,5 +1,8 @@
+import { logger as parentLogger } from "@/lib/logger";
 import { Constraint } from "./constraint";
 import { Vertex } from "./vertex";
+
+const logger = parentLogger.child({ module: "Edge" });
 
 export class Edge<T, V extends Vertex<T> = Vertex<T>> {
   vertices: V[]; // :[Vertex<T>]
@@ -56,8 +59,10 @@ export class Edge<T, V extends Vertex<T> = Vertex<T>> {
         edge: eid,
       };
     });
+    logger.debug({ free }, "free vertices");
     for (let v of this.getBoundVertices()) {
       v.deps = v.deps.concat(free.slice());
+      logger.debug({ deps: v.deps }, "bound vertex deps");
     }
   }
 

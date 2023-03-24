@@ -1,3 +1,4 @@
+import { logger as parentLogger } from "@/lib/logger";
 import { genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
 import { makeEqualityConstraintBuilder } from "../graph/constraint";
@@ -10,6 +11,8 @@ import { DifferentialCoord } from "./coord/differentialCoord";
 import { CoordVertex } from "./coordVertex";
 import { ADDER, CONJUGATOR, EXPONENTIAL, MULTIPLIER, NodeEdge, STANDALONE } from "./edges/nodeEdge";
 import { WireEdge } from "./edges/wireEdge";
+
+const logger = parentLogger.child({ module: "CoordGraph" });
 
 export class CoordGraph extends RelGraph<Coord, CoordVertex> {
   // :RelGraph<LinkagePoint>
@@ -73,15 +76,15 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     }
 
     let e = new NodeEdge(vs, type, this.mode, nodeId, position);
-    this.edges.push(e);
     e.updateDependencies();
-    return e;
+    this.edges.push(e);
+    logger.debug({ edge: e, vertices: this.vertices }, "addOperation");
+    logger.debug({ deps: JSON.parse(JSON.stringify(this.getAllDeps())) }, "printDeps");
   }
 
   addFree(x: number, y: number, id: VertexId) {
     let v = new CoordVertex(new DifferentialCoord(x, y), id);
-    this.vertices.push(v);
-    return v;
+    return this.vertices[this.vertices.push(v) - 1]; // WARNING THIS IS REQUIRED BECAUSE PUSHING CREATES A PROXY OBJECT
   }
 
   addWire(source: VertexId, target: VertexId) {

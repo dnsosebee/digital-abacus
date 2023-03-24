@@ -19,7 +19,7 @@ export default function Home() {
           </h1>
           <button
             className="bg-slate-300 text-gray-800 font-bold py-2 px-4 rounded"
-            onClick={() => mainGraph._printDeps()}
+            onClick={() => mainGraph.getAllDeps()}
           >
             log deps
           </button>

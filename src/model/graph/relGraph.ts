@@ -299,15 +299,17 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     return false;
   }
 
-  _printDeps() {
-    let str = "Dependencies:\n";
-    for (let i = 0; i < this.vertices.length; i++) {
-      str = str + i + ": ";
-      for (let j = 0; j < this.vertices[i].deps.length; j++) {
-        str = str + "[" + JSON.stringify(this.vertices[i].deps[j]) + "]";
-      }
-      str = str + "\n";
-    }
-    console.log(str);
+  getAllDeps() {
+    return this.vertices.map((v) => v.deps);
+    // return this.vertices.map((v) => v.deps);
+    // let str = "Dependencies:\n";
+    // for (let i = 0; i < this.vertices.length; i++) {
+    //   str = str + i + ": ";
+    //   for (let j = 0; j < this.vertices[i].deps.length; j++) {
+    //     str = str + "[" + JSON.stringify(this.vertices[i].deps[j]) + "]";
+    //   }
+    //   str = str + "\n";
+    // }
+    // return str;
   }
 }
