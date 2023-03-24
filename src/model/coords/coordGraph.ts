@@ -78,8 +78,6 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     let e = new NodeEdge(vs, type, this.mode, nodeId, position);
     e.updateDependencies();
     this.edges.push(e);
-    logger.debug({ edge: e, vertices: this.vertices }, "addOperation");
-    logger.debug({ deps: JSON.parse(JSON.stringify(this.getAllDeps())) }, "printDeps");
   }
 
   addFree(x: number, y: number, id: VertexId) {
@@ -94,9 +92,8 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
     if (vTarget.isFree()) {
       const e = new WireEdge([vSource, vTarget], id, source, target, c);
-      this.edges.push(e);
       e.updateDependencies();
-      return e;
+      return this.edges[this.edges.push(e) - 1];
     } else {
       return null;
     }

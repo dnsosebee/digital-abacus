@@ -188,18 +188,16 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
   _addEdge(vs: V[], constraint: Constraint<T>) {
     // :[Vertex<T>] -> Constraint<T> -> Edge<T>
     let e = new Edge(vs, constraint, genNodeId());
-    this.edges.push(e);
     e.updateDependencies();
-    return e;
+    return this.edges[this.edges.push(e) - 1];
   }
 
   _unify(v1: V, v2: V) {
     // :Vertex<T> -> Vertex<T> -> Edge<T>
     this.history.unshift(this.edges.length); // history is LIFO
     let e = new Edge([v1, v2], this.buildWireConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
-    this.edges.push(e);
     e.updateDependencies();
-    return e;
+    return this.edges[this.edges.push(e) - 1];
   }
 
   _disunify(v: V) {
