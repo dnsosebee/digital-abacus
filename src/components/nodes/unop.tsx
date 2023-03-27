@@ -9,13 +9,13 @@ import { NodeShell } from "./nodeShell";
 export const UnopNode = ({ data, selected }: MathProps) => {
   return (
     <div>
-      <DualHandle idx={0} bound={data.vertices[0].bound} position={Position.Top} />
+      <DualHandle idx={0} bound={data.vertices[0].isBound()} position={Position.Top} />
       <NodeShell selected={selected}>
-        <NumericInput {...data.vertices[0]} />
+        <NumericInput vertex={data.vertices[0]} />
         <Symbol text={getSymbol(data.opType)} />
-        <NumericInput {...data.vertices[1]} />
+        <NumericInput vertex={data.vertices[1]} />
       </NodeShell>
-      <DualHandle idx={1} bound={data.vertices[1].bound} position={Position.Bottom} />
+      <DualHandle idx={1} bound={data.vertices[1].isBound()} position={Position.Bottom} />
     </div>
   );
 };

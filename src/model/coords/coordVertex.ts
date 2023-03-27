@@ -54,6 +54,10 @@ export class CoordVertex extends Vertex<Coord> {
     }
   }
 
+  sendToXY(x: number, y: number) {
+    this.value.mut_sendTo(new Coord(x, y));
+  }
+
   _drawNode(reversing = false) {
     p!.noStroke();
     if (reversing) {

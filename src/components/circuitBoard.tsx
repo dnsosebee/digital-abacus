@@ -1,6 +1,6 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { addWire, updateNodePosition, useGraph } from "@/model/store";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import ReactFlow, {
   Background,
   BezierEdge,
@@ -14,6 +14,7 @@ import ReactFlow, {
   useUpdateNodeInternals,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { CircuitsProvider } from "./circuitsProvider";
 import { MathNode } from "./nodes/mathNode";
 import { StickyNode } from "./nodes/sticky";
 
@@ -32,6 +33,8 @@ const EDGE_TYPES = {
 const CircuitBoard = () => {
   const { shouldUpdateNodeInternals, nodes, wires } = useGraph();
   const updateNodeInternals = useUpdateNodeInternals();
+  const [dragging, setDragging] = useState(false);
+  logger.debug({ dragging }, "CircuitBoard");
 
   // useEffect(() => {
   //   if (shouldUpdateNodeInternals) {
@@ -76,18 +79,22 @@ const CircuitBoard = () => {
   return (
     <div className="h-full grow">
       {/* <p>{store.edges.length}</p> */}
-      <ReactFlow
-        nodes={nodes}
-        onNodesChange={onNodesChange}
-        edges={wires}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={NODE_COMPONENTS}
-        edgeTypes={EDGE_TYPES}
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+      <CircuitsProvider dragging={dragging}>
+        <ReactFlow
+          nodes={nodes}
+          onNodesChange={onNodesChange}
+          edges={wires}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={NODE_COMPONENTS}
+          edgeTypes={EDGE_TYPES}
+          onConnectStart={() => setDragging(true)}
+          onConnectEnd={() => setDragging(false)}
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </CircuitsProvider>
     </div>
   );
 };

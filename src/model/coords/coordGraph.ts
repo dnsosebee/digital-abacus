@@ -93,7 +93,7 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     const c = this.buildWireConstraint();
     const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];
     const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
-    if (vTarget.isFree()) {
+    if (vTarget.isFree() && vTarget !== vSource) {
       const e = new WireEdge([vSource, vTarget], id, source, target, c);
       e.updateDependencies();
       return this.edges[this.edges.push(e) - 1];

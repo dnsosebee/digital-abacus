@@ -127,7 +127,7 @@ export class Coord {
     return new Polar(r, th);
   }
 
-  mut_exp() {
+  mut_exp(): Coord {
     return this.mut_sendTo(this.exp());
   }
 

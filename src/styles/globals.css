@@ -12,3 +12,14 @@ main {
 .split {
   width: 50vw;
 }
+
+.react-flow .react-flow__handle {
+  width: 100px;
+  height: 14px;
+  border-radius: 3px;
+  background-color: #784be8;
+}
+
+.react-flow .bound {
+  background-color: chartreuse !important;
+}

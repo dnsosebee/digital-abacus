@@ -1,4 +1,5 @@
-import { opTypeSchema } from "@/model/coords/edges/nodeEdge";
+import { CoordVertex } from "@/model/coords/coordVertex";
+import { OpType, opTypeSchema } from "@/model/coords/edges/nodeEdge";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -14,19 +15,19 @@ const baseNodeSchema = z.object({
   }),
 });
 
-const vertexSchema = z.object({
-  bound: z.boolean(),
-  coord: z.object({
-    x: z.number(),
-    y: z.number(),
-  }),
-});
+// const vertexSchema = z.object({
+//   bound: z.boolean(),
+//   coord: z.object({
+//     x: z.number(),
+//     y: z.number(),
+//   }),
+// });
 
 const mathSchema = baseNodeSchema.extend({
   type: z.literal("math"),
   data: z.object({
     cartesian: z.boolean(),
-    vertices: z.array(vertexSchema),
+    vertices: z.array(z.any()),
     opType: opTypeSchema,
   }),
 });
@@ -40,7 +41,17 @@ export const stickySchema = baseNodeSchema.extend({
 
 export const nodeSchema = z.union([mathSchema, stickySchema]);
 
-export type VertexInfo = z.infer<typeof vertexSchema>;
-export type CircuitNode = z.infer<typeof nodeSchema>;
-export type Math = z.infer<typeof mathSchema>;
+// export type VertexInfo = z.infer<typeof vertexSchema>;
+
+export type Math = {
+  id: string;
+  position: { x: number; y: number };
+  type: "math";
+  data: {
+    cartesian: boolean;
+    vertices: CoordVertex[];
+    opType: OpType;
+  };
+};
 export type Sticky = z.infer<typeof stickySchema>;
+export type CircuitNode = Math | Sticky;

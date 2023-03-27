@@ -4,6 +4,7 @@ import { CircuitNode } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
+import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
 import { NodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
@@ -35,10 +36,9 @@ export const registerNodeInternalsUpdated = () => {
   mainGraph.registerNodeInternalsUpdated();
 };
 
-export const updateCoord = (vertexId: VertexId, coord: { x: number; y: number }) => {
+export const updateCoord = (vertexId: VertexId, coord: Coord) => {
   const vertex = mainGraph._getVertex(vertexId);
-  vertex.value.x = coord.x;
-  vertex.value.y = coord.y;
+  vertex.value.mut_sendTo(coord);
 };
 
 const logGraph = () => {
@@ -81,12 +81,6 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
   data: {
     cartesian,
     opType: edge.type,
-    vertices: edge.vertices.map((v) => ({
-      coord: {
-        x: v.value.x,
-        y: v.value.y,
-      },
-      bound: v.isBound(),
-    })),
+    vertices: edge.vertices,
   },
 });
