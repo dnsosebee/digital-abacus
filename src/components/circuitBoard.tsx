@@ -1,25 +1,46 @@
 import { logger as parentLogger } from "@/lib/logger";
-import { useGraph } from "@/model/store";
+import { addWire, updateNodePosition, useGraph } from "@/model/store";
 import { useCallback } from "react";
-import ReactFlow, { Background, BezierEdge, Controls, NodeChange, OnNodesChange } from "reactflow";
+import ReactFlow, {
+  Background,
+  BezierEdge,
+  Connection,
+  Controls,
+  EdgeChange,
+  NodeChange,
+  OnConnect,
+  OnEdgesChange,
+  OnNodesChange,
+  useUpdateNodeInternals,
+} from "reactflow";
 import "reactflow/dist/style.css";
 import { MathNode } from "./nodes/mathNode";
+import { StickyNode } from "./nodes/sticky";
 
 const logger = parentLogger.child({ component: "CircuitBoard" });
 
 const NODE_COMPONENTS = {
   math: MathNode,
+  sticky: StickyNode,
 };
 
 const EDGE_TYPES = {
-  value: BezierEdge,
+  coord: BezierEdge,
   // TODO: add LIST edge types
 };
 
 const CircuitBoard = () => {
-  // const [nodes, setNodes] = useState<CircuitNode[]>(INITIAL_NODES);
-  // const [wires, setWires] = useState<Wire[]>(INITIAL_WIRES);
-  const { nodes, wires, updateNodePosition } = useGraph();
+  const { shouldUpdateNodeInternals, nodes, wires } = useGraph();
+  const updateNodeInternals = useUpdateNodeInternals();
+
+  // useEffect(() => {
+  //   if (shouldUpdateNodeInternals) {
+  //     nodes.forEach((node) => {
+  //       updateNodeInternals(node.id);
+  //     });
+  //     registerNodeInternalsUpdated();
+  //   }
+  // }, [shouldUpdateNodeInternals]);
 
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
@@ -36,15 +57,21 @@ const CircuitBoard = () => {
     },
     []
   );
-  // const onEdgesChange: OnEdgesChange = useCallback(
-  //   (changes) => setWires((eds) => applyEdgeChanges(changes, eds) as Wire[]),
-  //   []
-  // );
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes: EdgeChange[]) =>
+      changes.forEach((change) => {
+        switch (change.type) {
+          case "add":
+            addWire(change.item as Connection);
+            break;
+          default:
+            console.log("unhandled wire change", change);
+        }
+      }),
+    []
+  );
 
-  // const onConnect: OnConnect = useCallback(
-  //   (params) => setWires((eds) => addEdge(params, eds) as Wire[]),
-  //   []
-  // );
+  const onConnect: OnConnect = useCallback((connection: Connection) => addWire(connection), []);
 
   return (
     <div className="h-full grow">
@@ -53,8 +80,8 @@ const CircuitBoard = () => {
         nodes={nodes}
         onNodesChange={onNodesChange}
         edges={wires}
-        // onEdgesChange={onEdgesChange}
-        // onConnect={onConnect}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
         nodeTypes={NODE_COMPONENTS}
         edgeTypes={EDGE_TYPES}
       >

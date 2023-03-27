@@ -20,6 +20,8 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
   focus: CoordVertex | null;
   mode: number;
 
+  shouldUpdateNodeInternals: boolean;
+
   // for reviewing history
   frames: string[][];
   record: number;
@@ -44,6 +46,7 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
 
     this.focus = null;
     this.mode = updateMode;
+    this.shouldUpdateNodeInternals = false;
 
     // for reviewing history
     this.frames = [];
@@ -167,11 +170,16 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     if (this.focus) {
       let target = this.findMouseover();
       if (target && this.invert(this.focus, target)) {
+        this.shouldUpdateNodeInternals = true;
         this.focus = null;
       } else {
         this.cancelReversal();
       }
     }
+  }
+
+  registerNodeInternalsUpdated() {
+    this.shouldUpdateNodeInternals = false;
   }
 
   findUnify() {

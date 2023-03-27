@@ -2,6 +2,7 @@ import CircuitBoard from "@/components/circuitBoard";
 import Linkages from "@/components/linkages";
 import { mainGraph } from "@/model/store";
 import Head from "next/head";
+import { ReactFlowProvider } from "reactflow";
 
 export default function Home() {
   return (
@@ -25,7 +26,9 @@ export default function Home() {
           </button>
           <div className="flex-grow flex">
             <div className="split">
-              <CircuitBoard />
+              <ReactFlowProvider>
+                <CircuitBoard />
+              </ReactFlowProvider>
             </div>
             <div className="split overflow-scroll">
               <Linkages />

@@ -145,9 +145,9 @@ export class Coord {
     return new Coord(this.x, this.y);
   }
 
-  mut_sendTo(vector: any) {
-    this.x = vector.getX();
-    this.y = vector.getY();
+  mut_sendTo(coord: Coord) {
+    this.x = coord.getX();
+    this.y = coord.getY();
     return this;
   }
 

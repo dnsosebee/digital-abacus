@@ -6,7 +6,7 @@ export const UPDATE_DIFFERENTIAL = 2;
 
 //////////////////////////////////
 
-export const UPDATE_MODE = UPDATE_DIFFERENTIAL;
+export const UPDATE_MODE = UPDATE_ITERATIVE;
 
 //background color and debug variable
 export const indicator = 50;

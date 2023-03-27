@@ -1,20 +1,26 @@
-import { Handle, HandleProps } from "reactflow";
+import { handleNumToId } from "@/schema/handle";
+import { Handle, HandleProps, Position } from "reactflow";
 
 export const DualHandle = (
   props: Omit<HandleProps, "id" | "type"> & { bound: boolean; idx: number } & {
     style?: React.CSSProperties;
+    position?: Position;
   }
 ) => {
   return (
     <>
-      <Handle id={handleId(props.idx, true)} type="source" {...props} />
-      {!props.bound && (
-        <Handle id={handleId(props.idx, false)} type="target" {...props} className="hidden" />
-      )}
+      <Handle
+        id={handleNumToId(props.idx, true)}
+        type="source"
+        {...props}
+        className={props.bound ? "" : "invisible"}
+      />
+      <Handle
+        id={handleNumToId(props.idx, false)}
+        type="target"
+        {...props}
+        className={props.bound ? "invisible" : ""}
+      />
     </>
   );
-};
-
-export const handleId = (idx: number, source: boolean) => {
-  return `${source ? "source" : "target"}-${idx}`;
 };

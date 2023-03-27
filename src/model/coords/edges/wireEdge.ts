@@ -21,4 +21,17 @@ export class WireEdge extends Edge<Coord, CoordVertex> {
     this.source = source;
     this.target = target;
   }
+
+  invert(take: number, give: number) {
+    // :index(this.vertices) -> index(this.vertices) -> bool
+    if (this.constraint.invert(take, give)) {
+      const prevSource = this.source;
+      this.source = this.target;
+      this.target = prevSource;
+      this.updateDependencies();
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
