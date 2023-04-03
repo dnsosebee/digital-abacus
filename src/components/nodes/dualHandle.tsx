@@ -12,21 +12,13 @@ export const DualHandle = (
   const { dragging } = useCircuits();
   logger.debug({ dragging }, "DualHandle");
   return (
-    <>
-      <Handle
-        id={handleNumToId(props.idx, true)}
-        type="source"
-        style={props.style}
-        position={props.position}
-        className={`${props.bound ? "bound" : "invisible"} ${dragging ? "" : ""}`}
-      />
-      <Handle
-        id={handleNumToId(props.idx, false)}
-        type="target"
-        style={props.style}
-        position={props.position}
-        className={`${props.bound ? "invisible" : ""} ${dragging ? "" : ""}`}
-      />
-    </>
+    <Handle
+      id={handleNumToId(props.idx)}
+      type="source"
+      style={props.style}
+      position={props.position}
+      className={`${props.bound ? "bound" : ""}`}
+      isConnectableEnd={!props.bound}
+    />
   );
 };

@@ -26,8 +26,8 @@ export const updateNodePosition = (e: NodePositionChange) => {
 
 export const addWire = (conn: Connection) => {
   mainGraph.addWire(
-    { node: conn.source!, handle: handleIdToNum(conn.sourceHandle!).idx },
-    { node: conn.target!, handle: handleIdToNum(conn.targetHandle!).idx }
+    { node: conn.source!, handle: handleIdToNum(conn.sourceHandle!) },
+    { node: conn.target!, handle: handleIdToNum(conn.targetHandle!) }
   );
 };
 
@@ -67,9 +67,9 @@ export const useGraph = (cartesian = false) => {
 const edgeToWire = (edge: WireEdge): Wire => ({
   id: edge.id,
   source: edge.source.node,
-  sourceHandle: handleNumToId(edge.source.handle, true),
+  sourceHandle: handleNumToId(edge.source.handle),
   target: edge.target.node,
-  targetHandle: handleNumToId(edge.target.handle, false),
+  targetHandle: handleNumToId(edge.target.handle),
   type: "coord",
   animated: true,
 });

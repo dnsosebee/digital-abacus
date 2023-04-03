@@ -5,6 +5,7 @@ import ReactFlow, {
   Background,
   BezierEdge,
   Connection,
+  ConnectionMode,
   Controls,
   EdgeChange,
   NodeChange,
@@ -90,6 +91,7 @@ const CircuitBoard = () => {
           edgeTypes={EDGE_TYPES}
           onConnectStart={() => setDragging(true)}
           onConnectEnd={() => setDragging(false)}
+          connectionMode={ConnectionMode.Loose}
         >
           <Background />
           <Controls />
