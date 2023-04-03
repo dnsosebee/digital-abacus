@@ -1,9 +1,11 @@
 // graph structure that tracks free/bound dependency for multiple relations
 
+import { logger as parentLogger } from "@/lib/logger";
 import { genNodeId } from "@/schema/node";
 import { Constraint, defaultEqualityConstraintBuilder, EqualityConstraint } from "./constraint";
 import { Edge } from "./edge";
 import { Dep, Vertex, VertexId } from "./vertex";
+const logger = parentLogger.child({ module: "RelGraph" });
 
 // (technically this structure is a directed hypergraph, not strictly a graph)
 console.log("graph.js loaded");
@@ -185,12 +187,25 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     return this.edges[this.edges.push(e) - 1];
   }
 
-  _removeEdge(id: string) {
+  _removeEdge(id: string, removeVertices = false) {
     let idx = this.edges.findIndex((e) => e.id === id);
     if (idx >= 0) {
       let e = this.edges[idx];
       e.removeDependencies();
       this.edges.splice(idx, 1);
+      if (removeVertices) {
+        for (let v of e.vertices) {
+          const vIdx = this.vertices.findIndex((v2) => v2.id === v.id);
+          if (v.isBound()) {
+            logger.warn({ e, v }, "removing bound vertex");
+          }
+          if (vIdx >= 0) {
+            this.vertices.splice(vIdx, 1);
+          } else {
+            throw new Error("vertex not found");
+          }
+        }
+      }
     }
   }
 

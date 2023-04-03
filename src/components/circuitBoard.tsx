@@ -1,5 +1,5 @@
 import { logger as parentLogger } from "@/lib/logger";
-import { addWire, removeWire, updateNodePosition, useGraph } from "@/model/store";
+import { addWire, removeNode, removeWire, updateNodePosition, useGraph } from "@/model/store";
 import { useCallback, useState } from "react";
 import ReactFlow, {
   Background,
@@ -54,6 +54,9 @@ const CircuitBoard = () => {
           case "position":
             updateNodePosition(change);
             break;
+          case "remove":
+            removeNode(change.id);
+            break;
           default:
             console.log("unhandled node change", change);
         }
@@ -61,6 +64,7 @@ const CircuitBoard = () => {
     },
     []
   );
+
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes: EdgeChange[]) =>
       changes.forEach((change) => {

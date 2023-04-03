@@ -88,6 +88,7 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     return this.vertices[this.vertices.push(v) - 1]; // WARNING THIS IS REQUIRED BECAUSE PUSHING CREATES A PROXY OBJECT
   }
 
+  // wires
   addWire(source: VertexId, target: VertexId) {
     const id = genWireId();
     const c = this.buildWireConstraint();
@@ -104,6 +105,11 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
 
   removeWire(id: string) {
     this._removeEdge(id);
+  }
+
+  // nodes
+  removeNode(id: string) {
+    this._removeEdge(id, true);
   }
 
   // // must provide the hidden vertex in order to resume display

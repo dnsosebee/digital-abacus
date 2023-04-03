@@ -33,6 +33,8 @@ export const addWire = (conn: Connection) => {
 
 export const removeWire = (id: string) => mainGraph.removeWire(id);
 
+export const removeNode = (id: string) => mainGraph.removeNode(id);
+
 // deprecated
 export const registerNodeInternalsUpdated = () => {
   mainGraph.registerNodeInternalsUpdated();
