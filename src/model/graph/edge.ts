@@ -7,7 +7,7 @@ const logger = parentLogger.child({ module: "Edge" });
 export class Edge<T, V extends Vertex<T> = Vertex<T>> {
   vertices: V[]; // :[Vertex<T>]
   constraint: Constraint<T>; // :Constraint<T>
-  id: string; // :index(graph.edges)
+  id: string;
   // :Edge<T>
   constructor(v: V[], c: Constraint<T>, id: string) {
     this.vertices = v;
@@ -47,12 +47,8 @@ export class Edge<T, V extends Vertex<T> = Vertex<T>> {
 
   updateDependencies() {
     // :-> void
+    this.removeDependencies();
     let eid = this.id;
-    for (let v of this.vertices) {
-      v.deps = v.deps.filter(function (p) {
-        return p.edge != eid;
-      });
-    }
     let free = this.getFreeVertices().map(function (v) {
       return {
         vertex: v.id,
@@ -63,6 +59,15 @@ export class Edge<T, V extends Vertex<T> = Vertex<T>> {
     for (let v of this.getBoundVertices()) {
       v.deps = v.deps.concat(free.slice());
       logger.debug({ deps: v.deps }, "bound vertex deps");
+    }
+  }
+
+  removeDependencies() {
+    let eid = this.id;
+    for (let v of this.vertices) {
+      v.deps = v.deps.filter(function (p) {
+        return p.edge != eid;
+      });
     }
   }
 

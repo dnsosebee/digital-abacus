@@ -1,5 +1,5 @@
 import { logger as parentLogger } from "@/lib/logger";
-import { addWire, updateNodePosition, useGraph } from "@/model/store";
+import { addWire, removeWire, updateNodePosition, useGraph } from "@/model/store";
 import { useCallback, useState } from "react";
 import ReactFlow, {
   Background,
@@ -67,6 +67,9 @@ const CircuitBoard = () => {
         switch (change.type) {
           case "add":
             addWire(change.item as Connection);
+            break;
+          case "remove":
+            removeWire(change.id);
             break;
           default:
             console.log("unhandled wire change", change);

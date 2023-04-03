@@ -1,12 +1,7 @@
 // graph structure that tracks free/bound dependency for multiple relations
 
 import { genNodeId } from "@/schema/node";
-import {
-  Constraint,
-  defaultEqualityConstraintBuilder,
-  EqualityConstraint,
-  NonConstraint,
-} from "./constraint";
+import { Constraint, defaultEqualityConstraintBuilder, EqualityConstraint } from "./constraint";
 import { Edge } from "./edge";
 import { Dep, Vertex, VertexId } from "./vertex";
 
@@ -22,7 +17,6 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
   vertices: V[]; // :[Vertex<T>]
   edges: Edge<T, V>[]; // :[Edge<T>]
   buildWireConstraint: () => EqualityConstraint<T>; // :-> EqualityConstraint<T>
-  history: number[]; // :[index(this.edges)]
 
   constructor(eq = defaultEqualityConstraintBuilder<T>()) {
     this.vertices = []; // :[Vertex<T>]
@@ -30,7 +24,6 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
 
     // internal
     this.buildWireConstraint = eq; // :-> EqualityConstraint<T>
-    this.history = []; // :[index(this.edges)]
   }
 
   // // add a set of vertices and a constraint relating them to the graph as an edge
@@ -74,13 +67,13 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     }
   }
 
-  // remove the most recently created unification involving vertex v
-  // returns true if disunification successful, false if not
-  // WARNING: repeated unification & disunification creates a small memory leak
-  disunify(v: V) {
-    // :Vertex<T> -> bool
-    return this._disunify(v);
-  }
+  // // remove the most recently created unification involving vertex v
+  // // returns true if disunification successful, false if not
+  // // WARNING: repeated unification & disunification creates a small memory leak
+  // disunify(v: V) {
+  //   // :Vertex<T> -> bool
+  //   return this._disunify(v);
+  // }
 
   // returns a list of vertices that should be able to invert with the given bound vertex
   getDepends(v: V) {
@@ -192,46 +185,54 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     return this.edges[this.edges.push(e) - 1];
   }
 
+  _removeEdge(id: string) {
+    let idx = this.edges.findIndex((e) => e.id === id);
+    if (idx >= 0) {
+      let e = this.edges[idx];
+      e.removeDependencies();
+      this.edges.splice(idx, 1);
+    }
+  }
+
   _unify(v1: V, v2: V) {
     // :Vertex<T> -> Vertex<T> -> Edge<T>
-    this.history.unshift(this.edges.length); // history is LIFO
     let e = new Edge([v1, v2], this.buildWireConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
     e.updateDependencies();
     return this.edges[this.edges.push(e) - 1];
   }
 
-  _disunify(v: V) {
-    // :Vertex<T> -> bool
-    for (let i = 0; i < this.history.length; i++) {
-      let idxE = this.history[i]; // :index(this.edges)
-      let e = this.edges[idxE];
-      if (!(e.constraint instanceof EqualityConstraint)) {
-        continue;
-      }
+  // _disunify(v: V) {
+  //   // :Vertex<T> -> bool
+  //   for (let i = 0; i < this.history.length; i++) {
+  //     let idxE = this.history[i]; // :index(this.edges)
+  //     let e = this.edges[idxE];
+  //     if (!(e.constraint instanceof EqualityConstraint)) {
+  //       continue;
+  //     }
 
-      // since we know e has an EqualityConstraint, pos can only be -1, 0, or 1
-      let pos = e.vertices.indexOf(v); // :index(e.vertices)
+  //     // since we know e has an EqualityConstraint, pos can only be -1, 0, or 1
+  //     let pos = e.vertices.indexOf(v); // :index(e.vertices)
 
-      if (pos < 0) {
-        continue;
-      } // not the edge we're looking for
+  //     if (pos < 0) {
+  //       continue;
+  //     } // not the edge we're looking for
 
-      let v2 = e.vertices[1 - pos]; // :Vertex<T>
+  //     let v2 = e.vertices[1 - pos]; // :Vertex<T>
 
-      // we've found the unification to remove: e relates v with v2
+  //     // we've found the unification to remove: e relates v with v2
 
-      // remove the undone unification from the history
-      this.history.splice(i, 1);
+  //     // remove the undone unification from the history
+  //     this.history.splice(i, 1);
 
-      // we don't want to actually delete an edge since we're tracking stuff
-      // based on indexing into this.edges, so we'll just replace the
-      // equality constraint with a base constraint (this is the memory leak)
-      this.edges[idxE].constraint = new NonConstraint(2);
-      this.edges[idxE].updateDependencies();
-      return true;
-    }
-    return false;
-  }
+  //     // we don't want to actually delete an edge since we're tracking stuff
+  //     // based on indexing into this.edges, so we'll just replace the
+  //     // equality constraint with a base constraint (this is the memory leak)
+  //     this.edges[idxE].constraint = new NonConstraint(2);
+  //     this.edges[idxE].updateDependencies();
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   _invert(take: V, give: V, recur: boolean) {
     // :Vertex<T> -> Vertex<T> -> bool -> bool

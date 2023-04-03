@@ -6,7 +6,7 @@ export const UPDATE_DIFFERENTIAL = 2;
 
 //////////////////////////////////
 
-export const UPDATE_MODE = UPDATE_IDEAL;
+export const UPDATE_MODE = UPDATE_ITERATIVE;
 
 //background color and debug variable
 export const indicator = 50;
@@ -15,7 +15,7 @@ export const indicator = 50;
 export const searchSize = 0.02;
 
 //how many iterations to run before updating
-export const iterations = 1;
+export const iterations = 3;
 
 // how many adjustment iterations to run after automatic differentiation
 export const DIFF_ITERS = 1;
@@ -38,10 +38,10 @@ export const settings = {
   currentTime: -1,
   doubleTapTimer: 300,
 
-  //press and hold references
-  pressAndHold: false,
-  timerStart: -1,
-  holdLength: 700,
+  // //press and hold references
+  // pressAndHold: false,
+  // timerStart: -1,
+  // holdLength: 700,
 
   // mode-switch boolean, for going into state of switching a dependency
   reversingOperator: false,

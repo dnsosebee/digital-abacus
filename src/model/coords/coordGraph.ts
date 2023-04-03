@@ -102,15 +102,19 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     }
   }
 
-  // must provide the hidden vertex in order to resume display
-  disunify(v: CoordVertex) {
-    if (this._disunify(v)) {
-      v.hidden = false;
-      return true;
-    } else {
-      return false;
-    }
+  removeWire(id: string) {
+    this._removeEdge(id);
   }
+
+  // // must provide the hidden vertex in order to resume display
+  // disunify(v: CoordVertex) {
+  //   if (this._disunify(v)) {
+  //     v.hidden = false;
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   applyDifferential(delta: Coord) {
     for (let v of this.vertices) {

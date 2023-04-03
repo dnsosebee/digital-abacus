@@ -33,13 +33,6 @@ export function draw(p: p5) {
     }
   }
 
-  //look for bind opportunities
-  if (settings.pressAndHold) {
-    if (p!.millis() - settings.timerStart > settings.holdLength) {
-      settings.indicatorFlash = mainGraph.findUnify();
-    }
-  }
-
   mainGraph.update(updateCycles);
 
   p!.background(indicator);
@@ -111,9 +104,6 @@ export function touchStarted() {
     return;
   }
 
-  settings.pressAndHold = true;
-  settings.timerStart = p!.millis();
-
   if (!settings.tappedOnce) {
     settings.tappedOnce = true;
     settings.currentTime = p!.millis();
@@ -132,7 +122,6 @@ export function touchStarted() {
 }
 
 export function touchMoved() {
-  settings.pressAndHold = false;
   if (settings.activeVertex) {
     if (mainGraph.mode == UPDATE_DIFFERENTIAL) {
       let mouse = getMouse();
@@ -145,7 +134,6 @@ export function touchMoved() {
 }
 
 export function touchEnded() {
-  settings.pressAndHold = false;
   if (settings.activeVertex) {
     settings.activeVertex.notifyRelease();
     settings.activeVertex = null;

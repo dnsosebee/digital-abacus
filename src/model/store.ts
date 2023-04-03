@@ -31,6 +31,8 @@ export const addWire = (conn: Connection) => {
   );
 };
 
+export const removeWire = (id: string) => mainGraph.removeWire(id);
+
 // deprecated
 export const registerNodeInternalsUpdated = () => {
   mainGraph.registerNodeInternalsUpdated();
