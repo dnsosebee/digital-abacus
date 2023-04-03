@@ -1,7 +1,8 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { CircuitNode } from "@/schema/node";
+import { AddNode, CircuitNode, genNodeId, Sticky } from "@/schema/node";
 import { Wire } from "@/schema/wire";
+import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { Coord } from "./coords/coord/coord";
@@ -14,14 +15,23 @@ import { UPDATE_MODE } from "./settings";
 const logger = parentLogger.child({ module: "store" });
 
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
+const stickies = proxy([] as Sticky[]);
+const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
+const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
 
 export const resetGraph = () => {
   mainGraph = proxy(new CoordGraph(UPDATE_MODE));
 };
 
 export const updateNodePosition = (e: NodePositionChange) => {
-  const node = mainGraph._getEdge(e.id) as NodeEdge;
-  node.position = e.position ?? node.position;
+  if (isSticky(e.id)) {
+    const sticky = findSticky(e.id);
+    sticky.position = e.position ?? sticky.position;
+  } else {
+    // is math
+    const node = mainGraph._getEdge(e.id) as NodeEdge;
+    node.position = e.position ?? node.position;
+  }
 };
 
 export const addWire = (conn: Connection) => {
@@ -33,11 +43,30 @@ export const addWire = (conn: Connection) => {
 
 export const removeWire = (id: string) => mainGraph.removeWire(id);
 
-export const removeNode = (id: string) => mainGraph.removeNode(id);
+export const addNode = (addNode: AddNode) => {
+  switch (addNode.type) {
+    case "sticky":
+      stickies.push({
+        id: genNodeId(),
+        type: "sticky",
+        position: addNode.position,
+        data: { text: "" },
+      });
+      break;
+    case "math":
+      mainGraph.addOperation(addNode.data.opType, addNode.position);
+      break;
+    default:
+      throw new Error("unknown node type");
+  }
+};
 
-// deprecated
-export const registerNodeInternalsUpdated = () => {
-  mainGraph.registerNodeInternalsUpdated();
+export const removeNode = (id: string) => {
+  if (isSticky(id)) {
+    stickies.splice(stickies.indexOf(findSticky(id)), 1);
+  } else {
+    mainGraph.removeNode(id);
+  }
 };
 
 export const updateCoord = (vertexId: VertexId, coord: Coord) => {
@@ -45,24 +74,40 @@ export const updateCoord = (vertexId: VertexId, coord: Coord) => {
   vertex.value.mut_sendTo(coord);
 };
 
+export const updateStickyText = (id: string, text: string) => {
+  const sticky = findSticky(id);
+  sticky.data.text = text;
+};
+
+// deprecated
+export const registerNodeInternalsUpdated = () => {
+  mainGraph.registerNodeInternalsUpdated();
+};
+
 const logGraph = () => {
   logger.debug({ mainGraph: JSON.parse(JSON.stringify(mainGraph)) }, "mainGraph got new snapshot");
 };
 
-export const useGraph = (cartesian = false) => {
-  const graph = useSnapshot(mainGraph);
+export const useNodesAndEdges = (cartesian = false) => {
+  const graphSnap = useSnapshot(mainGraph);
+  const stickiesSnap = useSnapshot(stickies);
+  useEffect(() => {
+    logger.debug({ stickiesSnap }, "stickiesSnap got new snapshot");
+  }, [stickiesSnap]);
+
   logGraph();
-  const nodes: CircuitNode[] = [];
+  let nodes: CircuitNode[] = [];
   const wires: Wire[] = [];
-  graph.edges.forEach((edge) => {
+  graphSnap.edges.forEach((edge) => {
     if (edge instanceof WireEdge) {
       wires.push(edgeToWire(edge));
     } else {
       nodes.push(edgeToNode(edge as NodeEdge, cartesian));
     }
   });
+  nodes = nodes.concat(stickiesSnap);
   return {
-    shouldUpdateNodeInternals: graph.shouldUpdateNodeInternals,
+    shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
     nodes,
     wires,
   };

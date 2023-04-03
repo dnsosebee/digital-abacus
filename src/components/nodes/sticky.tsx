@@ -1,3 +1,4 @@
+import { updateStickyText } from "@/model/store";
 import { Sticky } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { NodeShell } from "./nodeShell";
@@ -6,7 +7,11 @@ export type StickyNodeData = Sticky["data"];
 export type StickyNode = Node<StickyNodeData>;
 export type StickyProps = NodeProps<StickyNodeData>;
 
-export const StickyNode = ({ data, selected }: StickyProps) => {
+export const StickyNode = ({ data, selected, id }: StickyProps) => {
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    updateStickyText(id, e.target.value);
+  };
+
   return (
     <div>
       <NodeShell selected={selected}>
@@ -14,7 +19,7 @@ export const StickyNode = ({ data, selected }: StickyProps) => {
         <textarea
           className="w-full h-full p-2 nodrag border border-slate-300 rounded-lg"
           value={data.text}
-          readOnly={true}
+          onChange={onChange}
         />
       </NodeShell>
     </div>

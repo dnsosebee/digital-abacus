@@ -55,3 +55,8 @@ export type Math = {
 };
 export type Sticky = z.infer<typeof stickySchema>;
 export type CircuitNode = Math | Sticky;
+
+export type AddNode = { position: { x: number; y: number } } & (
+  | { type: "sticky" }
+  | { type: "math"; data: { opType: OpType } }
+);
