@@ -5,7 +5,7 @@ import {
   removeNode,
   removeWire,
   updateNodePosition,
-  useNodesAndEdges,
+  useMainGraph,
 } from "@/model/store";
 import { AddNode } from "@/schema/node";
 import { useCallback, useRef, useState } from "react";
@@ -41,7 +41,7 @@ const EDGE_TYPES = {
 };
 
 const CircuitBoard = () => {
-  const { shouldUpdateNodeInternals, nodes, wires } = useNodesAndEdges();
+  const { shouldUpdateNodeInternals, nodes, wires } = useMainGraph();
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);

@@ -88,7 +88,7 @@ const logGraph = () => {
   logger.debug({ mainGraph: JSON.parse(JSON.stringify(mainGraph)) }, "mainGraph got new snapshot");
 };
 
-export const useNodesAndEdges = (cartesian = false) => {
+export const useMainGraph = (cartesian = false) => {
   const graphSnap = useSnapshot(mainGraph);
   const stickiesSnap = useSnapshot(stickies);
   useEffect(() => {
@@ -110,6 +110,7 @@ export const useNodesAndEdges = (cartesian = false) => {
     shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
     nodes,
     wires,
+    focus: graphSnap.focus,
   };
 };
 

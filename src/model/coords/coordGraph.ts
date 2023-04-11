@@ -162,8 +162,8 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     return result;
   }
 
-  startReversal() {
-    this.focus = this.findMouseover();
+  startReversal(focusId: VertexId) {
+    this.focus = this._getVertex(focusId);
     if (this.focus && this.focus.isBound()) {
       return true;
     } else {
@@ -176,9 +176,9 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     this.focus = null;
   }
 
-  completeReversal() {
+  completeReversal(targetId: VertexId) {
     if (this.focus) {
-      let target = this.findMouseover();
+      let target = this._getVertex(targetId);
       if (target && this.invert(this.focus, target)) {
         this.shouldUpdateNodeInternals = true;
         this.focus = null;

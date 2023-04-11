@@ -44,7 +44,7 @@ export const settings = {
   // holdLength: 700,
 
   // mode-switch boolean, for going into state of switching a dependency
-  reversingOperator: false,
+  // reversingOperator: false,
 
   indicatorFlash: false,
 

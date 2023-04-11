@@ -89,10 +89,12 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     // :Vertex<T> -> Vertex<T> -> bool
     // if vertex to take is already free, nothing to do
     if (take.isFree()) {
+      logger.debug("invert: vertex to take is already free");
       return true;
     }
     // can't give up control of an already-bound vertex
     if (give.isBound()) {
+      logger.debug("invert: vertex to give is already bound");
       return false;
     }
 
@@ -255,7 +257,7 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     if (take.isFree() || give.isBound()) {
       // should not get here: external method has already checked this,
       // and recursive calls should be well-behaved
-      console.log("Warning: Tried to invert inappropriate vertices.");
+      logger.warn("Tried to invert inappropriate vertices.");
       return false;
     }
 
@@ -274,7 +276,7 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
       ) {
         // "give" should be present and free
         // should not get here, edge disagrees with vertex
-        console.log("Warning: Relational graph is out of sync with itself.");
+        logger.warn("Warning: Relational graph is out of sync with itself.");
         return false;
       }
 
@@ -282,7 +284,7 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
         return true;
       } else {
         // should not get here; issue is probably with e.constraint
-        console.log("Warning: Unexpected failure to perform inversion.");
+        logger.warn("Warning: Unexpected failure to perform inversion.");
         return false;
       }
     } else if (recur) {
@@ -296,9 +298,9 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
           } else {
             // recursive step failed, so undo the last step
             if (this._invert(give, this._getVertex(p.vertex), false)) {
-              console.log("Warning: Failure during multi-step inversion.");
+              logger.warn("Warning: Failure during multi-step inversion.");
             } else {
-              console.log(
+              logger.warn(
                 "Warning: Could not restore original state" + " after failure during inversion."
               );
             }

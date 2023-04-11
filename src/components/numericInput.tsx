@@ -1,7 +1,9 @@
 import { logger } from "@/lib/logger";
 import { Coord } from "@/model/coords/coord/coord";
 import { CoordVertex } from "@/model/coords/coordVertex";
-import { updateCoord } from "@/model/store";
+import { vertexIdEq } from "@/model/graph/vertex";
+import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
+import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 
 export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
   const onChangeX = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,27 +16,79 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
   };
 
   return (
-    <div className="nodrag flex flex-col space-y-1 rounded-xl">
-      <div>
-        <input
-          type="number"
-          value={vertex.value.x}
-          onChange={onChangeX}
-          readOnly={vertex.isBound()}
-          className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
-        />
-        <span className="ml-1 font-extrabold">+</span>
+    <div className="flex nodrag">
+      {/* center the contents of the following div */}
+      <div className="flex flex-col justify-center">
+        <LockButton vertex={vertex} />
       </div>
-      <div>
-        <input
-          type="number"
-          value={vertex.value.y}
-          onChange={onChangeY}
-          readOnly={vertex.isBound()}
-          className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
-        />
-        <span className="ml-1 font-extrabold italic">i</span>
+      <div className="flex flex-col space-y-1">
+        <div>
+          <input
+            type="number"
+            value={vertex.value.x}
+            onChange={onChangeX}
+            readOnly={vertex.isBound()}
+            className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+          />
+          <span className="ml-1 font-extrabold">+</span>
+        </div>
+        <div>
+          <input
+            type="number"
+            value={vertex.value.y}
+            onChange={onChangeY}
+            readOnly={vertex.isBound()}
+            className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+          />
+          <span className="ml-1 font-extrabold italic">i</span>
+        </div>
       </div>
     </div>
+  );
+};
+
+/**
+ * If the vertex is bound, show a lock icon and make it clickable. Otherwise show an open lock icon and make it unclickable.
+ */
+const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
+  const { focus } = useMainGraph();
+  const reversing = !!focus;
+
+  const isBound = vertex.isBound();
+  const isClickable = isBound
+    ? !reversing
+    : reversing &&
+      mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
+
+  if (reversing) {
+    logger.debug({ depends: mainGraph.getDepends(focus as CoordVertex) }, "LockButton");
+  } else {
+    logger.debug("LockButton not reversing");
+  }
+
+  // if not bound, make the lock glow overtly
+  const clickableClasses = `bg-slate-300 hover:bg-slate-400 ${
+    isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
+  }`;
+  const Icon = isBound ? LockClosedIcon : LockOpenIcon;
+
+  const handleStartReversal = () => {
+    logger.debug({ focus: focus }, "handleStartReversal");
+    mainGraph.startReversal(vertex.id);
+  };
+
+  const handleCompleteReversal = () => {
+    logger.debug({ focus: focus }, "handleCompleteReversal");
+    mainGraph.completeReversal(vertex.id);
+  };
+
+  return (
+    <button
+      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""}`}
+      disabled={!isClickable}
+      onClick={isBound ? handleStartReversal : handleCompleteReversal}
+    >
+      <Icon className="w-6 h-6 text-slate-800" />
+    </button>
   );
 };

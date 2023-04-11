@@ -40,12 +40,12 @@ export function draw(p: p5) {
   drawGrid();
   drawButtons();
 
-  //display mode while alternative dependency...
-  if (settings.reversingOperator) {
-    p!.background(0, 150);
-  }
+  // //display mode while alternative dependency...
+  // if (settings.reversingOperator) {
+  //   p!.background(0, 150);
+  // }
 
-  mainGraph.display(settings.reversingOperator);
+  mainGraph.display(false);
 
   //digital readout for existing operators
   printToPlot();
@@ -77,11 +77,11 @@ console.log("setup defined");
 // let activeVertex: Vertex<Coord> | null = null;
 
 export function touchStarted() {
-  if (settings.reversingOperator) {
-    mainGraph.completeReversal();
-    settings.reversingOperator = false;
-    return;
-  }
+  // if (settings.reversingOperator) {
+  //   mainGraph.completeReversal();
+  //   settings.reversingOperator = false;
+  //   return;
+  // }
 
   if (CLEAR_BUTTON.isNear(getMousePx(), 10)) {
     resetGraph();
@@ -104,13 +104,13 @@ export function touchStarted() {
     return;
   }
 
-  if (!settings.tappedOnce) {
-    settings.tappedOnce = true;
-    settings.currentTime = p!.millis();
-  } else {
-    settings.reversingOperator = mainGraph.startReversal();
-    settings.tappedOnce = false;
-  }
+  // if (!settings.tappedOnce) {
+  //   settings.tappedOnce = true;
+  //   settings.currentTime = p!.millis();
+  // } else {
+  //   // settings.reversingOperator = mainGraph.startReversal();
+  //   settings.tappedOnce = false;
+  // }
 
   settings.activeVertex = mainGraph.findMouseover();
   if (settings.activeVertex && settings.activeVertex.value instanceof DifferentialCoord) {
