@@ -38,7 +38,7 @@ export function draw(p: p5) {
   p!.background(indicator);
 
   drawGrid();
-  drawButtons();
+  // drawButtons();
 
   // //display mode while alternative dependency...
   // if (settings.reversingOperator) {
@@ -48,7 +48,7 @@ export function draw(p: p5) {
   mainGraph.display(false);
 
   //digital readout for existing operators
-  printToPlot();
+  // printToPlot();
 
   if (settings.indicatorFlash) {
     p!.background(0);

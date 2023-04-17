@@ -52,7 +52,7 @@ export const settings = {
   supressCoords: false,
 
   // show little derivatives near nodes
-  showDifferentials: true,
+  showDifferentials: false,
 
   // activeVertex
   activeVertex: null as null | CoordVertex,
