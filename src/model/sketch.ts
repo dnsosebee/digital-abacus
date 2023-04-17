@@ -1,20 +1,10 @@
 // import p5 from "p5";
 import { SketchProps } from "react-p5/@types";
-import { getMouse, getMousePx } from "./coords/coord/coord";
+import { getMouse } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
-import { OP_TYPE } from "./coords/edges/nodeEdge";
-import {
-  ADDER_BUTTON,
-  CLEAR_BUTTON,
-  CONJ_BUTTON,
-  drawButtons,
-  drawGrid,
-  EXP_BUTTON,
-  MULTR_BUTTON,
-  printToPlot,
-} from "./graphics";
-import { indicator, settings, updateCycles, UPDATE_DIFFERENTIAL } from "./settings";
-import { mainGraph, resetGraph } from "./store";
+import { drawGrid } from "./graphics";
+import { UPDATE_DIFFERENTIAL, indicator, settings, updateCycles } from "./settings";
+import { mainGraph } from "./store";
 
 type p5 = Parameters<SketchProps["setup"]>[0];
 
@@ -45,7 +35,7 @@ export function draw(p: p5) {
   //   p!.background(0, 150);
   // }
 
-  mainGraph.display(false);
+  mainGraph.display();
 
   //digital readout for existing operators
   // printToPlot();
@@ -82,7 +72,7 @@ export function touchStarted() {
   //   settings.reversingOperator = false;
   //   return;
   // }
-/*
+  /*
   if (CLEAR_BUTTON.isNear(getMousePx(), 10)) {
     resetGraph();
     return;

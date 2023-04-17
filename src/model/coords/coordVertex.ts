@@ -10,6 +10,7 @@ const logger = parentLogger.child({ module: "CoordVertex" });
 export class CoordVertex extends Vertex<Coord> {
   dragging: boolean;
   hidden: boolean;
+  selected: boolean;
 
   constructor(datum: Coord, id: VertexId) {
     // position of point
@@ -17,6 +18,7 @@ export class CoordVertex extends Vertex<Coord> {
 
     this.dragging = false;
     this.hidden = false;
+    this.selected = false;
   }
 
   checkMouseover() {
@@ -34,6 +36,7 @@ export class CoordVertex extends Vertex<Coord> {
     }
     if (this.isFree() && this.checkMouseover()) {
       this.dragging = true;
+      this.selected = true;
       if (this.value instanceof DifferentialCoord) {
         this.value.delta = new Coord(1, 0);
       }
@@ -43,6 +46,7 @@ export class CoordVertex extends Vertex<Coord> {
 
   notifyRelease() {
     this.dragging = false;
+    this.selected = false;
     if (this.value instanceof DifferentialCoord) {
       this.value.delta = new Coord(0, 0);
     }
@@ -58,13 +62,20 @@ export class CoordVertex extends Vertex<Coord> {
     this.value.mut_sendTo(new Coord(x, y));
   }
 
-  _drawNode(reversing = false) {
+  _drawNode(reversalFocus: boolean = false, reversalTarget: boolean = false) {
+    // this.selected
+
     p!.noStroke();
-    if (reversing) {
-      p!.fill(255);
+    if (reversalFocus) {
+      p!.fill(255, 0, 0);
+    } else if (reversalTarget) {
+      p!.fill(255, 255, 0);
+    } else if (this.dragging || this.selected) {
+      p!.fill(96, 165, 250);
     } else {
-      p!.fill(100, 150, 255);
+      p!.fill(255);
     }
+    logger.debug("drawing node at " + this.value.getXPx() + ", " + this.value.getYPx());
     p!.ellipse(this.value.getXPx(), this.value.getYPx(), 15, 15);
   }
 
@@ -75,13 +86,13 @@ export class CoordVertex extends Vertex<Coord> {
     p!.ellipse(this.value.getXPx(), this.value.getYPx(), 20, 20);
   }
 
-  display(reversing = false) {
+  display(reversalFocus: boolean = false, reversalTarget: boolean = false) {
     // :bool -> void
     if (this.hidden) {
       return;
     }
 
-    this._drawNode(reversing);
+    this._drawNode(reversalFocus, reversalTarget);
 
     if (this.isFree()) {
       this._drawRing();

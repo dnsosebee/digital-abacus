@@ -328,4 +328,9 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     // }
     // return str;
   }
+
+  reset() {
+    this.vertices = [];
+    this.edges = [];
+  }
 }

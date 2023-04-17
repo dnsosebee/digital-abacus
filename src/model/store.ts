@@ -1,6 +1,6 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { AddNode, CircuitNode, genNodeId, Sticky } from "@/schema/node";
+import { AddNode, CircuitNode, Sticky, genNodeId } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
@@ -18,10 +18,6 @@ export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if
 const stickies = proxy([] as Sticky[]);
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
-
-export const resetGraph = () => {
-  mainGraph = proxy(new CoordGraph(UPDATE_MODE));
-};
 
 export const updateNodePosition = (e: NodePositionChange) => {
   if (isSticky(e.id)) {

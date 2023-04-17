@@ -3,14 +3,15 @@ import { genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
 import { makeEqualityConstraintBuilder } from "../graph/constraint";
 import { RelGraph } from "../graph/relGraph";
-import { VertexId } from "../graph/vertex";
-import { UPDATE_IDEAL } from "../settings";
+import { VertexId, vertexIdEq } from "../graph/vertex";
+import { UPDATE_IDEAL, UPDATE_ITERATIVE } from "../settings";
 import { p } from "../sketch";
 import { Coord } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
 import { CoordVertex } from "./coordVertex";
-import { NodeEdge, OpType, OP_TYPE } from "./edges/nodeEdge";
+import { ITERATIONS, NodeEdge, OP_TYPE, OpType, STEP_SIZE } from "./edges/nodeEdge";
 import { WireEdge } from "./edges/wireEdge";
+import { makeIterativeComplexEqualityConstraintBuilder } from "./operations";
 
 const logger = parentLogger.child({ module: "CoordGraph" });
 
@@ -39,9 +40,9 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
       return z;
     };
     let eq = makeEqualityConstraintBuilder(f_eq, f_cp);
-    // if (updateMode == UPDATE_ITERATIVE) {
-    //   eq = makeIterativeComplexEqualityConstraintBuilder(f_eq, f_cp);
-    // }
+    if (updateMode == UPDATE_ITERATIVE) {
+      eq = makeIterativeComplexEqualityConstraintBuilder(f_eq, f_cp, STEP_SIZE, ITERATIONS);
+    }
     super(eq);
 
     this.focus = null;
@@ -128,18 +129,23 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     }
   }
 
-  display(reversing = false) {
+  display() {
     for (const e of this.edges) {
       if (e instanceof NodeEdge) {
         e.displayLinkage();
       }
     }
+
     for (const v of this.vertices) {
-      if (reversing && this.focus && this.getDepends(this.focus).includes(v)) {
-        v.display(reversing);
+      if (this.focus) {
+        if (vertexIdEq(v.id, this.focus.id)) {
+          v.display(true, false);
+        } else if (this.getDepends(this.focus).includes(v)) {
+          v.display(false, true);
+        } else {
+          v.display();
+        }
       } else {
-        // need more than 2 states! want depends to look more distinct
-        // from other free vertices
         v.display();
       }
     }
@@ -188,21 +194,38 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
     }
   }
 
+  setNodeVisibility(id: string, hidden: boolean) {
+    let e = this._getEdge(id);
+    if (e instanceof NodeEdge) {
+      e.hidden = hidden;
+      e.vertices.forEach((v) => (v.hidden = hidden));
+    } else {
+      throw new Error("setNodeVisibility called on non-node edge");
+    }
+  }
+
+  setVertexSelectedness(id: VertexId, selected: boolean) {
+    let v = this._getVertex(id);
+    if (v) {
+      v.selected = selected;
+    }
+  }
+
   registerNodeInternalsUpdated() {
     this.shouldUpdateNodeInternals = false;
   }
 
-  findUnify() {
-    let v1 = this.findMouseover();
-    if (v1) {
-      v1.hidden = true;
-      let v2 = this.findMouseover();
-      v1.hidden = false;
-      if (v2 && this.unify(v1, v2)) {
-        v2.hidden = true;
-        return true;
-      }
-    }
-    return false;
-  }
+  // findUnify() {
+  //   let v1 = this.findMouseover();
+  //   if (v1) {
+  //     v1.hidden = true;
+  //     let v2 = this.findMouseover();
+  //     v1.hidden = false;
+  //     if (v2 && this.unify(v1, v2)) {
+  //       v2.hidden = true;
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 }

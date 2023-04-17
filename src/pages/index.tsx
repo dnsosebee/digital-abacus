@@ -1,6 +1,5 @@
 import CircuitBoard from "@/components/circuitBoard";
 import Linkages from "@/components/linkages";
-import { mainGraph } from "@/model/store";
 import Head from "next/head";
 import { ReactFlowProvider } from "reactflow";
 
@@ -18,12 +17,6 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-gray-800 bg-slate-300 shadow-xl px-2 py-1">
             The Digital Abacus
           </h1>
-          <button
-            className="bg-slate-300 text-gray-800 font-bold py-2 px-4 rounded"
-            onClick={() => mainGraph.getAllDeps()}
-          >
-            log deps
-          </button>
           <div className="flex-grow flex">
             <div className="split">
               <ReactFlowProvider>

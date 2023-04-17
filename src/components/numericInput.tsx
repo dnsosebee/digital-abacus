@@ -15,8 +15,18 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
     updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
   };
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    logger.debug({ e }, "handleFocus");
+    mainGraph.setVertexSelectedness(vertex.id, true);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    logger.debug({ e }, "handleBlur");
+    mainGraph.setVertexSelectedness(vertex.id, false);
+  };
+
   return (
-    <div className="flex nodrag">
+    <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
         <LockButton vertex={vertex} />
@@ -29,6 +39,8 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
             onChange={onChangeX}
             readOnly={vertex.isBound()}
             className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           <span className="ml-1 font-extrabold">+</span>
         </div>
@@ -39,6 +51,8 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
             onChange={onChangeY}
             readOnly={vertex.isBound()}
             className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
           <span className="ml-1 font-extrabold italic">i</span>
         </div>
@@ -84,7 +98,9 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
 
   return (
     <button
-      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""}`}
+      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""} ${
+        reversing && vertexIdEq(focus.id, vertex.id) ? "bg-red-400" : ""
+      }`}
       disabled={!isClickable}
       onClick={isBound ? handleStartReversal : handleCompleteReversal}
     >
