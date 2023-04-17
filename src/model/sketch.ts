@@ -82,7 +82,7 @@ export function touchStarted() {
   //   settings.reversingOperator = false;
   //   return;
   // }
-
+/*
   if (CLEAR_BUTTON.isNear(getMousePx(), 10)) {
     resetGraph();
     return;
@@ -103,7 +103,7 @@ export function touchStarted() {
     mainGraph.addOperation(OP_TYPE.EXPONENTIAL);
     return;
   }
-
+*/
   // if (!settings.tappedOnce) {
   //   settings.tappedOnce = true;
   //   settings.currentTime = p!.millis();
