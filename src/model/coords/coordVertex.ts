@@ -31,7 +31,7 @@ export class CoordVertex extends Vertex<Coord> {
 
   notifyClick() {
     // :-> bool
-    if (this.hidden) {
+    if (this.hidden && !this.selected) {
       return false;
     }
     if (this.isFree() && this.checkMouseover()) {
@@ -70,13 +70,17 @@ export class CoordVertex extends Vertex<Coord> {
       p!.fill(255, 0, 0);
     } else if (reversalTarget) {
       p!.fill(255, 255, 0);
-    } else if (this.dragging || this.selected) {
-      p!.fill(96, 165, 250);
     } else {
       p!.fill(255);
     }
     logger.debug("drawing node at " + this.value.getXPx() + ", " + this.value.getYPx());
     p!.ellipse(this.value.getXPx(), this.value.getYPx(), 15, 15);
+  }
+
+  _drawSelected() {
+    p!.fill(96, 165, 250);
+    p!.noStroke();
+    p!.rect(this.value.getXPx() - 15, this.value.getYPx() - 15, 30, 30, 8);
   }
 
   _drawRing() {
@@ -88,13 +92,17 @@ export class CoordVertex extends Vertex<Coord> {
 
   display(reversalFocus: boolean = false, reversalTarget: boolean = false) {
     // :bool -> void
-    if (this.hidden) {
+    if (this.hidden && !this.selected && !this.dragging) {
       return;
+    }
+
+    if (this.selected) {
+      this._drawSelected();
     }
 
     this._drawNode(reversalFocus, reversalTarget);
 
-    if (this.isFree()) {
+    if (this.isFree() && !this.hidden) {
       this._drawRing();
     }
 

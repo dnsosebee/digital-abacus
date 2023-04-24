@@ -7,6 +7,7 @@ import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
+import { CircuitEdge } from "./coords/edges/circuitEdge";
 import { NodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
 import { VertexId } from "./graph/vertex";
@@ -47,6 +48,7 @@ export const addNode = (addNode: AddNode) => {
         type: "sticky",
         position: addNode.position,
         data: { text: "" },
+        selected: false,
       });
       break;
     case "math":
@@ -62,6 +64,19 @@ export const removeNode = (id: string) => {
     stickies.splice(stickies.indexOf(findSticky(id)), 1);
   } else {
     mainGraph.removeNode(id);
+  }
+};
+
+export const changeSelection = (id: string, selected: boolean) => {
+  if (isSticky(id)) {
+    const sticky = findSticky(id);
+    sticky.selected = selected;
+  } else {
+    const edge = mainGraph._getEdge(id) as CircuitEdge | undefined;
+    if (!edge) {
+      throw new Error("edge for selection change not found");
+    }
+    edge.selected = selected;
   }
 };
 
@@ -101,6 +116,15 @@ export const useMainGraph = (cartesian = false) => {
       nodes.push(edgeToNode(edge as NodeEdge, cartesian));
     }
   });
+
+  // const selectedNodes = nodes.filter((n) => n.selected);
+  // if (selectedNodes.length === 1) {
+  //   if
+  //   nodes.push({
+
+  //   })
+  // }
+
   nodes = nodes.concat(stickiesSnap);
   return {
     shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
@@ -118,6 +142,7 @@ const edgeToWire = (edge: WireEdge): Wire => ({
   targetHandle: handleNumToId(edge.target.handle),
   type: "coord",
   animated: true,
+  selected: edge.selected,
 });
 
 const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
@@ -129,4 +154,6 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
     opType: edge.type,
     vertices: edge.vertices,
   },
+  selected: edge.selected,
+  edge,
 });

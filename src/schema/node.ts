@@ -1,5 +1,5 @@
 import { CoordVertex } from "@/model/coords/coordVertex";
-import { OpType, opTypeSchema } from "@/model/coords/edges/nodeEdge";
+import { NodeEdge, OpType, opTypeSchema } from "@/model/coords/edges/nodeEdge";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -34,6 +34,7 @@ const mathSchema = baseNodeSchema.extend({
 // etc.
 export const stickySchema = baseNodeSchema.extend({
   type: z.literal("sticky"),
+  selected: z.boolean(),
   data: z.object({
     text: z.string(),
   }),
@@ -47,13 +48,25 @@ export type Math = {
   id: string;
   position: { x: number; y: number };
   type: "math";
+  selected: boolean;
   data: {
     cartesian: boolean;
     vertices: CoordVertex[];
     opType: OpType;
   };
+  edge: NodeEdge;
 };
 export type Sticky = z.infer<typeof stickySchema>;
+
+export type Popup = {
+  id: "popup";
+  for: string;
+  position: { x: number; y: number };
+  type: "popup";
+  selectable: false;
+  deletable: false;
+  draggable: false;
+};
 export type CircuitNode = Math | Sticky;
 
 export type AddNode = { position: { x: number; y: number } } & (

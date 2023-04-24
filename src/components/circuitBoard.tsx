@@ -2,12 +2,13 @@ import { logger as parentLogger } from "@/lib/logger";
 import {
   addNode,
   addWire,
+  changeSelection,
   removeNode,
   removeWire,
   updateNodePosition,
   useMainGraph,
 } from "@/model/store";
-import { AddNode } from "@/schema/node";
+import { AddNode, Math } from "@/schema/node";
 import { useCallback, useRef, useState } from "react";
 import ReactFlow, {
   Background,
@@ -24,9 +25,9 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { CircuitsProvider } from "./circuitsProvider";
+import Menubar from "./menubar";
 import { MathNode } from "./nodes/mathNode";
 import { StickyNode } from "./nodes/sticky";
-import Sidebar from "./sidebar";
 
 const logger = parentLogger.child({ component: "CircuitBoard" });
 
@@ -69,6 +70,9 @@ const CircuitBoard = () => {
           case "remove":
             removeNode(change.id);
             break;
+          case "select":
+            changeSelection(change.id, change.selected);
+            break;
           default:
             console.log("unhandled node change", change);
         }
@@ -86,6 +90,9 @@ const CircuitBoard = () => {
             break;
           case "remove":
             removeWire(change.id);
+            break;
+          case "select":
+            changeSelection(change.id, change.selected);
             break;
           default:
             console.log("unhandled wire change", change);
@@ -127,13 +134,16 @@ const CircuitBoard = () => {
     [reactFlowInstance]
   );
 
+  const activeNodes = nodes.filter((node) => node.type === "math" && node.selected) as Math[];
+  logger.debug({ activeNodes }, "activeNodes");
+
   return (
-    <>
-      <Sidebar />
-      <div className="h-full grow">
+    <div className="flex-grow flex flex-col">
+      <Menubar activeNodes={activeNodes} />
+      <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
         <CircuitsProvider dragging={dragging}>
-          <div className="reactflow-wrapper h-full" ref={reactFlowWrapper}>
+          <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
             <ReactFlow
               nodes={nodes}
               onNodesChange={onNodesChange}
@@ -155,7 +165,7 @@ const CircuitBoard = () => {
           </div>
         </CircuitsProvider>
       </div>
-    </>
+    </div>
   );
 };
 

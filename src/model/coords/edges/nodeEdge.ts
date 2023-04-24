@@ -1,15 +1,14 @@
 import { z } from "zod";
 import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/constraint";
-import { Edge } from "../../graph/edge";
 import {
   CENTER_X,
   CENTER_Y,
-  iterations,
-  searchSize,
-  settings,
   UPDATE_DIFFERENTIAL,
   UPDATE_IDEAL,
   UPDATE_ITERATIVE,
+  iterations,
+  searchSize,
+  settings,
 } from "../../settings";
 import { p } from "../../sketch";
 import { Coord, Polar } from "../coord/coord";
@@ -28,6 +27,7 @@ import {
   IterativeComplexExponent,
   IterativeComplexMultiplier,
 } from "../operations";
+import { CircuitEdge } from "./circuitEdge";
 
 export const OP_TYPE = {
   ADDER: "adder" as const,
@@ -53,11 +53,11 @@ export const ITERATIONS = iterations;
 
 type CircuitPosition = { x: number; y: number };
 
-export class NodeEdge extends Edge<Coord, CoordVertex> {
+export class NodeEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
 
   type: OpType; // :operator type
-  hidden: boolean; // :whether to draw this operator
+  hidden: boolean; // :whether to draw this operator in Linkages
   position: CircuitPosition;
 
   constructor(v: CoordVertex[], type: OpType, mode: number, id: string, position: CircuitPosition) {
@@ -139,14 +139,24 @@ export class NodeEdge extends Edge<Coord, CoordVertex> {
     this.hidden = false;
   }
 
+  setHidden(h: boolean) {
+    this.hidden = h;
+    this.vertices.forEach((v) => {
+      v.hidden = h;
+    });
+  }
+
   // display connecting lines related to this operation
   // note: does not draw the vertices themselves
   displayLinkage() {
-    if (this.hidden) {
+    if (this.hidden && !this.selected) {
       return;
     }
     p!.noFill();
     p!.strokeWeight(1);
+    if (this.selected) {
+      p!.strokeWeight(4);
+    }
 
     if (this.type == OP_TYPE.ADDER) {
       p!.stroke(30, 200, 255);

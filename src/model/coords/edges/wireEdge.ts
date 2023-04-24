@@ -1,10 +1,10 @@
 import { EqualityConstraint } from "../../graph/constraint";
-import { Edge } from "../../graph/edge";
 import { VertexId } from "../../graph/vertex";
 import { Coord } from "../coord/coord";
 import { CoordVertex } from "../coordVertex";
+import { CircuitEdge } from "./circuitEdge";
 
-export class WireEdge extends Edge<Coord, CoordVertex> {
+export class WireEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
 
   source: VertexId;

@@ -18,7 +18,7 @@ export default function Home() {
             The Digital Abacus
           </h1>
           <div className="flex-grow flex">
-            <div className="split">
+            <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
                 <CircuitBoard />
               </ReactFlowProvider>

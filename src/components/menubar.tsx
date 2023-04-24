@@ -1,9 +1,9 @@
-import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { mainGraph } from "@/model/store";
-import { AddNode } from "@/schema/node";
+import { AddNode, Math } from "@/schema/node";
 import { Symbol } from "./symbol";
 
-const Sidebar = () => {
+const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
     event.dataTransfer.setData("application/reactflow", JSON.stringify(addNode));
     event.dataTransfer.effectAllowed = "move";
@@ -11,7 +11,7 @@ const Sidebar = () => {
 
   return (
     <div className="flex px-4 py-2  bg-slate-100">
-      <div className="flex space-x-8 ">
+      <div className="flex space-x-4 ">
         <Draggable
           symbol="+"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
@@ -71,12 +71,32 @@ const Sidebar = () => {
             })
           }
         />
+        {activeNodes.length === 1 && <NodeControls activeNode={activeNodes[0]} />}
       </div>
       <button
         onClick={() => mainGraph.reset()}
         className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"
       >
         Erase All
+      </button>
+    </div>
+  );
+};
+
+const NodeControls = ({ activeNode }: { activeNode: Math }) => {
+  const hidden = activeNode.edge.hidden;
+
+  const toggleHidden = () => {
+    const edge = mainGraph._getEdge(activeNode.id) as NodeEdge;
+    edge.setHidden(!hidden);
+  };
+  return (
+    <div className="flex space-x-4">
+      <button
+        onClick={toggleHidden}
+        className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
+      >
+        {hidden ? "Unhide" : "Hide"}
       </button>
     </div>
   );
@@ -96,4 +116,4 @@ const Draggable = ({
   );
 };
 
-export default Sidebar;
+export default Menubar;
