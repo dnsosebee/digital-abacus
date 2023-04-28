@@ -7,12 +7,12 @@ import { DifferentialCoord } from "./coord/differentialCoord";
 
 const logger = parentLogger.child({ module: "CoordVertex" });
 
-export class CoordVertex extends Vertex<Coord> {
+export class CoordVertex extends Vertex<DifferentialCoord> {
   dragging: boolean;
   hidden: boolean;
   selected: boolean;
 
-  constructor(datum: Coord, id: VertexId) {
+  constructor(datum: DifferentialCoord, id: VertexId) {
     // position of point
     super(datum, id);
 

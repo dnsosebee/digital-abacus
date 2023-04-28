@@ -1,6 +1,6 @@
 import { EqualityConstraint } from "../../graph/constraint";
 import { VertexId } from "../../graph/vertex";
-import { Coord } from "../coord/coord";
+import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
 import { CircuitEdge } from "./circuitEdge";
 
@@ -15,7 +15,7 @@ export class WireEdge extends CircuitEdge {
     id: string,
     source: VertexId,
     target: VertexId,
-    c: EqualityConstraint<Coord>
+    c: EqualityConstraint<DifferentialCoord>
   ) {
     super(v, c, id);
     this.source = source;

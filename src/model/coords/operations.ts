@@ -347,17 +347,22 @@ export class IterativeComplexExponent extends IdealComplexExponent {
   }
 }
 
-export class IterativeComplexEqualityConstraint extends EqualityConstraint<Coord> {
+export class IterativeComplexEqualityConstraint extends EqualityConstraint<DifferentialCoord> {
   stepSize: number;
   iters: number;
 
-  constructor(eq: Eq<Coord>, cp: Cp<Coord>, stepSize: number, iters: number) {
+  constructor(
+    eq: Eq<DifferentialCoord>,
+    cp: Cp<DifferentialCoord>,
+    stepSize: number,
+    iters: number
+  ) {
     super(eq, cp);
     this.stepSize = stepSize;
     this.iters = iters;
   }
 
-  update(data: Coord[]) {
+  update(data: DifferentialCoord[]) {
     for (let i = 0; i < this.iters; i++) {
       let newdata = data.slice();
       if (this.primaryLeft) {
@@ -370,7 +375,7 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Coord
     return data;
   }
 
-  iterate(z: Coord, guess: Coord) {
+  iterate(z: DifferentialCoord, guess: DifferentialCoord) {
     if (z.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(z);
     } else {
@@ -381,8 +386,8 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Coord
 }
 
 export function makeIterativeComplexEqualityConstraintBuilder(
-  eq: Eq<Coord>,
-  cp: Cp<Coord>,
+  eq: Eq<DifferentialCoord>,
+  cp: Cp<DifferentialCoord>,
   STEP_SIZE: number,
   ITERATIONS: number
 ) {
@@ -465,7 +470,7 @@ export class DifferentialComplexConjugator extends IdealComplexConjugator {
     // delta gets multiplied by the actual movement of the input,
     // but there's no factor we can give here to do that
     let deltaIn = data[1 - this.bound].delta;
-    data[this.bound].delta = new Coord(deltaIn.getX(), deltaIn.getY() * -1);
+    data[this.bound].delta = new DifferentialCoord(deltaIn.getX(), deltaIn.getY() * -1);
     return data;
   }
 }

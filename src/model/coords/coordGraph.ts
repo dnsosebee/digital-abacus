@@ -15,7 +15,7 @@ import { makeIterativeComplexEqualityConstraintBuilder } from "./operations";
 
 const logger = parentLogger.child({ module: "CoordGraph" });
 
-export class CoordGraph extends RelGraph<Coord, CoordVertex> {
+export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   // :RelGraph<LinkagePoint>
 
   focus: CoordVertex | null;
@@ -28,15 +28,15 @@ export class CoordGraph extends RelGraph<Coord, CoordVertex> {
   record: number;
 
   constructor(updateMode = UPDATE_IDEAL) {
-    let f_eq = function (z1: Coord, z2: Coord) {
+    let f_eq = function (z1: DifferentialCoord, z2: DifferentialCoord) {
       return z1.equals(z2);
     };
-    let f_cp = function (zOld: Coord, zNew: Coord) {
+    let f_cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
       let z = zOld.copy();
       z.mut_sendTo(zNew);
-      if (z instanceof DifferentialCoord && zNew instanceof DifferentialCoord) {
-        z.delta.mut_avg(zNew.delta);
-      }
+
+      z.delta.mut_avg(zNew.delta);
+
       return z;
     };
     let eq = makeEqualityConstraintBuilder(f_eq, f_cp);

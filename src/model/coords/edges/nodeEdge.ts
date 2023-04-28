@@ -12,6 +12,7 @@ import {
 } from "../../settings";
 import { p } from "../../sketch";
 import { Coord, Polar } from "../coord/coord";
+import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
 import {
   DifferentialComplexAdder,
@@ -133,7 +134,7 @@ export class NodeEdge extends CircuitEdge {
         console.log("Warning: Invalid Update Mode");
         c = new NonConstraint<Coord>(2);
     }
-    super(v, c as Constraint<Coord>, id);
+    super(v, c as Constraint<DifferentialCoord>, id);
     this.type = type;
     this.position = position;
     this.hidden = false;
