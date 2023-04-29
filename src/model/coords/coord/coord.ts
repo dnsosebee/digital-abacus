@@ -1,5 +1,13 @@
+import { z } from "zod";
 import { CENTER_X, CENTER_Y, settings } from "../../settings";
 import { p } from "../../sketch";
+
+export const serialCoordSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+});
+
+export type SerialCoord = z.infer<typeof serialCoordSchema>;
 
 export class Coord {
   x: number;
@@ -8,6 +16,10 @@ export class Coord {
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  serialize(): SerialCoord {
+    return { x: this.x, y: this.y };
   }
 
   getX() {

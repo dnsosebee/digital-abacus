@@ -1,4 +1,14 @@
-export type VertexId = { node: string; handle: number };
+import { z } from "zod";
+import { Serializable } from "./serializable";
+
+export const serialVertexIdSchema = z.object({
+  node: z.string(),
+  handle: z.number(),
+});
+
+export type SerialVertexId = z.infer<typeof serialVertexIdSchema>;
+
+export type VertexId = SerialVertexId;
 
 export function vertexIdEq(v1: VertexId, v2: VertexId) {
   return v1.node == v2.node && v1.handle == v2.handle;
@@ -6,16 +16,30 @@ export function vertexIdEq(v1: VertexId, v2: VertexId) {
 
 export type Dep = { vertex: VertexId; edge: string };
 
-export class Vertex<T> {
+export const serialVertexSchema = z.object({
+  value: z.any(),
+  id: serialVertexIdSchema,
+});
+
+export type SerialVertex = z.infer<typeof serialVertexSchema>;
+
+export class Vertex<T extends Serializable> {
   // :Vertex<T>
 
   value: T; // :T
   id: VertexId; // :index(graph.vertices)
   deps: Dep[]; // :[index(graph.vertices) x index(graph.edges)]
-  constructor(datum: T, id: VertexId, deps: Dep[] = []) {
-    this.value = datum; // :T
+  constructor(value: T, id: VertexId) {
+    this.value = value; // :T
     this.id = id; // :index(graph.vertices)
-    this.deps = deps; // :[index(graph.vertices) x index(graph.edges)]
+    this.deps = []; // :[index(graph.vertices) x index(graph.edges)]
+  }
+
+  serialize(): SerialVertex {
+    return {
+      value: this.value.serialize(),
+      id: this.id,
+    };
   }
 
   isFree() {

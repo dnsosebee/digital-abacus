@@ -1,10 +1,20 @@
 import { logger as parentLogger } from "@/lib/logger";
+import { z } from "zod";
 import { Constraint } from "./constraint";
-import { Vertex } from "./vertex";
+import { Serializable } from "./serializable";
+import { Vertex, serialVertexSchema } from "./vertex";
 
 const logger = parentLogger.child({ module: "Edge" });
 
-export class Edge<T, V extends Vertex<T> = Vertex<T>> {
+// DOES NOT INCLUDE CONSTRAINT
+export const serialEdgeSchema = z.object({
+  vertices: z.array(serialVertexSchema),
+  id: z.string(),
+});
+
+export type SerialEdge = z.infer<typeof serialEdgeSchema>;
+
+export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
   vertices: V[]; // :[Vertex<T>]
   constraint: Constraint<T>; // :Constraint<T>
   id: string;
@@ -13,6 +23,15 @@ export class Edge<T, V extends Vertex<T> = Vertex<T>> {
     this.vertices = v;
     this.constraint = c;
     this.id = id;
+    this.updateDependencies();
+  }
+
+  serialize(): SerialEdge {
+    return {
+      vertices: this.vertices.map((v) => v.serialize()),
+      // constraint: this.constraint.serialize(),
+      id: this.id,
+    };
   }
 
   // is the given position a bound/output position for this edge?

@@ -1,8 +1,16 @@
+import { z } from "zod";
 import { EqualityConstraint } from "../../graph/constraint";
-import { VertexId } from "../../graph/vertex";
+import { VertexId, serialVertexIdSchema } from "../../graph/vertex";
 import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
-import { CircuitEdge } from "./circuitEdge";
+import { CircuitEdge, serialCircuitEdgeSchema } from "./circuitEdge";
+
+export const serialWireEdgeSchema = serialCircuitEdgeSchema.extend({
+  source: serialVertexIdSchema,
+  target: serialVertexIdSchema,
+});
+
+export type SerialWireEdge = z.infer<typeof serialWireEdgeSchema>;
 
 export class WireEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
@@ -15,11 +23,17 @@ export class WireEdge extends CircuitEdge {
     id: string,
     source: VertexId,
     target: VertexId,
-    c: EqualityConstraint<DifferentialCoord>
+    c: EqualityConstraint<DifferentialCoord>,
+    selected = false
   ) {
-    super(v, c, id);
+    super(v, c, id, selected);
     this.source = source;
     this.target = target;
+  }
+
+  serialize(): SerialWireEdge {
+    const serialized = super.serialize();
+    return { ...serialized, source: this.source, target: this.target };
   }
 
   invert(take: number, give: number) {

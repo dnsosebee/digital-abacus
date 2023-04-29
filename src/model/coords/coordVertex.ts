@@ -1,5 +1,6 @@
 import { logger as parentLogger } from "@/lib/logger";
-import { Vertex, VertexId } from "../graph/vertex";
+import { z } from "zod";
+import { Vertex, VertexId, serialVertexSchema } from "../graph/vertex";
 import { settings } from "../settings";
 import { p } from "../sketch";
 import { Coord, getMouse, getMousePx } from "./coord/coord";
@@ -7,18 +8,37 @@ import { DifferentialCoord } from "./coord/differentialCoord";
 
 const logger = parentLogger.child({ module: "CoordVertex" });
 
+export const serialCoordVertexSchema = serialVertexSchema.extend({
+  dragging: z.boolean(),
+  hidden: z.boolean(),
+  selected: z.boolean(),
+});
+
+export type SerialCoordVertex = z.infer<typeof serialCoordVertexSchema>;
+
 export class CoordVertex extends Vertex<DifferentialCoord> {
   dragging: boolean;
   hidden: boolean;
   selected: boolean;
 
-  constructor(datum: DifferentialCoord, id: VertexId) {
+  constructor(
+    value: DifferentialCoord,
+    id: VertexId,
+    dragging = false,
+    hidden = false,
+    selected = false
+  ) {
     // position of point
-    super(datum, id);
+    super(value, id);
 
-    this.dragging = false;
-    this.hidden = false;
-    this.selected = false;
+    this.dragging = dragging;
+    this.hidden = hidden;
+    this.selected = selected;
+  }
+
+  serialize(): SerialCoordVertex {
+    const serialized = super.serialize();
+    return { ...serialized, dragging: this.dragging, hidden: this.hidden, selected: this.selected };
   }
 
   checkMouseover() {

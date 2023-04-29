@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev| pino-pretty",
     "build": "next build",
-    "start": "next start",
+    "start": "next start| pino-pretty --include \"req,res\"",
     "lint": "next lint"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
+    "pino-pretty": "^10.0.0",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7"
   }

@@ -1,5 +1,6 @@
 import { logger as parentLogger } from "@/lib/logger";
 import {
+  SerialState,
   addNode,
   addWire,
   changeSelection,
@@ -41,14 +42,14 @@ const EDGE_TYPES = {
   // TODO: add LIST edge types
 };
 
-const CircuitBoard = () => {
-  const { shouldUpdateNodeInternals, nodes, wires } = useMainGraph();
+const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
+  const { nodes, wires } = useMainGraph(serialState);
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
 
   const [dragging, setDragging] = useState(false);
-  logger.debug({ dragging }, "CircuitBoard");
+  logger.debug({ dragging, nodes, wires }, "CircuitBoard");
 
   // useEffect(() => {
   //   if (shouldUpdateNodeInternals) {

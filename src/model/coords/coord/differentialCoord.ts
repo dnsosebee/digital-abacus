@@ -1,4 +1,11 @@
-import { Coord } from "./coord";
+import { z } from "zod";
+import { Coord, serialCoordSchema } from "./coord";
+
+export const serialDifferentialCoordSchema = serialCoordSchema.extend({
+  delta: serialCoordSchema,
+});
+
+export type SerialDifferentialCoord = z.infer<typeof serialDifferentialCoordSchema>;
 
 export class DifferentialCoord extends Coord {
   delta: Coord;
@@ -8,6 +15,11 @@ export class DifferentialCoord extends Coord {
     super(x, y);
 
     this.delta = delta;
+  }
+
+  serialize(): SerialDifferentialCoord {
+    const serialized = super.serialize();
+    return { ...serialized, delta: this.delta.serialize() };
   }
 
   copy() {

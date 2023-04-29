@@ -28,7 +28,7 @@ import {
   IterativeComplexExponent,
   IterativeComplexMultiplier,
 } from "../operations";
-import { CircuitEdge } from "./circuitEdge";
+import { CircuitEdge, serialCircuitEdgeSchema } from "./circuitEdge";
 
 export const OP_TYPE = {
   ADDER: "adder" as const,
@@ -54,6 +54,17 @@ export const ITERATIONS = iterations;
 
 type CircuitPosition = { x: number; y: number };
 
+export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
+  type: opTypeSchema,
+  hidden: z.boolean(),
+  position: z.object({
+    x: z.number(),
+    y: z.number(),
+  }),
+});
+
+export type SerialNodeEdge = z.infer<typeof serialNodeEdgeSchema>;
+
 export class NodeEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
 
@@ -61,7 +72,15 @@ export class NodeEdge extends CircuitEdge {
   hidden: boolean; // :whether to draw this operator in Linkages
   position: CircuitPosition;
 
-  constructor(v: CoordVertex[], type: OpType, mode: number, id: string, position: CircuitPosition) {
+  constructor(
+    v: CoordVertex[],
+    type: OpType,
+    mode: number,
+    id: string,
+    position: CircuitPosition,
+    hidden = false,
+    selected = false
+  ) {
     let c = null;
     switch (mode) {
       case UPDATE_IDEAL:
@@ -134,10 +153,20 @@ export class NodeEdge extends CircuitEdge {
         console.log("Warning: Invalid Update Mode");
         c = new NonConstraint<Coord>(2);
     }
-    super(v, c as Constraint<DifferentialCoord>, id);
+    super(v, c as Constraint<DifferentialCoord>, id, selected);
     this.type = type;
     this.position = position;
-    this.hidden = false;
+    this.hidden = hidden;
+  }
+
+  serialize(): SerialNodeEdge {
+    const serialized = super.serialize();
+    return {
+      ...serialized,
+      type: this.type,
+      hidden: this.hidden,
+      position: this.position,
+    };
   }
 
   setHidden(h: boolean) {

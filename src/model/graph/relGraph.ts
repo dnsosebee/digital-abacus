@@ -2,15 +2,25 @@
 
 import { logger as parentLogger } from "@/lib/logger";
 import { genNodeId } from "@/schema/node";
+import { z } from "zod";
 import { Constraint, defaultEqualityConstraintBuilder, EqualityConstraint } from "./constraint";
-import { Edge } from "./edge";
+import { Edge, serialEdgeSchema } from "./edge";
+import { Serializable } from "./serializable";
 import { Dep, Vertex, VertexId } from "./vertex";
 const logger = parentLogger.child({ module: "RelGraph" });
 
 // (technically this structure is a directed hypergraph, not strictly a graph)
 console.log("graph.js loaded");
 
-export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
+// DOES NOT INCLUDE VERTICES
+export const serialRelGraphSchema = z.object({
+  // vertices: z.array(serialVertexSchema),
+  edges: z.array(serialEdgeSchema),
+});
+
+export type SerialRelGraph = z.infer<typeof serialRelGraphSchema>;
+
+export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
   // :RelGraph<T>
   // eq :T -> T -> bool - notion of equality for vertex data
   // cp :T -> T -> void - function that copies data from 1st arg to 2nd arg
@@ -20,12 +30,24 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
   edges: Edge<T, V>[]; // :[Edge<T>]
   buildWireConstraint: () => EqualityConstraint<T>; // :-> EqualityConstraint<T>
 
-  constructor(eq = defaultEqualityConstraintBuilder<T>()) {
-    this.vertices = []; // :[Vertex<T>]
-    this.edges = []; // :[Edge<T>]
+  constructor(
+    vertices: V[] = [],
+    edges: Edge<T, V>[] = [],
+    eq = defaultEqualityConstraintBuilder<T>()
+  ) {
+    this.vertices = vertices;
+    this.edges = edges;
 
     // internal
     this.buildWireConstraint = eq; // :-> EqualityConstraint<T>
+  }
+
+  serialize(): SerialRelGraph {
+    let data: any = {};
+    data["edges"] = this.edges.map(function (e) {
+      return e.serialize();
+    });
+    return data;
   }
 
   // // add a set of vertices and a constraint relating them to the graph as an edge
@@ -60,14 +82,14 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
 
   // link two free vertices to the same datum by adding an equality constraint
   // returns the new Edge, or null if unification could not be performed
-  unify(v1: V, v2: V) {
-    // :Vertex<T> -> Vertex<T> -> Edge<T>
-    if (v1.isFree() && v2.isFree()) {
-      return this._unify(v1, v2);
-    } else {
-      return null; // can only unify free vertices
-    }
-  }
+  // unify(v1: V, v2: V) {
+  //   // :Vertex<T> -> Vertex<T> -> Edge<T>
+  //   if (v1.isFree() && v2.isFree()) {
+  //     return this._unify(v1, v2);
+  //   } else {
+  //     return null; // can only unify free vertices
+  //   }
+  // }
 
   // // remove the most recently created unification involving vertex v
   // // returns true if disunification successful, false if not
@@ -185,7 +207,6 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
   _addEdge(vs: V[], constraint: Constraint<T>) {
     // :[Vertex<T>] -> Constraint<T> -> Edge<T>
     let e = new Edge(vs, constraint, genNodeId());
-    e.updateDependencies();
     return this.edges[this.edges.push(e) - 1];
   }
 
@@ -211,12 +232,12 @@ export class RelGraph<T, V extends Vertex<T> = Vertex<T>> {
     }
   }
 
-  _unify(v1: V, v2: V) {
-    // :Vertex<T> -> Vertex<T> -> Edge<T>
-    let e = new Edge([v1, v2], this.buildWireConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
-    e.updateDependencies();
-    return this.edges[this.edges.push(e) - 1];
-  }
+  // _unify(v1: V, v2: V) {
+  //   // :Vertex<T> -> Vertex<T> -> Edge<T>
+  //   let e = new Edge([v1, v2], this.buildWireConstraint(), genNodeId()); // TODO: added extra parens to buildEqualityConstraint
+  //   e.updateDependencies();
+  //   return this.edges[this.edges.push(e) - 1];
+  // }
 
   // _disunify(v: V) {
   //   // :Vertex<T> -> bool

@@ -1,12 +1,13 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { AddNode, CircuitNode, Sticky, genNodeId } from "@/schema/node";
+import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
+import { z } from "zod";
 import { Coord } from "./coords/coord/coord";
-import { CoordGraph } from "./coords/coordGraph";
+import { CoordGraph, serialCoordGraphSchema } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
 import { NodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
@@ -91,22 +92,51 @@ export const updateStickyText = (id: string, text: string) => {
 };
 
 // deprecated
-export const registerNodeInternalsUpdated = () => {
-  mainGraph.registerNodeInternalsUpdated();
-};
+// export const registerNodeInternalsUpdated = () => {
+//   mainGraph.registerNodeInternalsUpdated();
+// };
 
-const logGraph = () => {
-  logger.debug({ mainGraph: JSON.parse(JSON.stringify(mainGraph)) }, "mainGraph got new snapshot");
-};
+// const logGraph = () => {
+//   logger.debug({ mainGraph: JSON.parse(JSON.stringify(mainGraph)) }, "mainGraph got new snapshot");
+// };
 
-export const useMainGraph = (cartesian = false) => {
+export const serialStateSchema = z.object({
+  graph: serialCoordGraphSchema,
+  stickies: z.array(stickySchema),
+});
+
+export type SerialState = z.infer<typeof serialStateSchema>;
+
+export const useMainGraph = (initial?: SerialState, cartesian = false) => {
+  logger.debug({ initial }, "useMainGraph called");
   const graphSnap = useSnapshot(mainGraph);
   const stickiesSnap = useSnapshot(stickies);
-  useEffect(() => {
-    logger.debug({ stickiesSnap }, "stickiesSnap got new snapshot");
-  }, [stickiesSnap]);
 
-  logGraph();
+  useEffect(() => {
+    if (initial) {
+      logger.debug({ initial }, "restoring from url");
+      mainGraph = proxy(CoordGraph.fromJSON(initial.graph));
+      stickies.splice(0, stickies.length, ...initial.stickies);
+      logger.debug({ mainGraph, stickies }, "restored from url");
+    }
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const serial: SerialState = {
+        graph: mainGraph.serialize(),
+        stickies,
+      };
+      const str = encodeURIComponent(JSON.stringify(serial));
+      window.history.pushState({}, "", str);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // useEffect(() => {
+  //   logger.debug({ stickiesSnap }, "stickiesSnap got new snapshot");
+  // }, [stickiesSnap]);
+
   let nodes: CircuitNode[] = [];
   const wires: Wire[] = [];
   graphSnap.edges.forEach((edge) => {
@@ -127,7 +157,7 @@ export const useMainGraph = (cartesian = false) => {
 
   nodes = nodes.concat(stickiesSnap);
   return {
-    shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
+    // shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
     nodes,
     wires,
     focus: graphSnap.focus,
