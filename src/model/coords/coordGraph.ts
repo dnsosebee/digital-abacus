@@ -111,7 +111,8 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
         e.id,
         e.position,
         e.hidden ?? false,
-        e.selected ?? false
+        e.selected ?? false,
+        e.label ?? undefined
       );
     });
 

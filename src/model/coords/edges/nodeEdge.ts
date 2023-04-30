@@ -61,6 +61,7 @@ export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
     x: z.number(),
     y: z.number(),
   }),
+  label: z.string(),
 });
 
 export type SerialNodeEdge = z.infer<typeof serialNodeEdgeSchema>;
@@ -71,6 +72,7 @@ export class NodeEdge extends CircuitEdge {
   type: OpType; // :operator type
   hidden: boolean; // :whether to draw this operator in Linkages
   position: CircuitPosition;
+  label: string;
 
   constructor(
     v: CoordVertex[],
@@ -79,7 +81,8 @@ export class NodeEdge extends CircuitEdge {
     id: string,
     position: CircuitPosition,
     hidden = false,
-    selected = false
+    selected = false,
+    label = ""
   ) {
     let c = null;
     switch (mode) {
@@ -157,6 +160,7 @@ export class NodeEdge extends CircuitEdge {
     this.type = type;
     this.position = position;
     this.hidden = hidden;
+    this.label = label;
   }
 
   serialize(): SerialNodeEdge {
@@ -166,6 +170,7 @@ export class NodeEdge extends CircuitEdge {
       type: this.type,
       hidden: this.hidden,
       position: this.position,
+      label: this.label,
     };
   }
 

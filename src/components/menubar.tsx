@@ -84,7 +84,7 @@ const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
 };
 
 const NodeControls = ({ activeNode }: { activeNode: Math }) => {
-  const hidden = activeNode.edge.hidden;
+  const hidden = activeNode.data.edge.hidden;
 
   const toggleHidden = () => {
     const edge = mainGraph._getEdge(activeNode.id) as NodeEdge;

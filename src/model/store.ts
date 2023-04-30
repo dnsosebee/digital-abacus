@@ -91,6 +91,15 @@ export const updateStickyText = (id: string, text: string) => {
   sticky.data.text = text;
 };
 
+export const updateLabel = (id: string, label: string) => {
+  const edge = mainGraph._getEdge(id);
+  if (edge && edge instanceof NodeEdge) {
+    edge.label = label;
+  } else {
+    throw new Error("edge not found");
+  }
+};
+
 // deprecated
 // export const registerNodeInternalsUpdated = () => {
 //   mainGraph.registerNodeInternalsUpdated();
@@ -183,7 +192,8 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
     cartesian,
     opType: edge.type,
     vertices: edge.vertices,
+    label: edge.label,
+    edge: edge,
   },
   selected: edge.selected,
-  edge,
 });

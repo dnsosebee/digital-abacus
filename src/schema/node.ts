@@ -29,6 +29,7 @@ const mathSchema = baseNodeSchema.extend({
     cartesian: z.boolean(),
     vertices: z.array(z.any()),
     opType: opTypeSchema,
+    label: z.string(),
   }),
 });
 // etc.
@@ -53,20 +54,21 @@ export type Math = {
     cartesian: boolean;
     vertices: CoordVertex[];
     opType: OpType;
+    label: string;
+    edge: NodeEdge;
   };
-  edge: NodeEdge;
 };
 export type Sticky = z.infer<typeof stickySchema>;
 
-export type Popup = {
-  id: "popup";
-  for: string;
-  position: { x: number; y: number };
-  type: "popup";
-  selectable: false;
-  deletable: false;
-  draggable: false;
-};
+// export type Popup = {
+//   id: "popup";
+//   for: string;
+//   position: { x: number; y: number };
+//   type: "popup";
+//   selectable: false;
+//   deletable: false;
+//   draggable: false;
+// };
 export type CircuitNode = Math | Sticky;
 
 export type AddNode = { position: { x: number; y: number } } & (

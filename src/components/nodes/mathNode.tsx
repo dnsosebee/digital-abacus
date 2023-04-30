@@ -2,7 +2,7 @@ import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BinopNode } from "./binop";
-import { StandaloneNode } from "./equals";
+import { StandaloneNode } from "./standalone";
 import { UnopNode } from "./unop";
 
 export type MathData = Math["data"];
