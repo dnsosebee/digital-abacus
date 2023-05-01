@@ -477,9 +477,21 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     }
   }
 
-  // TODO use differentials to make a better choice of angle
   findApproachAngle(z: DifferentialCoord, guess: DifferentialCoord) {
-    return z.subtract(guess).getTh();
+    // "guess" is the bound variable, it's trying to line up its position with z
+
+    // angle from +real axis to vector pointing from guess to z
+    const theta = z.subtract(guess).getTh();
+
+    // angle from guess->z vector to differential of z
+    const thetaZ = z.delta.getTh() - theta;
+
+    // relative speed of z with respect to guess
+    // const speedRatio = z.delta.getR() / guess.delta.getR();
+
+    // naive solution is to just move directly toward z
+    // TODO use differentials to make a better choice
+    return theta;
   }
 }
 
