@@ -247,7 +247,7 @@ export class IterativeComplexAdder extends IdealComplexAdder {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
-    return data;
+    return this.updateDifferentials(data);
   }
 
   iterate(data: Coord[]) {
@@ -304,7 +304,7 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
-    return data;
+    return this.updateDifferentials(data);
   }
 
   iterate(data: Coord[]) {
@@ -365,7 +365,7 @@ export class IterativeComplexConjugator extends IdealComplexConjugator {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
-    return data;
+    return this.updateDifferentials(data);
   }
 
   iterate(data: Coord[]) {
@@ -400,7 +400,7 @@ export class IterativeComplexExponent extends IdealComplexExponent {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
-    return data;
+    return this.updateDifferentials(data);
   }
 
   iterate(data: Coord[]) {
@@ -468,11 +468,18 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
 
   iterate(z: DifferentialCoord, guess: DifferentialCoord) {
     if (z.isNear(guess, this.stepSize)) {
+      guess.delta = z.delta;
+      z.delta = new Coord(0,0);
       return guess.mut_sendTo(z);
     } else {
-      let theta = z.subtract(guess).getTh();
+      let theta = this.findApproachAngle(z, guess);
       return guess.mut_translate(new Polar(this.stepSize, theta));
     }
+  }
+
+  // TODO use differentials to make a better choice of angle
+  findApproachAngle(z: DifferentialCoord, guess: DifferentialCoord) {
+    return z.subtract(guess).getTh();
   }
 }
 
