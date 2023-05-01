@@ -64,7 +64,11 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
       let z = zOld.copy();
       z.mut_sendTo(zNew);
 
-      z.delta.mut_avg(zNew.delta);
+      if (z.delta && zNew.delta) {
+        z.delta.mut_avg(zNew.delta);
+      } else {
+        z.delta = null;
+      }
 
       return z;
     };
@@ -190,7 +194,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];
     const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
     if (vTarget.isFree() && vTarget !== vSource) {
-      vSource.delta = new Coord(1,0);
+      // vTarget.value.delta = new Coord(1, 0);
       const e = new WireEdge([vSource, vTarget], id, source, target, c);
       return this.edges[this.edges.push(e) - 1];
     } else {

@@ -10,7 +10,7 @@ import { DifferentialCoord } from "./coord/differentialCoord";
 export class IdealComplexAdder extends OperatorConstraint<DifferentialCoord> {
   constructor() {
     let subL = function (d: Coord[]) {
-      return d[2].subtract(d[1]);
+      return d[2].copy().mut_subtract(d[1]);
     };
     let subR = function (d: Coord[]) {
       return d[2].subtract(d[0]);
@@ -21,7 +21,7 @@ export class IdealComplexAdder extends OperatorConstraint<DifferentialCoord> {
     let eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
-    let cp = function (zOld: Coord, zNew: Coord) {
+    let cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
       return zOld.copy().mut_sendTo(zNew);
     };
     let check = function (d: Coord[]) {
@@ -54,7 +54,7 @@ export class IdealComplexAdder extends OperatorConstraint<DifferentialCoord> {
         }
         break;
       default:
-        // should not get here
+      // should not get here
     }
     return data;
   }
@@ -74,7 +74,7 @@ export class IdealComplexMultiplier extends OperatorConstraint<DifferentialCoord
     let eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
-    let cp = function (zOld: Coord, zNew: Coord) {
+    let cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
       return zOld.copy().mut_sendTo(zNew);
     };
     let check = function (d: Coord[]) {
@@ -83,7 +83,7 @@ export class IdealComplexMultiplier extends OperatorConstraint<DifferentialCoord
     super([divL, divR, mult], eq, cp, check);
   }
 
-  accepts(data: Coord[]) {
+  accepts(data: DifferentialCoord[]) {
     // if constraint is in a division mode, check for 0 divisor
     if ((this.bound == 0 && data[1].isOrigin()) || (this.bound == 1 && data[0].isOrigin())) {
       return false;
@@ -125,7 +125,7 @@ export class IdealComplexMultiplier extends OperatorConstraint<DifferentialCoord
         }
         break;
       default:
-        // should not get here
+      // should not get here
     }
     return data;
   }
@@ -142,7 +142,7 @@ export class IdealComplexConjugator extends OperatorConstraint<DifferentialCoord
     let eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
-    let cp = function (zOld: Coord, zNew: Coord) {
+    let cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
       return zOld.copy().mut_sendTo(zNew);
     };
     let check = function (d: Coord[]) {
@@ -175,7 +175,7 @@ export class IdealComplexExponent extends OperatorConstraint<DifferentialCoord> 
     let eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
-    let cp = function (zOld: Coord, zNew: Coord) {
+    let cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
       return zOld.copy().mut_sendTo(zNew);
     };
     let check = function (d: Coord[]) {
@@ -221,7 +221,7 @@ export class IdealComplexExponent extends OperatorConstraint<DifferentialCoord> 
         }
         break;
       default:
-        // should not get here
+      // should not get here
     }
     return data;
   }
@@ -243,14 +243,14 @@ export class IterativeComplexAdder extends IdealComplexAdder {
     this.iters = iters; // :nat
   }
 
-  update(data: Coord[]) {
+  update(data: DifferentialCoord[]) {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
     return this.updateDifferentials(data);
   }
 
-  iterate(data: Coord[]) {
+  iterate(data: DifferentialCoord[]) {
     switch (this.bound) {
       case 0:
         data[0] = this.iterateDiff(data[2], data[1], data[0]);
@@ -267,7 +267,7 @@ export class IterativeComplexAdder extends IdealComplexAdder {
     return data;
   }
 
-  iterateSum(z1: Coord, z2: Coord, guess: Coord) {
+  iterateSum(z1: DifferentialCoord, z2: DifferentialCoord, guess: DifferentialCoord) {
     let sum = z1.translate(z2);
     if (sum.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(sum);
@@ -277,7 +277,7 @@ export class IterativeComplexAdder extends IdealComplexAdder {
     }
   }
 
-  iterateDiff(z: Coord, zsub: Coord, guess: Coord) {
+  iterateDiff(z: DifferentialCoord, zsub: DifferentialCoord, guess: DifferentialCoord) {
     let diff = z.subtract(zsub);
     if (diff.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(diff);
@@ -300,14 +300,14 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
     this.iters = iters; // :nat
   }
 
-  update(data: Coord[]) {
+  update(data: DifferentialCoord[]) {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
     return this.updateDifferentials(data);
   }
 
-  iterate(data: Coord[]) {
+  iterate(data: DifferentialCoord[]) {
     switch (this.bound) {
       case 0:
         data[0] = this.iterateQuot(data[2], data[1], data[0]);
@@ -324,7 +324,7 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
     return data;
   }
 
-  iterateProd(z1: Coord, z2: Coord, guess: Coord) {
+  iterateProd(z1: DifferentialCoord, z2: DifferentialCoord, guess: DifferentialCoord) {
     let prod = z1.multiply(z2);
     if (prod.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(prod);
@@ -334,7 +334,7 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
     }
   }
 
-  iterateQuot(z: Coord, zdiv: Coord, guess: Coord) {
+  iterateQuot(z: DifferentialCoord, zdiv: DifferentialCoord, guess: DifferentialCoord) {
     // if dividing by 0, just move the quotient towards infinity
     if (zdiv.isOrigin()) {
       return guess.mut_translate(new Polar(this.stepSize, guess.getTh()));
@@ -361,19 +361,19 @@ export class IterativeComplexConjugator extends IdealComplexConjugator {
     this.iters = iters; // :nat
   }
 
-  update(data: Coord[]) {
+  update(data: DifferentialCoord[]) {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
     return this.updateDifferentials(data);
   }
 
-  iterate(data: Coord[]) {
+  iterate(data: DifferentialCoord[]) {
     data[this.bound] = this.iterateConj(data[1 - this.bound], data[this.bound]);
     return data;
   }
 
-  iterateConj(z: Coord, guess: Coord) {
+  iterateConj(z: DifferentialCoord, guess: DifferentialCoord) {
     let conj = z.conjugate();
     if (conj.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(conj);
@@ -396,14 +396,14 @@ export class IterativeComplexExponent extends IdealComplexExponent {
     this.iters = iters; // :nat
   }
 
-  update(data: Coord[]) {
+  update(data: DifferentialCoord[]) {
     for (let i = 0; i < this.iters; i++) {
       data = this.iterate(data);
     }
     return this.updateDifferentials(data);
   }
 
-  iterate(data: Coord[]) {
+  iterate(data: DifferentialCoord[]) {
     switch (this.bound) {
       case 0:
         data[0] = this.iterateLog(data[1], data[0]);
@@ -417,7 +417,7 @@ export class IterativeComplexExponent extends IdealComplexExponent {
     return data;
   }
 
-  iterateLog(z: Coord, guess: Coord) {
+  iterateLog(z: DifferentialCoord, guess: DifferentialCoord) {
     let zlog = z.log(IdealComplexExponent._nearestN(z.log(0), guess));
     if (zlog.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(zlog);
@@ -427,7 +427,7 @@ export class IterativeComplexExponent extends IdealComplexExponent {
     }
   }
 
-  iterateExp(z: Coord, guess: Coord) {
+  iterateExp(z: DifferentialCoord, guess: DifferentialCoord) {
     let zexp = z.exp();
     if (zexp.isNear(guess, this.stepSize)) {
       return guess.mut_sendTo(zexp);
@@ -468,8 +468,9 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
 
   iterate(z: DifferentialCoord, guess: DifferentialCoord) {
     if (z.isNear(guess, this.stepSize)) {
-      guess.delta = z.delta;
-      z.delta = new Coord(0,0);
+      // TODO: update deltas ??
+      // guess.delta = z.delta;
+      // z.delta = new Coord(0, 0);
       return guess.mut_sendTo(z);
     } else {
       let theta = this.findApproachAngle(z, guess);
@@ -483,15 +484,19 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     // angle from +real axis to vector pointing from guess to z
     const theta = z.subtract(guess).getTh();
 
-    // angle from guess->z vector to differential of z
-    const thetaZ = z.delta.getTh() - theta;
+    if (z.delta) {
+      // angle from guess->z vector to differential of z
+      const thetaZ = z.delta.getTh() - theta;
 
-    // relative speed of z with respect to guess
-    // const speedRatio = z.delta.getR() / guess.delta.getR();
+      // relative speed of z with respect to guess
+      // const speedRatio = z.delta.getR() / guess.delta.getR();
 
-    // naive solution is to just move directly toward z
-    // TODO use differentials to make a better choice
-    return theta;
+      // naive solution is to just move directly toward z
+      // TODO use differentials to make a better choice
+      return theta;
+    } else {
+      return theta;
+    }
   }
 }
 
@@ -512,99 +517,99 @@ export function makeIterativeComplexEqualityConstraintBuilder(
 // right now calling update on this constraint ONLY updates differentials //
 ////////////////////////////////////////////////////////////////////////////
 
-export class DifferentialComplexAdder extends IdealComplexAdder {
-  // :Constraint<LinkagePoint>
-  constructor() {
-    super();
-  }
+// export class DifferentialComplexAdder extends IdealComplexAdder {
+//   // :Constraint<LinkagePoint>
+//   constructor() {
+//     super();
+//   }
 
-  update(data: DifferentialCoord[]) {
-    switch (this.bound) {
-      case 0:
-        data[0].delta = data[2].delta.subtract(data[1].delta);
-        break;
-      case 1:
-        data[1].delta = data[2].delta.subtract(data[0].delta);
-        break;
-      case 2:
-        data[2].delta = data[0].delta.translate(data[1].delta);
-        break;
-      default:
-      // should not get here
-    }
-    return data;
-  }
-}
+//   update(data: DifferentialCoord[]) {
+//     switch (this.bound) {
+//       case 0:
+//         data[0].delta = data[2].delta.subtract(data[1].delta);
+//         break;
+//       case 1:
+//         data[1].delta = data[2].delta.subtract(data[0].delta);
+//         break;
+//       case 2:
+//         data[2].delta = data[0].delta.translate(data[1].delta);
+//         break;
+//       default:
+//       // should not get here
+//     }
+//     return data;
+//   }
+// }
 
-export class DifferentialComplexMultiplier extends IdealComplexMultiplier {
-  // :Constraint<LP>
-  constructor() {
-    super();
-  }
+// export class DifferentialComplexMultiplier extends IdealComplexMultiplier {
+//   // :Constraint<LP>
+//   constructor() {
+//     super();
+//   }
 
-  update(data: DifferentialCoord[]) {
-    let fprimeg, fgprime, gsquare;
-    switch (this.bound) {
-      case 0:
-        fprimeg = data[2].delta.multiply(data[1]);
-        fgprime = data[2].multiply(data[1].delta);
-        gsquare = data[1].multiply(data[1]);
-        data[0].delta = fprimeg.subtract(fgprime).divide(gsquare);
-        break;
-      case 1:
-        fprimeg = data[2].delta.multiply(data[0]);
-        fgprime = data[2].multiply(data[0].delta);
-        gsquare = data[0].multiply(data[0]);
-        data[1].delta = fprimeg.subtract(fgprime).divide(gsquare);
-        break;
-      case 2:
-        fprimeg = data[0].delta.multiply(data[1]);
-        fgprime = data[0].multiply(data[1].delta);
-        data[2].delta = fprimeg.translate(fgprime);
-        break;
-      default:
-      // should not get here
-    }
-    return data;
-  }
-}
+//   update(data: DifferentialCoord[]) {
+//     let fprimeg, fgprime, gsquare;
+//     switch (this.bound) {
+//       case 0:
+//         fprimeg = data[2].delta.multiply(data[1]);
+//         fgprime = data[2].multiply(data[1].delta);
+//         gsquare = data[1].multiply(data[1]);
+//         data[0].delta = fprimeg.subtract(fgprime).divide(gsquare);
+//         break;
+//       case 1:
+//         fprimeg = data[2].delta.multiply(data[0]);
+//         fgprime = data[2].multiply(data[0].delta);
+//         gsquare = data[0].multiply(data[0]);
+//         data[1].delta = fprimeg.subtract(fgprime).divide(gsquare);
+//         break;
+//       case 2:
+//         fprimeg = data[0].delta.multiply(data[1]);
+//         fgprime = data[0].multiply(data[1].delta);
+//         data[2].delta = fprimeg.translate(fgprime);
+//         break;
+//       default:
+//       // should not get here
+//     }
+//     return data;
+//   }
+// }
 
-export class DifferentialComplexConjugator extends IdealComplexConjugator {
-  // :Constraint<LP>
-  constructor() {
-    super();
-  }
+// export class DifferentialComplexConjugator extends IdealComplexConjugator {
+//   // :Constraint<LP>
+//   constructor() {
+//     super();
+//   }
 
-  update(data: DifferentialCoord[]) {
-    // we need the conjugate at the next step, not here!
-    // delta gets multiplied by the actual movement of the input,
-    // but there's no factor we can give here to do that
-    let deltaIn = data[1 - this.bound].delta;
-    data[this.bound].delta = new DifferentialCoord(deltaIn.getX(), deltaIn.getY() * -1);
-    return data;
-  }
-}
+//   update(data: DifferentialCoord[]) {
+//     // we need the conjugate at the next step, not here!
+//     // delta gets multiplied by the actual movement of the input,
+//     // but there's no factor we can give here to do that
+//     let deltaIn = data[1 - this.bound].delta;
+//     data[this.bound].delta = new DifferentialCoord(deltaIn.getX(), deltaIn.getY() * -1);
+//     return data;
+//   }
+// }
 
-export class DifferentialComplexExponent extends IdealComplexExponent {
-  // :Constraint<LP>
+// export class DifferentialComplexExponent extends IdealComplexExponent {
+//   // :Constraint<LP>
 
-  one: Coord;
-  constructor() {
-    super();
-    this.one = new Coord(1, 0);
-  }
+//   one: Coord;
+//   constructor() {
+//     super();
+//     this.one = new Coord(1, 0);
+//   }
 
-  update(data: DifferentialCoord[]) {
-    switch (this.bound) {
-      case 0:
-        data[0].delta = data[1].delta.divide(data[1]);
-        break;
-      case 1:
-        data[1].delta = data[1].multiply(data[0].delta);
-        break;
-      default:
-      // should not get here
-    }
-    return data;
-  }
-}
+//   update(data: DifferentialCoord[]) {
+//     switch (this.bound) {
+//       case 0:
+//         data[0].delta = data[1].delta.divide(data[1]);
+//         break;
+//       case 1:
+//         data[1].delta = data[1].multiply(data[0].delta);
+//         break;
+//       default:
+//       // should not get here
+//     }
+//     return data;
+//   }
+// }

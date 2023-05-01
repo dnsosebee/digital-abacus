@@ -58,6 +58,7 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
       this.dragging = true;
       this.selected = true;
       if (this.value instanceof DifferentialCoord) {
+        logger.debug("setting delta to 1,0");
         this.value.delta = new Coord(1, 0);
       }
     }
@@ -93,7 +94,7 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
     } else {
       p!.fill(255);
     }
-    logger.debug("drawing node at " + this.value.getXPx() + ", " + this.value.getYPx());
+    // logger.debug("drawing node at " + this.value.getXPx() + ", " + this.value.getYPx());
     p!.ellipse(this.value.getXPx(), this.value.getYPx(), 15, 15);
   }
 
@@ -126,7 +127,7 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
       this._drawRing();
     }
 
-    if (settings.showDifferentials && this.value instanceof DifferentialCoord) {
+    if (settings.showDifferentials && this.value instanceof DifferentialCoord && this.value.delta) {
       p!.fill(255);
       p!.noStroke();
       p!.text(this.value.delta.toString(), this.value.getXPx() + 10, this.value.getYPx() - 20);

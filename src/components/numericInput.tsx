@@ -77,7 +77,7 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   if (reversing) {
     logger.debug({ depends: mainGraph.getDepends(focus as CoordVertex) }, "LockButton");
   } else {
-    logger.debug("LockButton not reversing");
+    // logger.debug("LockButton not reversing");
   }
 
   // if not bound, make the lock glow overtly

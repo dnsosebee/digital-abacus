@@ -3,7 +3,6 @@ import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/con
 import {
   CENTER_X,
   CENTER_Y,
-  UPDATE_DIFFERENTIAL,
   UPDATE_IDEAL,
   UPDATE_ITERATIVE,
   iterations,
@@ -15,10 +14,6 @@ import { Coord, Polar } from "../coord/coord";
 import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
 import {
-  DifferentialComplexAdder,
-  DifferentialComplexConjugator,
-  DifferentialComplexExponent,
-  DifferentialComplexMultiplier,
   IdealComplexAdder,
   IdealComplexConjugator,
   IdealComplexExponent,
@@ -130,28 +125,28 @@ export class NodeEdge extends CircuitEdge {
             c = new NonConstraint<Coord>(2);
         }
         break;
-      case UPDATE_DIFFERENTIAL:
-        switch (type) {
-          case OP_TYPE.ADDER:
-            c = new DifferentialComplexAdder();
-            break;
-          case OP_TYPE.MULTIPLIER:
-            c = new DifferentialComplexMultiplier();
-            break;
-          case OP_TYPE.CONJUGATOR:
-            c = new DifferentialComplexConjugator();
-            break;
-          case OP_TYPE.EXPONENTIAL:
-            c = new DifferentialComplexExponent();
-            break;
-          case OP_TYPE.STANDALONE:
-            c = new StandaloneConstraint();
-            break;
-          default:
-            console.log("Warning: Unsupported Operator Type");
-            c = new NonConstraint<Coord>(2);
-        }
-        break;
+      // case UPDATE_DIFFERENTIAL:
+      //   switch (type) {
+      //     case OP_TYPE.ADDER:
+      //       c = new DifferentialComplexAdder();
+      //       break;
+      //     case OP_TYPE.MULTIPLIER:
+      //       c = new DifferentialComplexMultiplier();
+      //       break;
+      //     case OP_TYPE.CONJUGATOR:
+      //       c = new DifferentialComplexConjugator();
+      //       break;
+      //     case OP_TYPE.EXPONENTIAL:
+      //       c = new DifferentialComplexExponent();
+      //       break;
+      //     case OP_TYPE.STANDALONE:
+      //       c = new StandaloneConstraint();
+      //       break;
+      //     default:
+      //       console.log("Warning: Unsupported Operator Type");
+      //       c = new NonConstraint<Coord>(2);
+      //   }
+      //   break;
       default:
         console.log("Warning: Invalid Update Mode");
         c = new NonConstraint<Coord>(2);

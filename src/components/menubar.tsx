@@ -1,16 +1,54 @@
 import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
-import { mainGraph } from "@/model/store";
+import { settings } from "@/model/settings";
+import { mainGraph, useMainGraph } from "@/model/store";
 import { AddNode, Math } from "@/schema/node";
+import { LockOpenIcon } from "@heroicons/react/20/solid";
+import { useSnapshot } from "valtio";
 import { Symbol } from "./symbol";
 
 const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
+  const { focus } = useMainGraph();
+  const reversing = !!focus;
+
+  return (
+    <div className="flex px-4 py-2 bg-slate-100">
+      {reversing ? <ReversalMenu /> : <RegularMenu activeNodes={activeNodes} />}
+    </div>
+  );
+};
+
+const ReversalMenu = () => {
+  return (
+    <div className="grow flex space-x-4 pt-2 pb-3">
+      <div>
+        <p className="flex">
+          Reversing: Click on a{" "}
+          <div className="ring-offset-2 ring-4 ring-yellow-400 rounded-full mx-3">
+            <LockOpenIcon className="w-6 h-6 text-slate-800" />
+          </div>{" "}
+          below to give up control of that number.
+        </p>
+      </div>
+      <div>
+        <button
+          onClick={() => mainGraph.cancelReversal()}
+          className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"
+        >
+          Cancel Reversal
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
     event.dataTransfer.setData("application/reactflow", JSON.stringify(addNode));
     event.dataTransfer.effectAllowed = "move";
   };
 
   return (
-    <div className="flex px-4 py-2  bg-slate-100">
+    <>
       <div className="flex space-x-4 ">
         <Draggable
           symbol="+"
@@ -73,6 +111,26 @@ const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
         />
         {activeNodes.length === 1 && <NodeControls activeNode={activeNodes[0]} />}
       </div>
+      <GlobalControls />
+    </>
+  );
+};
+
+const GlobalControls = () => {
+  const { showDifferentials } = useSnapshot(settings);
+
+  const toggleShowDeltas = () => {
+    settings.showDifferentials = !showDifferentials;
+  };
+
+  return (
+    <div className="ml-auto flex space-x-2">
+      <button
+        onClick={toggleShowDeltas}
+        className="rounded-xl bg-blue-100 px-4 py-0.5 hover:bg-blue-500"
+      >
+        {showDifferentials ? "Hide δs" : "Show δs"}
+      </button>
       <button
         onClick={() => mainGraph.reset()}
         className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"

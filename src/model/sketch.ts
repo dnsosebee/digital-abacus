@@ -1,9 +1,8 @@
 // import p5 from "p5";
 import { SketchProps } from "react-p5/@types";
-import { getMouse } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
 import { drawGrid } from "./graphics";
-import { UPDATE_DIFFERENTIAL, indicator, settings, updateCycles } from "./settings";
+import { indicator, settings, updateCycles } from "./settings";
 import { mainGraph } from "./store";
 
 type p5 = Parameters<SketchProps["setup"]>[0];
@@ -17,11 +16,11 @@ export function setup(p5: p5, canvasParentRef: Element) {
 
 export function draw(p: p5) {
   //manage double tap
-  if (settings.tappedOnce) {
-    if (p!.millis() - settings.currentTime > settings.doubleTapTimer) {
-      settings.tappedOnce = false;
-    }
-  }
+  // if (settings.tappedOnce) {
+  //   if (p!.millis() - settings.currentTime > settings.doubleTapTimer) {
+  //     settings.tappedOnce = false;
+  //   }
+  // }
 
   mainGraph.update(updateCycles);
 
@@ -40,10 +39,10 @@ export function draw(p: p5) {
   //digital readout for existing operators
   // printToPlot();
 
-  if (settings.indicatorFlash) {
-    p!.background(0);
-    settings.indicatorFlash = false;
-  }
+  // if (settings.indicatorFlash) {
+  //   p!.background(0);
+  //   settings.indicatorFlash = false;
+  // }
 
   //make tutorials run on top of this interactive canvas...
   //    runTutorial();
@@ -113,12 +112,13 @@ export function touchStarted() {
 
 export function touchMoved() {
   if (settings.activeVertex) {
-    if (mainGraph.mode == UPDATE_DIFFERENTIAL) {
-      let mouse = getMouse();
-      mainGraph.applyDifferential(mouse.subtract(settings.activeVertex.value));
-    } else {
-      settings.activeVertex.sendToMouse();
-    }
+    settings.activeVertex.sendToMouse();
+    // if (mainGraph.mode == UPDATE_DIFFERENTIAL) {
+    //   let mouse = getMouse();
+    //   mainGraph.applyDifferential(mouse.subtract(settings.activeVertex.value));
+    // } else {
+    //   settings.activeVertex.sendToMouse();
+    // }
   }
   return false;
 }

@@ -1,8 +1,9 @@
+import { proxy } from "valtio";
 import { CoordVertex } from "./coords/coordVertex";
 
 export const UPDATE_IDEAL = 0;
 export const UPDATE_ITERATIVE = 1;
-export const UPDATE_DIFFERENTIAL = 2;
+// export const UPDATE_DIFFERENTIAL = 2;
 
 //////////////////////////////////
 
@@ -30,13 +31,13 @@ export const CENTER_Y = 450;
 //global scale (standard, 50px = 1 unit)
 export const DEFAULT_SCALE = 50;
 
-export const settings = {
+export const settings = proxy({
   globalScale: DEFAULT_SCALE,
 
-  //double tap reference (sketch level)
-  tappedOnce: false,
-  currentTime: -1,
-  doubleTapTimer: 300,
+  // //double tap reference (sketch level)
+  // tappedOnce: false,
+  // currentTime: -1,
+  // doubleTapTimer: 300,
 
   // //press and hold references
   // pressAndHold: false,
@@ -46,9 +47,9 @@ export const settings = {
   // mode-switch boolean, for going into state of switching a dependency
   // reversingOperator: false,
 
-  indicatorFlash: false,
+  // indicatorFlash: false,
 
-  //turns off cartesian coordinates when focusing on polar coordinates
+  // //turns off cartesian coordinates when focusing on polar coordinates
   supressCoords: false,
 
   // show little derivatives near nodes
@@ -56,4 +57,4 @@ export const settings = {
 
   // activeVertex
   activeVertex: null as null | CoordVertex,
-};
+});

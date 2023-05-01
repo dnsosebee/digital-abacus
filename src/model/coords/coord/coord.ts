@@ -181,11 +181,11 @@ export class Coord {
     return this.x == 0 && this.y == 0;
   }
 
-  equals(vector: any) {
+  equals(vector: Coord) {
     return this.x == vector.getX() && this.y == vector.getY();
   }
 
-  distance(vector: any) {
+  distance(vector: Coord) {
     return p!.dist(this.x, this.y, vector.x, vector.y);
   }
 

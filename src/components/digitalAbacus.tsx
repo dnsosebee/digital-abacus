@@ -4,6 +4,11 @@ import { ReactFlowProvider } from "reactflow";
 import CircuitBoard from "./circuitBoard";
 import Linkages from "./linkages";
 
+// export const deltasContext = React.createContext<{
+//   showDeltas: boolean;
+//   setShowDeltas: (showDeltas: boolean) => void;
+// }>({ showDeltas: false, setShowDeltas: () => {} });
+
 export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => {
   return (
     <>
