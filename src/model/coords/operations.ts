@@ -446,7 +446,7 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     eq: Eq<DifferentialCoord>,
     cp: Cp<DifferentialCoord>,
     stepSize: number,
-    iters: number,
+    iters: number
   ) {
     super(eq, cp);
     this.stepSize = stepSize;
@@ -483,7 +483,6 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
 
   findApproachAngle(z: DifferentialCoord, guess: DifferentialCoord) {
     // "guess" is the bound variable, it's trying to line up its position with z
-    // z=a guess=b
 
     // angle from +real axis to vector pointing from guess to z
     let theta = z.subtract(guess).getTh();
