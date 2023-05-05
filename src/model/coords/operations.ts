@@ -446,11 +446,12 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     eq: Eq<DifferentialCoord>,
     cp: Cp<DifferentialCoord>,
     stepSize: number,
-    iters: number
+    iters: number,
   ) {
     super(eq, cp);
     this.stepSize = stepSize;
     this.iters = iters;
+    this.tracked = true;
   }
 
   update(data: DifferentialCoord[]) {
@@ -468,9 +469,11 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
 
   iterate(z: DifferentialCoord, guess: DifferentialCoord) {
     if (z.isNear(guess, this.stepSize)) {
-      // TODO: update deltas ??
-      // guess.delta = z.delta;
-      // z.delta = new Coord(0, 0);
+      if (this.tracked) {
+        guess.delta = new Coord(0, 0);
+        z.delta = new Coord(0, 0);
+        this.tracked = false;
+      }
       return guess.mut_sendTo(z);
     } else {
       let theta = this.findApproachAngle(z, guess);
@@ -480,23 +483,28 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
 
   findApproachAngle(z: DifferentialCoord, guess: DifferentialCoord) {
     // "guess" is the bound variable, it's trying to line up its position with z
+    // z=a guess=b
 
     // angle from +real axis to vector pointing from guess to z
-    const theta = z.subtract(guess).getTh();
+    let theta = z.subtract(guess).getTh();
 
-    if (z.delta) {
-      // angle from guess->z vector to differential of z
-      const thetaZ = z.delta.getTh() - theta;
+    if (this.tracked && z.delta) {
+      const psi = z.delta.getTh() - theta;
+      const M = z.delta.getR();
 
-      // relative speed of z with respect to guess
-      // const speedRatio = z.delta.getR() / guess.delta.getR();
-
-      // naive solution is to just move directly toward z
-      // TODO use differentials to make a better choice
-      return theta;
-    } else {
-      return theta;
+      const bound = Math.acos(1/M);
+      if (M > 1 && -bound < psi && psi < bound) {
+        const numerator = M * Math.sin(-psi);
+        const denominator = Math.sqrt(1 + M*M - 2*M*Math.cos(-psi));
+        theta = Math.asin(numerator/denominator) + Math.PI;
+      } else if (M < 1 || psi != 0) {
+        const numerator = M * Math.sin(psi);
+        const denominator = Math.sqrt(1 + M*M - 2*M*cos(psi));
+        theta = Math.asin(numerator/denominator);
+      }
     }
+    
+    return theta;
   }
 }
 

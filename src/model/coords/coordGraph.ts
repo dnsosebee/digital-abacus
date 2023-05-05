@@ -194,7 +194,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];
     const vTarget = this.edges.find((e) => e.id === target.node)!.vertices[target.handle];
     if (vTarget.isFree() && vTarget !== vSource) {
-      // vTarget.value.delta = new Coord(1, 0);
+      vTarget.value.delta = new Coord(1, 0);
       const e = new WireEdge([vSource, vTarget], id, source, target, c);
       return this.edges[this.edges.push(e) - 1];
     } else {
