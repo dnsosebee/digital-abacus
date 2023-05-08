@@ -10,10 +10,10 @@ import {
   useMainGraph,
 } from "@/model/store";
 import { AddNode, Math } from "@/schema/node";
+import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
 import { useCallback, useRef, useState } from "react";
 import ReactFlow, {
   Background,
-  BezierEdge,
   Connection,
   ConnectionMode,
   Controls,
@@ -38,7 +38,7 @@ const NODE_COMPONENTS = {
 };
 
 const EDGE_TYPES = {
-  coord: BezierEdge,
+  coord: SmartBezierEdge,
   // TODO: add LIST edge types
 };
 
@@ -49,7 +49,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   const reactFlowWrapper = useRef<any>(null);
 
   const [dragging, setDragging] = useState(false);
-  logger.debug({ dragging, nodes, wires }, "CircuitBoard");
+  // logger.debug({ dragging, nodes, wires }, "CircuitBoard");
 
   // useEffect(() => {
   //   if (shouldUpdateNodeInternals) {
@@ -136,7 +136,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   );
 
   const activeNodes = nodes.filter((node) => node.type === "math" && node.selected) as Math[];
-  logger.debug({ activeNodes }, "activeNodes");
+  // logger.debug({ activeNodes }, "activeNodes");
 
   return (
     <div className="flex-grow flex flex-col">

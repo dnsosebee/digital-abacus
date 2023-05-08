@@ -123,6 +123,13 @@ const GlobalControls = () => {
     settings.showDifferentials = !showDifferentials;
   };
 
+  const updateStepSize = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const stepSize = parseFloat(event.target.value);
+    if (stepSize > 0) {
+      settings.stepSize = stepSize;
+    }
+  };
+
   return (
     <div className="ml-auto flex space-x-2">
       <button
@@ -131,6 +138,20 @@ const GlobalControls = () => {
       >
         {showDifferentials ? "Hide δs" : "Show δs"}
       </button>
+      <div className="flex flex-col">
+        <label htmlFor="stepsize">
+          <span className="text-slate-800">Step Size</span>
+        </label>
+        <input
+          id="stepsize"
+          name="stepsize"
+          type="number"
+          step="0.001"
+          value={settings.stepSize}
+          onChange={updateStepSize}
+          className="rounded-xl bg-blue-100 px-4 py-0.5 w-28"
+        />
+      </div>
       <button
         onClick={() => mainGraph.reset()}
         className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"

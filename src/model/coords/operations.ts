@@ -1,7 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 // "ideal" constraints that simply perform the relevant calculation all at once //
 
+import { logger } from "@/lib/logger";
 import { Cp, Eq, EqualityConstraint, OperatorConstraint } from "../graph/constraint";
+import { settings } from "../settings";
 import { p } from "../sketch";
 import { Coord, Polar } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
@@ -234,12 +236,10 @@ export class IdealComplexExponent extends OperatorConstraint<DifferentialCoord> 
 export class IterativeComplexAdder extends IdealComplexAdder {
   // :Constraint<Coord>
 
-  stepSize: number;
   iters: number;
 
-  constructor(stepSize: number, iters: number) {
+  constructor(iters: number) {
     super();
-    this.stepSize = stepSize; // :number
     this.iters = iters; // :nat
   }
 
@@ -269,21 +269,21 @@ export class IterativeComplexAdder extends IdealComplexAdder {
 
   iterateSum(z1: DifferentialCoord, z2: DifferentialCoord, guess: DifferentialCoord) {
     let sum = z1.translate(z2);
-    if (sum.isNear(guess, this.stepSize)) {
+    if (sum.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(sum);
     } else {
       let theta = sum.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 
   iterateDiff(z: DifferentialCoord, zsub: DifferentialCoord, guess: DifferentialCoord) {
     let diff = z.subtract(zsub);
-    if (diff.isNear(guess, this.stepSize)) {
+    if (diff.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(diff);
     } else {
       let theta = diff.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 }
@@ -291,12 +291,10 @@ export class IterativeComplexAdder extends IdealComplexAdder {
 export class IterativeComplexMultiplier extends IdealComplexMultiplier {
   // :Constraint<Coord>
 
-  stepSize: number;
   iters: number;
 
-  constructor(stepSize: number, iters: number) {
+  constructor(iters: number) {
     super();
-    this.stepSize = stepSize; // :number
     this.iters = iters; // :nat
   }
 
@@ -326,26 +324,26 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
 
   iterateProd(z1: DifferentialCoord, z2: DifferentialCoord, guess: DifferentialCoord) {
     let prod = z1.multiply(z2);
-    if (prod.isNear(guess, this.stepSize)) {
+    if (prod.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(prod);
     } else {
       let theta = prod.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 
   iterateQuot(z: DifferentialCoord, zdiv: DifferentialCoord, guess: DifferentialCoord) {
     // if dividing by 0, just move the quotient towards infinity
     if (zdiv.isOrigin()) {
-      return guess.mut_translate(new Polar(this.stepSize, guess.getTh()));
+      return guess.mut_translate(new Polar(settings.stepSize, guess.getTh()));
     }
 
     let quot = z.divide(zdiv);
-    if (quot.isNear(guess, this.stepSize)) {
+    if (quot.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(quot);
     } else {
       let theta = quot.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 }
@@ -353,11 +351,9 @@ export class IterativeComplexMultiplier extends IdealComplexMultiplier {
 export class IterativeComplexConjugator extends IdealComplexConjugator {
   // :Constraint<Coord>
 
-  stepSize: number;
   iters: number;
-  constructor(stepSize: number, iters: number) {
+  constructor(iters: number) {
     super();
-    this.stepSize = stepSize; // :number
     this.iters = iters; // :nat
   }
 
@@ -375,11 +371,11 @@ export class IterativeComplexConjugator extends IdealComplexConjugator {
 
   iterateConj(z: DifferentialCoord, guess: DifferentialCoord) {
     let conj = z.conjugate();
-    if (conj.isNear(guess, this.stepSize)) {
+    if (conj.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(conj);
     } else {
       let theta = conj.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 }
@@ -387,12 +383,10 @@ export class IterativeComplexConjugator extends IdealComplexConjugator {
 export class IterativeComplexExponent extends IdealComplexExponent {
   // :Constraint<Coord>
 
-  stepSize: number;
   iters: number;
 
-  constructor(stepSize: number, iters: number) {
+  constructor(iters: number) {
     super(false);
-    this.stepSize = stepSize; // :number
     this.iters = iters; // :nat
   }
 
@@ -419,39 +413,35 @@ export class IterativeComplexExponent extends IdealComplexExponent {
 
   iterateLog(z: DifferentialCoord, guess: DifferentialCoord) {
     let zlog = z.log(IdealComplexExponent._nearestN(z.log(0), guess));
-    if (zlog.isNear(guess, this.stepSize)) {
+    if (zlog.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(zlog);
     } else {
       let theta = zlog.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 
   iterateExp(z: DifferentialCoord, guess: DifferentialCoord) {
     let zexp = z.exp();
-    if (zexp.isNear(guess, this.stepSize)) {
+    if (zexp.isNear(guess, settings.stepSize)) {
       return guess.mut_sendTo(zexp);
     } else {
       let theta = zexp.subtract(guess).getTh();
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 }
 
 export class IterativeComplexEqualityConstraint extends EqualityConstraint<DifferentialCoord> {
-  stepSize: number;
   iters: number;
+  tracked: boolean;
+  delayCounter: number;
 
-  constructor(
-    eq: Eq<DifferentialCoord>,
-    cp: Cp<DifferentialCoord>,
-    stepSize: number,
-    iters: number
-  ) {
+  constructor(eq: Eq<DifferentialCoord>, cp: Cp<DifferentialCoord>, iters: number) {
     super(eq, cp);
-    this.stepSize = stepSize;
     this.iters = iters;
     this.tracked = true;
+    this.delayCounter = 0;
   }
 
   update(data: DifferentialCoord[]) {
@@ -468,16 +458,30 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
   }
 
   iterate(z: DifferentialCoord, guess: DifferentialCoord) {
-    if (z.isNear(guess, this.stepSize)) {
+    if (!z.delta) {
+      this.tracked = false;
+    }
+    if (!this.tracked) {
+      guess.delta = z.delta;
+    }
+    if (z.isNear(guess, settings.stepSize)) {
       if (this.tracked) {
+        logger.debug({ guess: JSON.stringify(guess), z: JSON.stringify(z) }, "ending tracking");
         guess.delta = new Coord(0, 0);
         z.delta = new Coord(0, 0);
         this.tracked = false;
       }
       return guess.mut_sendTo(z);
     } else {
+      if (this.tracked) {
+        this.delayCounter++;
+        if (this.delayCounter < z.delta!.getR()) {
+          return guess;
+        }
+        this.delayCounter = 0;
+      }
       let theta = this.findApproachAngle(z, guess);
-      return guess.mut_translate(new Polar(this.stepSize, theta));
+      return guess.mut_translate(new Polar(settings.stepSize, theta));
     }
   }
 
@@ -488,21 +492,26 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     let theta = z.subtract(guess).getTh();
 
     if (this.tracked && z.delta) {
-      const psi = z.delta.getTh() - theta;
-      const M = z.delta.getR();
+      logger.debug({ theta, z: JSON.stringify(z), guess: JSON.stringify(guess) }, "theta initial");
 
-      const bound = Math.acos(1/M);
+      const psi = z.delta.getTh(); // - theta;
+      const M = z.delta.getR();
+      logger.debug("psi: " + psi + ", M: " + M);
+
+      const bound = Math.acos(1 / M);
       if (M > 1 && -bound < psi && psi < bound) {
+        logger.debug("running away");
         const numerator = M * Math.sin(-psi);
-        const denominator = Math.sqrt(1 + M*M - 2*M*Math.cos(-psi));
-        theta = Math.asin(numerator/denominator) + Math.PI;
-      } else if (M < 1 || psi != 0) {
+        const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(-psi));
+        theta = Math.asin(numerator / denominator) + Math.PI - theta;
+      } else if ((0 < M && M < 1) || (M == 1 && psi != 0)) {
         const numerator = M * Math.sin(psi);
-        const denominator = Math.sqrt(1 + M*M - 2*M*cos(psi));
-        theta = Math.asin(numerator/denominator);
+        const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(psi));
+        theta = Math.asin(numerator / denominator) - theta;
       }
     }
-    
+    // logger.debug({ theta }, "theta final");
+
     return theta;
   }
 }
@@ -514,7 +523,7 @@ export function makeIterativeComplexEqualityConstraintBuilder(
   ITERATIONS: number
 ) {
   return function () {
-    return new IterativeComplexEqualityConstraint(eq, cp, STEP_SIZE, ITERATIONS);
+    return new IterativeComplexEqualityConstraint(eq, cp, ITERATIONS);
   };
 }
 

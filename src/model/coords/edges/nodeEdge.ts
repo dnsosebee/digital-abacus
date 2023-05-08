@@ -106,16 +106,16 @@ export class NodeEdge extends CircuitEdge {
       case UPDATE_ITERATIVE:
         switch (type) {
           case OP_TYPE.ADDER:
-            c = new IterativeComplexAdder(STEP_SIZE, ITERATIONS);
+            c = new IterativeComplexAdder(ITERATIONS);
             break;
           case OP_TYPE.MULTIPLIER:
-            c = new IterativeComplexMultiplier(STEP_SIZE, ITERATIONS);
+            c = new IterativeComplexMultiplier(ITERATIONS);
             break;
           case OP_TYPE.CONJUGATOR:
-            c = new IterativeComplexConjugator(STEP_SIZE, ITERATIONS);
+            c = new IterativeComplexConjugator(ITERATIONS);
             break;
           case OP_TYPE.EXPONENTIAL:
-            c = new IterativeComplexExponent(STEP_SIZE, ITERATIONS);
+            c = new IterativeComplexExponent(ITERATIONS);
             break;
           case OP_TYPE.STANDALONE:
             c = new StandaloneConstraint();

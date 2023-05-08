@@ -55,6 +55,7 @@ export const settings = proxy({
   // show little derivatives near nodes
   showDifferentials: false,
 
+  stepSize: searchSize,
   // activeVertex
   activeVertex: null as null | CoordVertex,
 });
