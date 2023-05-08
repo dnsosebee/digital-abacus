@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // "ideal" constraints that simply perform the relevant calculation all at once //
 
-import { logger } from "@/lib/logger";
 import { Cp, Eq, EqualityConstraint, OperatorConstraint } from "../graph/constraint";
 import { settings } from "../settings";
 import { p } from "../sketch";
@@ -466,7 +465,7 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     }
     if (z.isNear(guess, settings.stepSize)) {
       if (this.tracked) {
-        logger.debug({ guess: JSON.stringify(guess), z: JSON.stringify(z) }, "ending tracking");
+        // logger.debug({ guess: JSON.stringify(guess), z: JSON.stringify(z) }, "ending tracking");
         guess.delta = new Coord(0, 0);
         z.delta = new Coord(0, 0);
         this.tracked = false;
@@ -492,15 +491,15 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     let theta = z.subtract(guess).getTh();
 
     if (this.tracked && z.delta) {
-      logger.debug({ theta, z: JSON.stringify(z), guess: JSON.stringify(guess) }, "theta initial");
+      // logger.debug({ theta, z: JSON.stringify(z), guess: JSON.stringify(guess) }, "theta initial");
 
       const psi = z.delta.getTh(); // - theta;
       const M = z.delta.getR();
-      logger.debug("psi: " + psi + ", M: " + M);
+      // logger.debug("psi: " + psi + ", M: " + M);
 
       const bound = Math.acos(1 / M);
       if (M > 1 && -bound < psi && psi < bound) {
-        logger.debug("running away");
+        // logger.debug("running away");
         const numerator = M * Math.sin(-psi);
         const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(-psi));
         theta = Math.asin(numerator / denominator) + Math.PI - theta;

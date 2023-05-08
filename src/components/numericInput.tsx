@@ -1,4 +1,3 @@
-import { logger } from "@/lib/logger";
 import { Coord } from "@/model/coords/coord/coord";
 import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
@@ -7,21 +6,21 @@ import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 
 export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
   const onChangeX = (e: React.ChangeEvent<HTMLInputElement>) => {
-    logger.debug({ e }, "onChangeX");
+    // logger.debug({ e }, "onChangeX");
     updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
   };
   const onChangeY = (e: React.ChangeEvent<HTMLInputElement>) => {
-    logger.debug({ e }, "onChangeY");
+    // logger.debug({ e }, "onChangeY");
     updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    logger.debug({ e }, "handleFocus");
+    // logger.debug({ e }, "handleFocus");
     mainGraph.setVertexSelectedness(vertex.id, true);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    logger.debug({ e }, "handleBlur");
+    // logger.debug({ e }, "handleBlur");
     mainGraph.setVertexSelectedness(vertex.id, false);
   };
 
@@ -75,7 +74,7 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
       mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
 
   if (reversing) {
-    logger.debug({ depends: mainGraph.getDepends(focus as CoordVertex) }, "LockButton");
+    // logger.debug({ depends: mainGraph.getDepends(focus as CoordVertex) }, "LockButton");
   } else {
     // logger.debug("LockButton not reversing");
   }
@@ -87,12 +86,12 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   const Icon = isBound ? LockClosedIcon : LockOpenIcon;
 
   const handleStartReversal = () => {
-    logger.debug({ focus: focus }, "handleStartReversal");
+    // logger.debug({ focus: focus }, "handleStartReversal");
     mainGraph.startReversal(vertex.id);
   };
 
   const handleCompleteReversal = () => {
-    logger.debug({ focus: focus }, "handleCompleteReversal");
+    // logger.debug({ focus: focus }, "handleCompleteReversal");
     mainGraph.completeReversal(vertex.id);
   };
 

@@ -123,10 +123,10 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
 
   useEffect(() => {
     if (initial) {
-      logger.debug({ initial }, "restoring from url");
+      // logger.debug({ initial }, "restoring from url");
       mainGraph = proxy(CoordGraph.fromJSON(initial.graph));
       stickies.splice(0, stickies.length, ...initial.stickies);
-      logger.debug({ mainGraph, stickies }, "restored from url");
+      // logger.debug({ mainGraph, stickies }, "restored from url");
     }
   }, []);
 

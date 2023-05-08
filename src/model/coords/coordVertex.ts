@@ -58,7 +58,7 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
       this.dragging = true;
       this.selected = true;
       if (this.value instanceof DifferentialCoord) {
-        logger.debug("setting delta to 1,0");
+        // logger.debug("setting delta to 1,0");
         this.value.delta = new Coord(1, 0);
       }
     }
