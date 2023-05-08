@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { mainGraph, useMainGraph } from "@/model/store";
@@ -125,6 +126,8 @@ const GlobalControls = () => {
 
   const updateStepSize = (event: React.ChangeEvent<HTMLInputElement>) => {
     const stepSize = parseFloat(event.target.value);
+    logger.debug("stepSize", stepSize);
+    logger.debug("settings.stepSize", settings.stepSize);
     if (stepSize > 0) {
       settings.stepSize = stepSize;
     }
