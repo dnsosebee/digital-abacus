@@ -1,4 +1,3 @@
-import { logger } from "@/lib/logger";
 import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { mainGraph, useMainGraph } from "@/model/store";
@@ -118,18 +117,16 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
 };
 
 const GlobalControls = () => {
-  const { showDifferentials } = useSnapshot(settings);
+  const { showDifferentials, stepSize } = useSnapshot(settings);
 
   const toggleShowDeltas = () => {
     settings.showDifferentials = !showDifferentials;
   };
 
   const updateStepSize = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const stepSize = parseFloat(event.target.value);
-    logger.debug("stepSize", stepSize);
-    logger.debug("settings.stepSize", settings.stepSize);
-    if (stepSize > 0) {
-      settings.stepSize = stepSize;
+    const newSize = parseFloat(event.target.value);
+    if (newSize > 0) {
+      settings.stepSize = newSize;
     }
   };
 
@@ -150,7 +147,7 @@ const GlobalControls = () => {
           name="stepsize"
           type="number"
           step="0.001"
-          value={settings.stepSize}
+          value={stepSize}
           onChange={updateStepSize}
           className="rounded-xl bg-blue-100 px-4 py-0.5 w-28"
         />
