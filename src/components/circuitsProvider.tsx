@@ -1,15 +1,22 @@
 import { createContext, useContext } from "react";
 
-export const circuitsContext = createContext<{ dragging: boolean }>({ dragging: false });
+export const circuitsContext = createContext<{ altPressed: boolean; copied: boolean }>({
+  altPressed: false,
+  copied: false,
+});
 
 export const CircuitsProvider = ({
   children,
-  dragging,
+  altPressed,
+  copied,
 }: {
   children: React.ReactNode;
-  dragging: boolean;
+  altPressed: boolean;
+  copied: boolean;
 }) => {
-  return <circuitsContext.Provider value={{ dragging }}>{children}</circuitsContext.Provider>;
+  return (
+    <circuitsContext.Provider value={{ altPressed, copied }}>{children}</circuitsContext.Provider>
+  );
 };
 
 export const useCircuits = () => {

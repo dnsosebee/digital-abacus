@@ -175,11 +175,12 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     } else if (type == OP_TYPE.STANDALONE) {
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
     } else {
-      return null;
+      throw new Error("Invalid operation type");
     }
 
     let e = new NodeEdge(vs, type, this.mode, nodeId, position);
     this.edges.push(e);
+    return nodeId;
   }
 
   addFree(x: number, y: number, id: VertexId) {

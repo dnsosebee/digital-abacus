@@ -23,7 +23,7 @@ export const StandaloneNode = ({ data, selected, id }: MathProps) => {
           value={data.label}
           onChange={handleLabelChange}
         />
-        <NumericInput vertex={data.vertices[0]} />
+        <NumericInput vertex={data.vertices[0]} wide />
       </NodeShell>
     </div>
   );

@@ -109,7 +109,7 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
             })
           }
         />
-        {activeNodes.length === 1 && <NodeControls activeNode={activeNodes[0]} />}
+        {activeNodes.length && <NodeControls activeNodes={activeNodes} />}
       </div>
       <GlobalControls />
     </>
@@ -162,12 +162,13 @@ const GlobalControls = () => {
   );
 };
 
-const NodeControls = ({ activeNode }: { activeNode: Math }) => {
-  const hidden = activeNode.data.edge.hidden;
-
+const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
+  const hidden = activeNodes.every((node) => node.data.edge.hidden);
   const toggleHidden = () => {
-    const edge = mainGraph._getEdge(activeNode.id) as NodeEdge;
-    edge.setHidden(!hidden);
+    activeNodes.forEach((node) => {
+      const edge = mainGraph._getEdge(node.id) as NodeEdge;
+      edge.setHidden(!hidden);
+    });
   };
   return (
     <div className="flex space-x-4">

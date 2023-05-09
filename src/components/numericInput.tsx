@@ -4,7 +4,7 @@ import { vertexIdEq } from "@/model/graph/vertex";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 
-export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
+export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const onChangeX = (e: React.ChangeEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onChangeX");
     updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
@@ -24,6 +24,9 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
     mainGraph.setVertexSelectedness(vertex.id, false);
   };
 
+  const roundedX = vertex.value.x < 0.000001 && vertex.value.x > -0.000001 ? 0 : vertex.value.x;
+  const roundedY = vertex.value.y < 0.000001 && vertex.value.y > -0.000001 ? 0 : vertex.value.y;
+
   return (
     <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
       {/* center the contents of the following div */}
@@ -34,10 +37,12 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
         <div>
           <input
             type="number"
-            value={vertex.value.x}
+            value={roundedX}
             onChange={onChangeX}
             readOnly={vertex.isBound()}
-            className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+            className={`${
+              wide ? "w-28" : "w-16"
+            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />
@@ -46,10 +51,12 @@ export const NumericInput = ({ vertex }: { vertex: CoordVertex }) => {
         <div>
           <input
             type="number"
-            value={vertex.value.y}
+            value={roundedY}
             onChange={onChangeY}
             readOnly={vertex.isBound()}
-            className="w-16 text-lg font-bold rounded-lg px-1 border border-slate-300"
+            className={`${
+              wide ? "w-28" : "w-16"
+            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />

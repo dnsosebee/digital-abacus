@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph, serialCoordGraphSchema } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
-import { NodeEdge } from "./coords/edges/nodeEdge";
+import { NodeEdge, OP_TYPE } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
 import { VertexId } from "./graph/vertex";
 import { UPDATE_MODE } from "./settings";
@@ -98,6 +98,55 @@ export const updateLabel = (id: string, label: string) => {
   } else {
     throw new Error("edge not found");
   }
+};
+
+export const cloneSelected = () => {
+  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
+  const unselected = mainGraph.edges.filter((e) => !(e as CircuitEdge).selected);
+  const idMap = new Map<string, string>();
+  selected.forEach((e) => {
+    if (e instanceof NodeEdge) {
+      const newId = mainGraph.addOperation(e.type, e.position);
+      idMap.set(e.id, newId);
+      if (e.type === OP_TYPE.STANDALONE) {
+        const value = e.vertices[0].value.copy();
+        mainGraph._getEdge(newId)!.vertices[0].value.mut_sendTo(value);
+      }
+    }
+  });
+  // wait until our map is full to process wires
+  // give precedence to unselected wires
+  unselected.forEach((e) => {
+    if (e instanceof WireEdge) {
+      // transfer unselected wires to the clone
+      removeWire(e.id);
+      mainGraph.addWire(
+        { node: idMap.get(e.source.node) ?? e.source.node, handle: e.source.handle },
+        { node: idMap.get(e.target.node) ?? e.target.node, handle: e.target.handle }
+      );
+    }
+  });
+  selected.forEach((e) => {
+    if (e instanceof WireEdge) {
+      mainGraph.addWire(
+        { node: idMap.get(e.source.node) ?? e.source.node, handle: e.source.handle },
+        { node: idMap.get(e.target.node) ?? e.target.node, handle: e.target.handle }
+      );
+    }
+  });
+
+  stickies.forEach((s) => {
+    if (s.selected) {
+      const newId = genNodeId();
+      stickies.push({
+        id: newId,
+        type: "sticky",
+        position: s.position,
+        data: { text: s.data.text },
+        selected: false,
+      });
+    }
+  });
 };
 
 // deprecated

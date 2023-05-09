@@ -4,6 +4,7 @@ import {
   addNode,
   addWire,
   changeSelection,
+  cloneSelected,
   removeNode,
   removeWire,
   updateNodePosition,
@@ -11,7 +12,7 @@ import {
 } from "@/model/store";
 import { AddNode, Math } from "@/schema/node";
 import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Connection,
@@ -25,7 +26,6 @@ import ReactFlow, {
   ReactFlowInstance,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { CircuitsProvider } from "./circuitsProvider";
 import Menubar from "./menubar";
 import { MathNode } from "./nodes/mathNode";
 import { StickyNode } from "./nodes/sticky";
@@ -48,7 +48,6 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
 
-  const [dragging, setDragging] = useState(false);
   // logger.debug({ dragging, nodes, wires }, "CircuitBoard");
 
   // useEffect(() => {
@@ -60,12 +59,35 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   //   }
   // }, [shouldUpdateNodeInternals]);
 
+  const [copyRequested, setCopyRequested] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const altPressed = useKeyPress("Alt");
+  // console.log("altPressed", altPressed);
+  // console.log("copied", copied);
+  useEffect(() => {
+    if (!altPressed) {
+      setCopyRequested(false);
+      setCopied(false);
+    }
+    if (altPressed && copyRequested) {
+      cloneSelected();
+      setCopied(true);
+    }
+  }, [altPressed, copyRequested]);
+
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
     (changes: NodeChange[]) => {
       changes.forEach((change) => {
         switch (change.type) {
           case "position":
+            if (altPressed && !copied) {
+              if (!copyRequested) {
+                setCopyRequested(true);
+              }
+              // we wait until clone is finished to update position
+              return;
+            }
             updateNodePosition(change);
             break;
           case "remove":
@@ -79,7 +101,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         }
       });
     },
-    []
+    [altPressed, copyRequested, copied]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
@@ -135,39 +157,68 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
     [reactFlowInstance]
   );
 
-  const activeNodes = nodes.filter((node) => node.type === "math" && node.selected) as Math[];
+  const activeNodes = nodes.filter((node) => node.selected);
+  const activeMathNodes = activeNodes.filter((node) => node.type === "math") as Math[];
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
     <div className="flex-grow flex flex-col">
-      <Menubar activeNodes={activeNodes} />
+      <Menubar activeNodes={activeMathNodes} />
       <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
-        <CircuitsProvider dragging={dragging}>
-          <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
-            <ReactFlow
-              nodes={nodes}
-              onNodesChange={onNodesChange}
-              edges={wires}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              nodeTypes={NODE_COMPONENTS}
-              edgeTypes={EDGE_TYPES}
-              onInit={setReactFlowInstance}
-              onConnectStart={() => setDragging(true)}
-              onConnectEnd={() => setDragging(false)}
-              connectionMode={ConnectionMode.Loose}
-            >
-              <Background />
-              <Controls />
-            </ReactFlow>
-          </div>
-        </CircuitsProvider>
+        {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
+        <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={nodes}
+            onNodesChange={onNodesChange}
+            edges={wires}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            nodeTypes={NODE_COMPONENTS}
+            edgeTypes={EDGE_TYPES}
+            onInit={setReactFlowInstance}
+            // onConnectStart={() => setDragging(true)}
+            // onConnectEnd={() => setDragging(false)}
+            connectionMode={ConnectionMode.Loose}
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
+        </div>
+        {/* </CircuitsProvider> */}
       </div>
     </div>
   );
 };
 
 export default CircuitBoard;
+
+function useKeyPress(targetKey: string) {
+  // State for keeping track of whether key is pressed
+  const [keyPressed, setKeyPressed] = useState<boolean>(false);
+  // If pressed key is our target key then set to true
+  function downHandler({ key }: { key: string }) {
+    if (key === targetKey) {
+      setKeyPressed(true);
+    }
+  }
+  // If released key is our target key then set to false
+  const upHandler = ({ key }: { key: string }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+    }
+  };
+  // Add event listeners
+  useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, []); // Empty array ensures that effect is only run on mount and unmount
+  return keyPressed;
+}
