@@ -109,7 +109,7 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
             })
           }
         />
-        {activeNodes.length && <NodeControls activeNodes={activeNodes} />}
+        {activeNodes.length > 0 && <NodeControls activeNodes={activeNodes} />}
       </div>
       <GlobalControls />
     </>
