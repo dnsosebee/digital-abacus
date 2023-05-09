@@ -102,7 +102,7 @@ export const updateLabel = (id: string, label: string) => {
 
 export const cloneSelected = () => {
   const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
-  const unselected = mainGraph.edges.filter((e) => !(e as CircuitEdge).selected);
+  const wires = mainGraph.edges.filter((e) => e instanceof WireEdge);
   const idMap = new Map<string, string>();
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
@@ -115,8 +115,8 @@ export const cloneSelected = () => {
     }
   });
   // wait until our map is full to process wires
-  // give precedence to unselected wires
-  unselected.forEach((e) => {
+  // transfer all wires to the clone. This handles condition where copying an input wire but not the node: precedence given to the set not dragged away by the user.
+  wires.forEach((e) => {
     if (e instanceof WireEdge) {
       // transfer unselected wires to the clone
       removeWire(e.id);
