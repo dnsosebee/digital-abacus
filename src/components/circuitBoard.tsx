@@ -24,6 +24,7 @@ import ReactFlow, {
   OnEdgesChange,
   OnNodesChange,
   ReactFlowInstance,
+  SelectionMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import Menubar from "./menubar";
@@ -179,6 +180,11 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             nodeTypes={NODE_COMPONENTS}
             edgeTypes={EDGE_TYPES}
             onInit={setReactFlowInstance}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={[1, 2]}
+            selectionMode={SelectionMode.Partial}
+            multiSelectionKeyCode={"Shift"}
             // onConnectStart={() => setDragging(true)}
             // onConnectEnd={() => setDragging(false)}
             connectionMode={ConnectionMode.Loose}

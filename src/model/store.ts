@@ -9,8 +9,9 @@ import { z } from "zod";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph, serialCoordGraphSchema } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
-import { NodeEdge, OP_TYPE } from "./coords/edges/nodeEdge";
+import { NodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
+import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { UPDATE_MODE } from "./settings";
 
@@ -107,11 +108,15 @@ export const cloneSelected = () => {
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
       const newId = mainGraph.addOperation(e.type, e.position);
+      const newEdge = mainGraph._getEdge(newId) as NodeEdge;
+      newEdge.label = e.label;
+      const newEdgeBound = (newEdge.constraint as OperatorConstraint<any>).bound;
+      const edgeBound = (e.constraint as OperatorConstraint<any>).bound;
+      newEdge.invert(newEdgeBound, edgeBound);
+      newEdge.vertices.forEach((v, i) => {
+        v.value.mut_sendTo(e.vertices[i].value.copy());
+      });
       idMap.set(e.id, newId);
-      if (e.type === OP_TYPE.STANDALONE) {
-        const value = e.vertices[0].value.copy();
-        mainGraph._getEdge(newId)!.vertices[0].value.mut_sendTo(value);
-      }
     }
   });
   // wait until our map is full to process wires
