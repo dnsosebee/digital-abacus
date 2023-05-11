@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/constraint";
-import {
-  CENTER_X,
-  CENTER_Y,
-  UPDATE_IDEAL,
-  UPDATE_ITERATIVE,
-  iterations,
-  searchSize,
-  settings,
-} from "../../settings";
+import { UPDATE_IDEAL, UPDATE_ITERATIVE, iterations, searchSize, settings } from "../../settings";
 import { p } from "../../sketch";
 import { Coord, Polar } from "../coord/coord";
 import { DifferentialCoord } from "../coord/differentialCoord";
@@ -191,22 +183,47 @@ export class NodeEdge extends CircuitEdge {
     if (this.type == OP_TYPE.ADDER) {
       p!.stroke(30, 200, 255);
       p!.beginShape();
-      p!.vertex(CENTER_X, CENTER_Y);
+      p!.vertex(settings.CENTER_X, settings.CENTER_Y);
       p!.vertex(this.vertices[0].value.getXPx(), this.vertices[0].value.getYPx());
       p!.vertex(this.vertices[2].value.getXPx(), this.vertices[2].value.getYPx());
       p!.vertex(this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
-      p!.vertex(CENTER_X, CENTER_Y);
+      p!.vertex(settings.CENTER_X, settings.CENTER_Y);
       p!.endShape();
     } else if (this.type == OP_TYPE.MULTIPLIER) {
       p!.stroke(255, 0, 0);
-      p!.line(CENTER_X, CENTER_Y, this.vertices[2].value.getXPx(), this.vertices[2].value.getYPx());
+      p!.line(
+        settings.CENTER_X,
+        settings.CENTER_Y,
+        this.vertices[2].value.getXPx(),
+        this.vertices[2].value.getYPx()
+      );
       p!.stroke(255, 100, 0);
-      p!.line(CENTER_X, CENTER_Y, this.vertices[0].value.getXPx(), this.vertices[0].value.getYPx());
-      p!.line(CENTER_X, CENTER_Y, this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
+      p!.line(
+        settings.CENTER_X,
+        settings.CENTER_Y,
+        this.vertices[0].value.getXPx(),
+        this.vertices[0].value.getYPx()
+      );
+      p!.line(
+        settings.CENTER_X,
+        settings.CENTER_Y,
+        this.vertices[1].value.getXPx(),
+        this.vertices[1].value.getYPx()
+      );
     } else if (this.type == OP_TYPE.CONJUGATOR) {
       p!.stroke(30, 30, 200);
-      p!.line(CENTER_X, CENTER_Y, this.vertices[0].value.getXPx(), this.vertices[0].value.getYPx());
-      p!.line(CENTER_X, CENTER_Y, this.vertices[1].value.getXPx(), this.vertices[1].value.getYPx());
+      p!.line(
+        settings.CENTER_X,
+        settings.CENTER_Y,
+        this.vertices[0].value.getXPx(),
+        this.vertices[0].value.getYPx()
+      );
+      p!.line(
+        settings.CENTER_X,
+        settings.CENTER_Y,
+        this.vertices[1].value.getXPx(),
+        this.vertices[1].value.getYPx()
+      );
       p!.line(
         this.vertices[0].value.getXPx(),
         this.vertices[0].value.getYPx(),
@@ -233,8 +250,8 @@ export class NodeEdge extends CircuitEdge {
       }
       p!.line(this.vertices[0].value.getXPx(), 0, this.vertices[0].value.getXPx(), p!.height);
       p!.ellipse(
-        CENTER_X,
-        CENTER_Y,
+        settings.CENTER_X,
+        settings.CENTER_Y,
         2 * settings.globalScale * this.vertices[1].value.getR(),
         2 * settings.globalScale * this.vertices[1].value.getR()
       );

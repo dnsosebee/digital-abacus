@@ -23,13 +23,13 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
           <h1 className="text-2xl font-bold text-gray-800 bg-slate-300 shadow-xl px-2 py-1">
             The Digital Abacus
           </h1>
-          <div className="flex-grow flex">
+          <div className="flex-grow flex overflow-hidden">
             <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
                 <CircuitBoard serialState={serialState} />
               </ReactFlowProvider>
             </div>
-            <div className="split overflow-scroll">
+            <div className="split">
               <Linkages />
             </div>
           </div>

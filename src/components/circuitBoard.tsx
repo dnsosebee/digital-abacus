@@ -180,11 +180,12 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             nodeTypes={NODE_COMPONENTS}
             edgeTypes={EDGE_TYPES}
             onInit={setReactFlowInstance}
-            panOnScroll
-            selectionOnDrag
-            panOnDrag={[1, 2]}
+            // panOnScroll
+            // selectionOnDrag
+            // panOnDrag={[1, 2]}
             selectionMode={SelectionMode.Partial}
             multiSelectionKeyCode={"Shift"}
+            selectionKeyCode={"Shift"}
             // onConnectStart={() => setDragging(true)}
             // onConnectEnd={() => setDragging(false)}
             connectionMode={ConnectionMode.Loose}

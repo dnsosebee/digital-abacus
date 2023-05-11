@@ -1,6 +1,6 @@
 import { Coord } from "./coords/coord/coord";
 import { NodeEdge } from "./coords/edges/nodeEdge";
-import { CENTER_X, CENTER_Y, settings } from "./settings";
+import { settings } from "./settings";
 import { p } from "./sketch";
 import { mainGraph } from "./store";
 
@@ -10,17 +10,32 @@ export function drawGrid() {
     p!.strokeWeight(1);
     p!.stroke(75);
     p!.noFill();
-    p!.line(CENTER_X + i * settings.globalScale, 0, CENTER_X + i * settings.globalScale, p!.height);
-    p!.line(0, CENTER_Y + i * settings.globalScale, p!.width, CENTER_Y + i * settings.globalScale);
+    p!.line(
+      settings.CENTER_X + i * settings.globalScale,
+      0,
+      settings.CENTER_X + i * settings.globalScale,
+      p!.height
+    );
+    p!.line(
+      0,
+      settings.CENTER_Y + i * settings.globalScale,
+      p!.width,
+      settings.CENTER_Y + i * settings.globalScale
+    );
   }
 
   //axes,unit circle
   p!.noFill();
   p!.stroke(200);
   p!.strokeWeight(1);
-  p!.line(0, CENTER_Y, p!.width, CENTER_Y);
-  p!.line(CENTER_X, 0, CENTER_X, p!.height);
-  p!.ellipse(CENTER_X, CENTER_Y, 2 * settings.globalScale, 2 * settings.globalScale); // unit circle
+  p!.line(0, settings.CENTER_Y, p!.width, settings.CENTER_Y);
+  p!.line(settings.CENTER_X, 0, settings.CENTER_X, p!.height);
+  p!.ellipse(
+    settings.CENTER_X,
+    settings.CENTER_Y,
+    2 * settings.globalScale,
+    2 * settings.globalScale
+  ); // unit circle
 
   //coordinate data
   p!.textSize(15);
@@ -28,11 +43,11 @@ export function drawGrid() {
   for (let i = -30; i < 30; i++) {
     p!.fill(150);
     p!.noStroke();
-    p!.ellipse(CENTER_X + i * settings.globalScale, CENTER_Y, 5, 5);
-    p!.ellipse(CENTER_X, CENTER_Y + i * settings.globalScale, 5, 5);
+    p!.ellipse(settings.CENTER_X + i * settings.globalScale, settings.CENTER_Y, 5, 5);
+    p!.ellipse(settings.CENTER_X, settings.CENTER_Y + i * settings.globalScale, 5, 5);
     if (!settings.supressCoords) {
-      p!.text(i, CENTER_X + i * settings.globalScale, CENTER_Y - 16);
-      p!.text(-i + "i", CENTER_X - 20, CENTER_Y + i * settings.globalScale);
+      p!.text(i, settings.CENTER_X + i * settings.globalScale, settings.CENTER_Y - 16);
+      p!.text(-i + "i", settings.CENTER_X - 20, settings.CENTER_Y + i * settings.globalScale);
     }
   }
 }

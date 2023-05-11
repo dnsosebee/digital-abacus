@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CENTER_X, CENTER_Y, settings } from "../../settings";
+import { settings } from "../../settings";
 import { p } from "../../sketch";
 
 export const serialCoordSchema = z.object({
@@ -36,10 +36,10 @@ export class Coord {
   }
 
   getXPx() {
-    return this.x * settings.globalScale + CENTER_X;
+    return this.x * settings.globalScale + settings.CENTER_X;
   }
   getYPx() {
-    return CENTER_Y - this.y * settings.globalScale;
+    return settings.CENTER_Y - this.y * settings.globalScale;
   }
 
   getR() {
@@ -208,29 +208,35 @@ export class Polar extends Coord {
 function pixelToAxis(coord: Coord) {
   let x = coord.getX();
   let y = coord.getY();
-  return new Coord((x - CENTER_X) / settings.globalScale, (CENTER_Y - y) / settings.globalScale);
+  return new Coord(
+    (x - settings.CENTER_X) / settings.globalScale,
+    (settings.CENTER_Y - y) / settings.globalScale
+  );
 }
 
 function axisToPixel(coord: Coord) {
   let x = coord.getX();
   let y = coord.getY();
-  return new Coord(x * settings.globalScale + CENTER_X, CENTER_Y - y * settings.globalScale);
+  return new Coord(
+    x * settings.globalScale + settings.CENTER_X,
+    settings.CENTER_Y - y * settings.globalScale
+  );
 }
 
 export function pixelToAxisX(coord: number) {
-  return (coord - CENTER_X) / settings.globalScale;
+  return (coord - settings.CENTER_X) / settings.globalScale;
 }
 
 export function pixelToAxisY(coord: number) {
-  return (CENTER_Y - coord) / settings.globalScale;
+  return (settings.CENTER_Y - coord) / settings.globalScale;
 }
 
 export function axisToPixelX(coord: number) {
-  return coord * settings.globalScale + CENTER_X;
+  return coord * settings.globalScale + settings.CENTER_X;
 }
 
 export function axisToPixelY(coord: number) {
-  return CENTER_Y - coord * settings.globalScale;
+  return settings.CENTER_Y - coord * settings.globalScale;
 }
 
 export function getMouse() {

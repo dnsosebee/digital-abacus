@@ -1,4 +1,5 @@
 import { proxy } from "valtio";
+import { Coord } from "./coords/coord/coord";
 import { CoordVertex } from "./coords/coordVertex";
 
 export const UPDATE_IDEAL = 0;
@@ -24,15 +25,32 @@ export const DIFF_ITERS = 1;
 //extra number of loops for updating positions, helps with rigidity
 export const updateCycles = 5;
 
-//center coords.
-export const CENTER_X = 650;
-export const CENTER_Y = 450;
-
 //global scale (standard, 50px = 1 unit)
 export const DEFAULT_SCALE = 50;
 
+type DragData =
+  | {
+      dragging: false;
+    }
+  | {
+      dragging: true;
+      panning: false;
+      activeVertex: CoordVertex;
+    }
+  | {
+      dragging: true;
+      panning: true;
+      panAnchor: Coord;
+      originalCenter: Coord;
+    };
+
 export const settings = proxy({
+  CENTER_X: 650,
+  CENTER_Y: 450,
   globalScale: DEFAULT_SCALE,
+  dragData: {
+    dragging: false,
+  } as DragData,
 
   // //double tap reference (sketch level)
   // tappedOnce: false,
@@ -56,6 +74,4 @@ export const settings = proxy({
   showDifferentials: false,
 
   stepSize: searchSize,
-  // activeVertex
-  activeVertex: null as null | CoordVertex,
 });

@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // "ideal" constraints that simply perform the relevant calculation all at once //
 
+import { logger } from "@/lib/logger";
 import { Cp, Eq, EqualityConstraint, OperatorConstraint } from "../graph/constraint";
 import { settings } from "../settings";
 import { p } from "../sketch";
@@ -463,13 +464,14 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     if (!this.tracked) {
       guess.delta = z.delta;
     }
-    if (z.isNear(guess, settings.stepSize)) {
+    if (z.isNear(guess, settings.stepSize * 4)) {
       if (this.tracked) {
         // logger.debug({ guess: JSON.stringify(guess), z: JSON.stringify(z) }, "ending tracking");
         guess.delta = new Coord(0, 0);
         z.delta = new Coord(0, 0);
         this.tracked = false;
       }
+      // return guess;
       return guess.mut_sendTo(z);
     } else {
       if (this.tracked) {
@@ -488,7 +490,8 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
     // "guess" is the bound variable, it's trying to line up its position with z
 
     // angle from +real axis to vector pointing from guess to z
-    let theta = z.subtract(guess).getTh();
+    let phi = z.subtract(guess).getTh();
+    let theta = phi;
 
     if (this.tracked && z.delta) {
       // logger.debug({ theta, z: JSON.stringify(z), guess: JSON.stringify(guess) }, "theta initial");
@@ -502,14 +505,24 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
         // logger.debug("running away");
         const numerator = M * Math.sin(-psi);
         const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(-psi));
-        theta = Math.asin(numerator / denominator) + Math.PI - theta;
+        theta = Math.asin(numerator / denominator) + Math.PI + phi;
       } else if ((0 < M && M < 1) || (M == 1 && psi != 0)) {
         const numerator = M * Math.sin(psi);
         const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(psi));
-        theta = Math.asin(numerator / denominator) - theta;
+        theta = Math.asin(numerator / denominator) + phi;
       }
+      logger.debug(
+        {
+          z: JSON.stringify({ x: z.x, y: z.y }),
+          guess: JSON.stringify({ x: guess.x, y: guess.y }),
+          theta,
+          phi,
+          psi,
+          M,
+        },
+        "theta final"
+      );
     }
-    // logger.debug({ theta }, "theta final");
 
     return theta;
   }

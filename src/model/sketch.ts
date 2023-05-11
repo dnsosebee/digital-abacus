@@ -1,5 +1,6 @@
 // import p5 from "p5";
 import { SketchProps } from "react-p5/@types";
+import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
 import { drawGrid } from "./graphics";
 import { indicator, settings, updateCycles } from "./settings";
@@ -11,7 +12,11 @@ export let p: p5 | null = null;
 
 export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
-  p5.createCanvas(1600, 900).parent(canvasParentRef);
+  p5.createCanvas(p.windowWidth / 2, p.windowHeight).parent(canvasParentRef);
+}
+
+export function windowResized(p: p5) {
+  p.resizeCanvas(p.windowWidth / 2, p.windowHeight);
 }
 
 export function draw(p: p5) {
@@ -101,9 +106,21 @@ export function touchStarted() {
   //   settings.tappedOnce = false;
   // }
 
-  settings.activeVertex = mainGraph.findMouseover();
-  if (settings.activeVertex && settings.activeVertex.value instanceof DifferentialCoord) {
-    settings.activeVertex.notifyClick(); // should probably check this returned true
+  const vertex = mainGraph.findMouseover();
+  if (vertex && vertex.value instanceof DifferentialCoord) {
+    settings.dragData = {
+      dragging: true,
+      panning: false,
+      activeVertex: vertex,
+    };
+    vertex.notifyClick(); // should probably check this returned true
+  } else {
+    settings.dragData = {
+      dragging: true,
+      panning: true,
+      panAnchor: new Coord(p!.mouseX, p!.mouseY),
+      originalCenter: new Coord(settings.CENTER_X, settings.CENTER_Y),
+    };
   }
 
   //update tutorial...
@@ -111,22 +128,28 @@ export function touchStarted() {
 }
 
 export function touchMoved() {
-  if (settings.activeVertex) {
-    settings.activeVertex.sendToMouse();
-    // if (mainGraph.mode == UPDATE_DIFFERENTIAL) {
-    //   let mouse = getMouse();
-    //   mainGraph.applyDifferential(mouse.subtract(settings.activeVertex.value));
-    // } else {
-    //   settings.activeVertex.sendToMouse();
-    // }
+  const { dragData } = settings;
+  if (dragData.dragging) {
+    if (dragData.panning) {
+      const { panAnchor, originalCenter } = dragData;
+      settings.CENTER_X = originalCenter.x + (p!.mouseX - panAnchor.x);
+      settings.CENTER_Y = originalCenter.y + (p!.mouseY - panAnchor.y);
+    } else {
+      dragData.activeVertex.sendToMouse();
+    }
   }
   return false;
 }
 
 export function touchEnded() {
-  if (settings.activeVertex) {
-    settings.activeVertex.notifyRelease();
-    settings.activeVertex = null;
-    //        mainGraph.update(updateCycles*500);
+  const { dragData } = settings;
+
+  if (dragData.dragging) {
+    if (!dragData.panning) {
+      dragData.activeVertex.notifyRelease();
+    }
   }
+  settings.dragData = {
+    dragging: false,
+  };
 }
