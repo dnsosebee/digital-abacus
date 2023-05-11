@@ -114,7 +114,7 @@ export function touchStarted() {
       activeVertex: vertex,
     };
     vertex.notifyClick(); // should probably check this returned true
-  } else {
+  } else if (p!.mouseX > 0 && p!.mouseX < p!.width && p!.mouseY > 0 && p!.mouseY < p!.height) {
     settings.dragData = {
       dragging: true,
       panning: true,
