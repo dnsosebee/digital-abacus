@@ -3,13 +3,16 @@ import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
+import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
-  const onChangeX = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { drag, beginDrag } = useDrag();
+
+  const onChangeReal = (e: React.ChangeEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onChangeX");
     updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
   };
-  const onChangeY = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeImaginary = (e: React.ChangeEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onChangeY");
     updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
   };
@@ -27,6 +30,16 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
   const roundedX = vertex.value.x < 0.000001 && vertex.value.x > -0.000001 ? 0 : vertex.value.x;
   const roundedY = vertex.value.y < 0.000001 && vertex.value.y > -0.000001 ? 0 : vertex.value.y;
 
+  const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
+    // logger.debug({ e }, "onMousedownReal");
+    beginDrag(vertex.id, e.clientX, vertex.value.copy(), true);
+  };
+
+  const onMousedownImaginary = (e: React.MouseEvent<HTMLInputElement>) => {
+    // logger.debug({ e }, "onMousedownImaginary");
+    beginDrag(vertex.id, e.clientX, vertex.value.copy(), false);
+  };
+
   return (
     <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
       {/* center the contents of the following div */}
@@ -38,13 +51,14 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
           <input
             type="number"
             value={roundedX}
-            onChange={onChangeX}
+            onChange={onChangeReal}
             readOnly={vertex.isBound()}
             className={`${
               wide ? "w-28" : "w-16"
             } text-lg font-bold rounded-lg px-1 border border-slate-300`}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            onMouseDown={onMousedownReal}
           />
           <span className="ml-1 font-extrabold">+</span>
         </div>
@@ -52,13 +66,14 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
           <input
             type="number"
             value={roundedY}
-            onChange={onChangeY}
+            onChange={onChangeImaginary}
             readOnly={vertex.isBound()}
             className={`${
               wide ? "w-28" : "w-16"
             } text-lg font-bold rounded-lg px-1 border border-slate-300`}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            onMouseDown={onMousedownImaginary}
           />
           <span className="ml-1 font-extrabold italic">i</span>
         </div>

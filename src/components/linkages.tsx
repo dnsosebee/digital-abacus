@@ -1,5 +1,13 @@
 import { settings } from "@/model/settings";
-import { draw, setup, touchEnded, touchMoved, touchStarted, windowResized } from "@/model/sketch";
+import {
+  draw,
+  p,
+  setup,
+  touchEnded,
+  touchMoved,
+  touchStarted,
+  windowResized,
+} from "@/model/sketch";
 import dynamic from "next/dynamic";
 import { createRef, useEffect } from "react";
 
@@ -10,10 +18,15 @@ const Linkages = () => {
   const handleWheelEvent = (event: WheelEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    // logger.debug({ event, globalScale: settings.globalScale }, "mouseWheel");
-    settings.globalScale *= 1 - event.deltaY / 1000;
-    // logger.debug({ globalScale: settings.globalScale }, "mouseWheel result");
-    // return false;
+
+    const { CENTER_X, CENTER_Y } = settings;
+    const magnitude = p!.dist(p!.mouseX, p!.mouseY, CENTER_X, CENTER_Y);
+    const angle = p!.atan2(CENTER_Y - p!.mouseY, CENTER_X - p!.mouseX);
+
+    const scaleFactor = 1 - event.deltaY / 1000;
+    settings.globalScale *= scaleFactor;
+    settings.CENTER_X = p!.mouseX + scaleFactor * magnitude * p!.cos(angle);
+    settings.CENTER_Y = p!.mouseY + scaleFactor * magnitude * p!.sin(angle);
   };
 
   useEffect(() => {

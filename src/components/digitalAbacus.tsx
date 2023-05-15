@@ -2,6 +2,7 @@ import { SerialState } from "@/model/store";
 import Head from "next/head";
 import { ReactFlowProvider } from "reactflow";
 import CircuitBoard from "./circuitBoard";
+import { DragProvider } from "./dragProvider";
 import Linkages from "./linkages";
 
 // export const deltasContext = React.createContext<{
@@ -11,7 +12,7 @@ import Linkages from "./linkages";
 
 export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => {
   return (
-    <>
+    <DragProvider>
       <Head>
         <title>The Digital Abacus</title>
         <meta name="description" content="An Awesome Algebra Playground" />
@@ -35,6 +36,6 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
           </div>
         </div>
       </main>
-    </>
+    </DragProvider>
   );
 };
