@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { Constraint, NonConstraint, StandaloneConstraint } from "../../graph/constraint";
+import {
+  Constraint,
+  NonConstraint,
+  OperatorConstraint,
+  StandaloneConstraint,
+} from "../../graph/constraint";
 import { UPDATE_IDEAL, UPDATE_ITERATIVE, iterations, searchSize, settings } from "../../settings";
 import { p } from "../../sketch";
 import { Coord, Polar } from "../coord/coord";
@@ -43,6 +48,7 @@ type CircuitPosition = { x: number; y: number };
 
 export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
   type: opTypeSchema,
+  bound: z.number(),
   hidden: z.boolean(),
   position: z.object({
     x: z.number(),
@@ -158,6 +164,7 @@ export class NodeEdge extends CircuitEdge {
       hidden: this.hidden,
       position: this.position,
       label: this.label,
+      bound: (this.constraint as OperatorConstraint<DifferentialCoord>).bound,
     };
   }
 

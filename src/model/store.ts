@@ -2,7 +2,6 @@ import { logger as parentLogger } from "@/lib/logger";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
 import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
-import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
@@ -183,26 +182,26 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   const graphSnap = useSnapshot(mainGraph);
   const stickiesSnap = useSnapshot(stickies);
 
-  useEffect(() => {
-    if (initial) {
-      // logger.debug({ initial }, "restoring from url");
-      mainGraph = proxy(CoordGraph.fromJSON(initial.graph));
-      stickies.splice(0, stickies.length, ...initial.stickies);
-      // logger.debug({ mainGraph, stickies }, "restored from url");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (initial) {
+  //     // logger.debug({ initial }, "restoring from url");
+  //     mainGraph = proxy(CoordGraph.fromJSON(initial.graph));
+  //     stickies.splice(0, stickies.length, ...initial.stickies);
+  //     // logger.debug({ mainGraph, stickies }, "restored from url");
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const serial: SerialState = {
-        graph: mainGraph.serialize(),
-        stickies,
-      };
-      const str = encodeURIComponent(JSON.stringify(serial));
-      window.history.pushState({}, "", str);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const serial: SerialState = {
+  //       graph: mainGraph.serialize(),
+  //       stickies,
+  //     };
+  //     const str = encodeURIComponent(JSON.stringify(serial));
+  //     window.history.pushState({}, "", str);
+  //   }, 500);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // useEffect(() => {
   //   logger.debug({ stickiesSnap }, "stickiesSnap got new snapshot");

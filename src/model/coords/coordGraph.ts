@@ -2,7 +2,7 @@ import { logger as parentLogger } from "@/lib/logger";
 import { genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
 import { z } from "zod";
-import { makeEqualityConstraintBuilder } from "../graph/constraint";
+import { OperatorConstraint, makeEqualityConstraintBuilder } from "../graph/constraint";
 import { RelGraph, serialRelGraphSchema } from "../graph/relGraph";
 import { VertexId, serialVertexIdSchema, vertexIdEq } from "../graph/vertex";
 import { UPDATE_IDEAL, UPDATE_ITERATIVE } from "../settings";
@@ -94,7 +94,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     const vertices: CoordVertex[] = [];
 
     const nodeEdges = nodes.map((e: SerialNodeEdge) => {
-      return new NodeEdge(
+      const nodeEdge = new NodeEdge(
         e.vertices.map((v: SerialCoordVertex) => {
           const vertex = new CoordVertex(
             new DifferentialCoord(
@@ -118,6 +118,11 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
         e.selected ?? false,
         e.label ?? undefined
       );
+      const constraint = nodeEdge.constraint as OperatorConstraint<DifferentialCoord>;
+      const oldBound = constraint.bound;
+      const invert = nodeEdge.invert(oldBound, e.bound);
+
+      return nodeEdge;
     });
 
     const wireEdges = wires.map((e) => {

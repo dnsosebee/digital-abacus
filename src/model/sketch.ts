@@ -12,11 +12,11 @@ export let p: p5 | null = null;
 
 export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
-  p5.createCanvas(p.windowWidth / 2, p.windowHeight).parent(canvasParentRef);
+  p5.createCanvas(p.windowWidth / 2, p.windowHeight - 40).parent(canvasParentRef);
 }
 
 export function windowResized(p: p5) {
-  p.resizeCanvas(p.windowWidth / 2, p.windowHeight);
+  p.resizeCanvas(p.windowWidth / 2, p.windowHeight - 40);
 }
 
 export function draw(p: p5) {

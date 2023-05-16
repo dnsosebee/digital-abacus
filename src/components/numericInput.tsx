@@ -32,12 +32,16 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
 
   const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownReal");
-    beginDrag(vertex.id, e.clientX, vertex.value.copy(), true);
+    if (!vertex.isBound()) {
+      beginDrag(vertex.id, e.clientX, vertex.value.copy(), true);
+    }
   };
 
   const onMousedownImaginary = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownImaginary");
-    beginDrag(vertex.id, e.clientX, vertex.value.copy(), false);
+    if (!vertex.isBound()) {
+      beginDrag(vertex.id, e.clientX, vertex.value.copy(), false);
+    }
   };
 
   return (

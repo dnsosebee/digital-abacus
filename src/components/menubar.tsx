@@ -1,7 +1,9 @@
+import { logger } from "@/lib/logger";
 import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
+import { p } from "@/model/sketch";
 import { mainGraph, useMainGraph } from "@/model/store";
-import { AddNode, Math } from "@/schema/node";
+import type { AddNode, Math } from "@/schema/node";
 import { LockOpenIcon } from "@heroicons/react/20/solid";
 import { useSnapshot } from "valtio";
 import { Symbol } from "./symbol";
@@ -170,6 +172,44 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
       edge.setHidden(!hidden);
     });
   };
+  const centerLinkages = async () => {
+    const boundingBox = {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity,
+    };
+    logger.debug({ settings: JSON.stringify(settings) }, "settings");
+    const numVertices = activeNodes.reduce((acc, node) => acc + node.data.vertices.length, 0);
+
+    activeNodes.forEach((node) => {
+      node.data.vertices.forEach((vertex) => {
+        boundingBox.minX = Math.min(boundingBox.minX, vertex.value.x);
+        boundingBox.maxX = Math.max(boundingBox.maxX, vertex.value.x);
+        boundingBox.minY = Math.min(boundingBox.minY, vertex.value.y);
+        boundingBox.maxY = Math.max(boundingBox.maxY, vertex.value.y);
+      });
+    });
+    const xScale = p!.windowWidth / 2 / (boundingBox.maxX - boundingBox.minX);
+    const yScale = (p!.windowHeight - 40) / (boundingBox.maxY - boundingBox.minY);
+    const scale =
+      numVertices < 2 ? settings.globalScale : Math.min(1100, Math.min(xScale, yScale) * 0.8);
+    const xBuffer = p!.windowWidth / 2 - (boundingBox.maxX - boundingBox.minX) * scale;
+    const yBuffer = p!.windowHeight - 40 - (boundingBox.maxY - boundingBox.minY) * scale;
+
+    const newCenterX = 0 - boundingBox.minX * scale + xBuffer / 2;
+    const newCenterY = p!.windowHeight - 40 + boundingBox.minY * scale - yBuffer / 2;
+
+    const oldScale = settings.globalScale;
+    const oldCenterX = settings.CENTER_X;
+    const oldCenterY = settings.CENTER_Y;
+    for (let i = 1; i <= 25; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      settings.CENTER_X = oldCenterX + (newCenterX - oldCenterX) * (i / 25);
+      settings.CENTER_Y = oldCenterY + (newCenterY - oldCenterY) * (i / 25);
+      settings.globalScale = oldScale + (scale - oldScale) * (i / 25);
+    }
+  };
   return (
     <div className="flex space-x-4">
       <button
@@ -177,6 +217,12 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
         className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
       >
         {hidden ? "Unhide" : "Hide"}
+      </button>
+      <button
+        onClick={centerLinkages}
+        className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
+      >
+        Center Selection
       </button>
     </div>
   );
