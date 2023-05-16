@@ -129,7 +129,6 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
   // BE CAREFUL RUNNING INDEFINITE ITERATIONS, YOU PROBABLY DON'T WANT THIS
   // IF YOUR GRAPH HAS ANY INSTABILITY OR MARGIN FOR ERROR
   update(iters = 1) {
-    logger.debug({ millis: Date.now() }, "update");
     // : nat -> void
     if (iters < 0) {
       let changes = true;

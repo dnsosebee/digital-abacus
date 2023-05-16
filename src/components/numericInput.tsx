@@ -3,18 +3,29 @@ import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
+import { useState } from "react";
 import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const { drag, beginDrag } = useDrag();
+  const [pendingReal, setPendingReal] = useState(false);
+  const [pendingImaginary, setPendingImaginary] = useState(false);
 
   const onChangeReal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "onChangeX");
-    updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
+    if (e.target.value === "" || e.target.value === "-") {
+      if (!pendingReal) setPendingReal(true);
+    } else {
+      updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
+      if (pendingReal) setPendingReal(false);
+    }
   };
   const onChangeImaginary = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "onChangeY");
-    updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
+    if (e.target.value === "" || e.target.value === "-") {
+      if (!pendingImaginary) setPendingImaginary(true);
+    } else {
+      updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
+      if (pendingImaginary) setPendingImaginary(false);
+    }
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -54,7 +65,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
         <div>
           <input
             type="number"
-            value={roundedX}
+            value={pendingReal ? "" : roundedX}
             onChange={onChangeReal}
             readOnly={vertex.isBound()}
             className={`${
@@ -69,7 +80,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
         <div>
           <input
             type="number"
-            value={roundedY}
+            value={pendingImaginary ? "" : roundedY}
             onChange={onChangeImaginary}
             readOnly={vertex.isBound()}
             className={`${
