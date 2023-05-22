@@ -13,10 +13,18 @@ export type SerialCircuitEdge = z.infer<typeof serialCircuitEdgeSchema>;
 
 export class CircuitEdge extends Edge<DifferentialCoord, CoordVertex> {
   selected: boolean;
+  // parent: NodeEdge | null;
 
-  constructor(v: CoordVertex[], c: Constraint<DifferentialCoord>, id: string, selected = false) {
+  constructor(
+    v: CoordVertex[],
+    c: Constraint<DifferentialCoord>,
+    id: string,
+    selected = false
+    // parent = null
+  ) {
     super(v, c, id);
     this.selected = selected;
+    // this.parent = parent;
   }
 
   serialize(): SerialCircuitEdge {

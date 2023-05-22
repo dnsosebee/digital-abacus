@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
-  const { drag, beginDrag } = useDrag();
+  const { beginDrag } = useDrag();
   const [pendingReal, setPendingReal] = useState(false);
   const [pendingImaginary, setPendingImaginary] = useState(false);
 

@@ -21,17 +21,21 @@ import {
   serialNodeEdgeSchema,
 } from "./edges/nodeEdge";
 import { SerialWireEdge, WireEdge, serialWireEdgeSchema } from "./edges/wireEdge";
-import { makeIterativeComplexEqualityConstraintBuilder } from "./operations";
+import { makeIterativeComplexEqualityConstraintBuilder } from "./operations/iterative";
 
 const logger = parentLogger.child({ module: "CoordGraph" });
 
-export const serialCoordGraphSchema = serialRelGraphSchema.extend({
+export const serialSubgraphSchema = serialRelGraphSchema.extend({
   edges: z.array(z.union([serialNodeEdgeSchema, serialWireEdgeSchema])),
+});
+
+export const serialCoordGraphSchema = serialSubgraphSchema.extend({
   mode: z.number(),
   focus: z.nullable(serialVertexIdSchema),
 });
 
 export type SerialCoordGraph = z.infer<typeof serialCoordGraphSchema>;
+export type SerialSubgraph = z.infer<typeof serialSubgraphSchema>;
 
 export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   // :RelGraph<LinkagePoint>
@@ -158,8 +162,14 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     };
   }
 
+  serializeAsSubgraph(): SerialSubgraph {
+    return {
+      edges: this.edges.map((e) => e.serialize() as SerialNodeEdge | SerialWireEdge),
+    };
+  }
+
   // use this instead of addRelated
-  addOperation(type: OpType, position = { x: 0, y: 0 }) {
+  addOperation(type: OpType, position = { x: 0, y: 0 }): string {
     const nodeId = genNodeId();
 
     let vs: CoordVertex[] = [];

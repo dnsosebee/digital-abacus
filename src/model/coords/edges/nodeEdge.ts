@@ -1,3 +1,4 @@
+import { serialVertexIdSchema } from "@/model/graph/vertex";
 import { z } from "zod";
 import {
   Constraint,
@@ -10,16 +11,19 @@ import { p } from "../../sketch";
 import { Coord, Polar } from "../coord/coord";
 import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
+import { CompositeOperation } from "../operations/composites/compositeOperation";
 import {
   IdealComplexAdder,
   IdealComplexConjugator,
   IdealComplexExponent,
   IdealComplexMultiplier,
+} from "../operations/ideal";
+import {
   IterativeComplexAdder,
   IterativeComplexConjugator,
   IterativeComplexExponent,
   IterativeComplexMultiplier,
-} from "../operations";
+} from "../operations/iterative";
 import { CircuitEdge, serialCircuitEdgeSchema } from "./circuitEdge";
 
 export const OP_TYPE = {
@@ -47,14 +51,25 @@ export const ITERATIONS = iterations;
 type CircuitPosition = { x: number; y: number };
 
 export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
-  type: opTypeSchema,
-  bound: z.number(),
-  hidden: z.boolean(),
+  operator: z.union([
+    z.object({
+      primitive: z.literal(true),
+      type: opTypeSchema,
+      bound: z.number(),
+    }),
+    z.object({
+      primitive: z.literal(false),
+      bound: z.number(),
+      subgraph: z.any(),
+      interfaceVertexIds: z.array(serialVertexIdSchema),
+    }),
+  ]),
   position: z.object({
     x: z.number(),
     y: z.number(),
   }),
   label: z.string(),
+  hidden: z.boolean(),
 });
 
 export type SerialNodeEdge = z.infer<typeof serialNodeEdgeSchema>;
@@ -62,7 +77,7 @@ export type SerialNodeEdge = z.infer<typeof serialNodeEdgeSchema>;
 export class NodeEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
 
-  type: OpType; // :operator type
+  type: OpType | null; // :operator type
   hidden: boolean; // :whether to draw this operator in Linkages
   position: CircuitPosition;
   label: string;
@@ -75,81 +90,14 @@ export class NodeEdge extends CircuitEdge {
     position: CircuitPosition,
     hidden = false,
     selected = false,
-    label = ""
+    label = "",
+    constraint: Constraint<DifferentialCoord> | null = null
   ) {
-    let c = null;
-    switch (mode) {
-      case UPDATE_IDEAL:
-        switch (type) {
-          case OP_TYPE.ADDER:
-            c = new IdealComplexAdder();
-            break;
-          case OP_TYPE.MULTIPLIER:
-            c = new IdealComplexMultiplier();
-            break;
-          case OP_TYPE.CONJUGATOR:
-            c = new IdealComplexConjugator();
-            break;
-          case OP_TYPE.EXPONENTIAL:
-            c = new IdealComplexExponent(false);
-            break;
-          case OP_TYPE.STANDALONE:
-            c = new StandaloneConstraint();
-            break;
-          default:
-            console.log("Warning: Unsupported Operator Type");
-            c = new NonConstraint<Coord>(2);
-        }
-        break;
-      case UPDATE_ITERATIVE:
-        switch (type) {
-          case OP_TYPE.ADDER:
-            c = new IterativeComplexAdder(ITERATIONS);
-            break;
-          case OP_TYPE.MULTIPLIER:
-            c = new IterativeComplexMultiplier(ITERATIONS);
-            break;
-          case OP_TYPE.CONJUGATOR:
-            c = new IterativeComplexConjugator(ITERATIONS);
-            break;
-          case OP_TYPE.EXPONENTIAL:
-            c = new IterativeComplexExponent(ITERATIONS);
-            break;
-          case OP_TYPE.STANDALONE:
-            c = new StandaloneConstraint();
-            break;
-          default:
-            console.log("Warning: Unsupported Operator Type");
-            c = new NonConstraint<Coord>(2);
-        }
-        break;
-      // case UPDATE_DIFFERENTIAL:
-      //   switch (type) {
-      //     case OP_TYPE.ADDER:
-      //       c = new DifferentialComplexAdder();
-      //       break;
-      //     case OP_TYPE.MULTIPLIER:
-      //       c = new DifferentialComplexMultiplier();
-      //       break;
-      //     case OP_TYPE.CONJUGATOR:
-      //       c = new DifferentialComplexConjugator();
-      //       break;
-      //     case OP_TYPE.EXPONENTIAL:
-      //       c = new DifferentialComplexExponent();
-      //       break;
-      //     case OP_TYPE.STANDALONE:
-      //       c = new StandaloneConstraint();
-      //       break;
-      //     default:
-      //       console.log("Warning: Unsupported Operator Type");
-      //       c = new NonConstraint<Coord>(2);
-      //   }
-      //   break;
-      default:
-        console.log("Warning: Invalid Update Mode");
-        c = new NonConstraint<Coord>(2);
+    if (constraint === null) {
+      let c = getBaseConstraintByType(mode, type);
+      constraint = c as Constraint<DifferentialCoord>;
     }
-    super(v, c as Constraint<DifferentialCoord>, id, selected);
+    super(v, constraint as Constraint<DifferentialCoord>, id, selected);
     this.type = type;
     this.position = position;
     this.hidden = hidden;
@@ -158,13 +106,21 @@ export class NodeEdge extends CircuitEdge {
 
   serialize(): SerialNodeEdge {
     const serialized = super.serialize();
+    let operator;
+    if (this.type == OP_TYPE.COMPOSITE) {
+      operator = (this.constraint as CompositeOperation).serialize();
+    } else {
+      operator = {
+        type: this.type,
+        bound: (this.constraint as OperatorConstraint<DifferentialCoord>).bound,
+      };
+    }
     return {
       ...serialized,
-      type: this.type,
+      operator: operator,
       hidden: this.hidden,
       position: this.position,
       label: this.label,
-      bound: (this.constraint as OperatorConstraint<DifferentialCoord>).bound,
     };
   }
 
@@ -294,4 +250,80 @@ export class NodeEdge extends CircuitEdge {
       );
     }
   }
+}
+
+export function getBaseConstraintByType(mode: number, type: string) {
+  let c = null;
+  switch (mode) {
+    case UPDATE_IDEAL:
+      switch (type) {
+        case OP_TYPE.ADDER:
+          c = new IdealComplexAdder();
+          break;
+        case OP_TYPE.MULTIPLIER:
+          c = new IdealComplexMultiplier();
+          break;
+        case OP_TYPE.CONJUGATOR:
+          c = new IdealComplexConjugator();
+          break;
+        case OP_TYPE.EXPONENTIAL:
+          c = new IdealComplexExponent(false);
+          break;
+        case OP_TYPE.STANDALONE:
+          c = new StandaloneConstraint();
+          break;
+        default:
+          console.log("Warning: Unsupported Operator Type");
+          c = new NonConstraint<Coord>(2);
+      }
+      break;
+    case UPDATE_ITERATIVE:
+      switch (type) {
+        case OP_TYPE.ADDER:
+          c = new IterativeComplexAdder(ITERATIONS);
+          break;
+        case OP_TYPE.MULTIPLIER:
+          c = new IterativeComplexMultiplier(ITERATIONS);
+          break;
+        case OP_TYPE.CONJUGATOR:
+          c = new IterativeComplexConjugator(ITERATIONS);
+          break;
+        case OP_TYPE.EXPONENTIAL:
+          c = new IterativeComplexExponent(ITERATIONS);
+          break;
+        case OP_TYPE.STANDALONE:
+          c = new StandaloneConstraint();
+          break;
+        default:
+          console.log("Warning: Unsupported Operator Type");
+          c = new NonConstraint<Coord>(2);
+      }
+      break;
+    // case UPDATE_DIFFERENTIAL:
+    //   switch (type) {
+    //     case OP_TYPE.ADDER:
+    //       c = new DifferentialComplexAdder();
+    //       break;
+    //     case OP_TYPE.MULTIPLIER:
+    //       c = new DifferentialComplexMultiplier();
+    //       break;
+    //     case OP_TYPE.CONJUGATOR:
+    //       c = new DifferentialComplexConjugator();
+    //       break;
+    //     case OP_TYPE.EXPONENTIAL:
+    //       c = new DifferentialComplexExponent();
+    //       break;
+    //     case OP_TYPE.STANDALONE:
+    //       c = new StandaloneConstraint();
+    //       break;
+    //     default:
+    //       console.log("Warning: Unsupported Operator Type");
+    //       c = new NonConstraint<Coord>(2);
+    //   }
+    //   break;
+    default:
+      console.log("Warning: Invalid Update Mode");
+      c = new NonConstraint<Coord>(2);
+  }
+  return c;
 }

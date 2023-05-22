@@ -1,5 +1,5 @@
 import { CoordVertex } from "@/model/coords/coordVertex";
-import { NodeEdge, OpType, opTypeSchema } from "@/model/coords/edges/nodeEdge";
+import { NodeEdge, OpType, primitiveOpTypeSchema } from "@/model/coords/edges/nodeEdge";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -28,7 +28,7 @@ const mathSchema = baseNodeSchema.extend({
   data: z.object({
     cartesian: z.boolean(),
     vertices: z.array(z.any()),
-    opType: opTypeSchema,
+    opType: primitiveOpTypeSchema,
     label: z.string(),
   }),
 });
