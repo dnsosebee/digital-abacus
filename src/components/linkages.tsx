@@ -1,4 +1,4 @@
-import { settings } from "@/model/settings";
+import { getCurrentGraph } from "@/src2/model/useStore";
 import {
   draw,
   p,
@@ -20,14 +20,15 @@ const Linkages = () => {
     event.stopPropagation();
     event.preventDefault();
 
-    const { CENTER_X, CENTER_Y } = settings;
-    const magnitude = p!.dist(p!.mouseX, p!.mouseY, CENTER_X, CENTER_Y);
-    const angle = p!.atan2(CENTER_Y - p!.mouseY, CENTER_X - p!.mouseX);
+    const { linkagesSettings } = getCurrentGraph();
+    const { centerX, centerY } = linkagesSettings;
+    const magnitude = p!.dist(p!.mouseX, p!.mouseY, centerX, centerY);
+    const angle = p!.atan2(centerY - p!.mouseY, centerX - p!.mouseX);
 
     const scaleFactor = 1 - event.deltaY / 1000;
-    settings.globalScale *= scaleFactor;
-    settings.CENTER_X = p!.mouseX + scaleFactor * magnitude * p!.cos(angle);
-    settings.CENTER_Y = p!.mouseY + scaleFactor * magnitude * p!.sin(angle);
+    linkagesSettings.scale *= scaleFactor;
+    linkagesSettings.centerX = p!.mouseX + scaleFactor * magnitude * p!.cos(angle);
+    linkagesSettings.centerY = p!.mouseY + scaleFactor * magnitude * p!.sin(angle);
   };
 
   useEffect(() => {
