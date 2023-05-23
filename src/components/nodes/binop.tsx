@@ -1,6 +1,6 @@
 import { OP_TYPE, OpType } from "@/model/coords/edges/nodeEdge";
-import { isBound } from "@/src2/model/graph/operation/node/effectives/effective";
-import { PrimitiveOperation } from "@/src2/model/graph/operation/node/effectives/primitives/primitive";
+import { isBound } from "@/src2/model/solver/operation/node/effectives/effective";
+import { PrimitiveOperation } from "@/src2/model/solver/operation/node/effectives/primitives/primitive";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";

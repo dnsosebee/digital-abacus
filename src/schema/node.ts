@@ -1,5 +1,5 @@
 import { OpType } from "@/model/coords/edges/nodeEdge";
-import { effectiveNodeOperationSchema } from "@/src2/model/graph/operation/node/effectives/effective";
+import { effectiveNodeOperationSchema } from "@/src2/model/solver/operation/node/effectives/effective";
 import { z } from "zod";
 import { genId } from "./id";
 

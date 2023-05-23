@@ -7,7 +7,8 @@ import {
   touchMoved,
   touchStarted,
   windowResized,
-} from "@/model/sketch";
+} from "@/src2/p5/linkages";
+
 import dynamic from "next/dynamic";
 import { createRef, useEffect } from "react";
 

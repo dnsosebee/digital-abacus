@@ -1,5 +1,5 @@
 import { Sticky as RFSticky } from "@/schema/node";
-import { Sticky } from "@/src2/model/graph/operation/node/sticky";
+import { Sticky } from "@/src2/model/solver/operation/node/sticky";
 import { getCurrentGraph } from "@/src2/model/useStore";
 import { Node, NodeProps } from "reactflow";
 import { NodeShell } from "./nodeShell";

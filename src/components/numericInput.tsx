@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
-import { isBound } from "@/src2/model/graph/operation/node/effectives/effective";
-import { Vertex, VertexId, vertexIdEq } from "@/src2/model/graph/operation/vertex/vertex";
+import { isBound } from "@/src2/model/solver/operation/node/effectives/effective";
+import { Vertex, VertexId, vertexIdEq } from "@/src2/model/solver/operation/vertex/vertex";
 import { getCurrentGraph, getVertex, useStore } from "@/src2/model/useStore";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";

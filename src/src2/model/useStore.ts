@@ -5,12 +5,12 @@ import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { operationToNode, operationToWire } from "./adapter";
-import { Graph } from "./graph/graph";
-import { getSubOperation } from "./graph/operation/node/effectives/composite";
-import { NodeOperation, handleIdToNum } from "./graph/operation/node/node";
-import { Operation, genOperationId } from "./graph/operation/operation";
-import { VertexId } from "./graph/operation/vertex/vertex";
-import { INITIAL_STORE, Store, storeSchema } from "./graph/store";
+import { Graph, updateGraph } from "./solver/graph";
+import { getSubOperation } from "./solver/operation/node/effectives/composite";
+import { NodeOperation, handleIdToNum } from "./solver/operation/node/node";
+import { Operation, genOperationId } from "./solver/operation/operation";
+import { VertexId } from "./solver/operation/vertex/vertex";
+import { INITIAL_STORE, Store, storeSchema } from "./solver/store";
 
 export const store = proxy(INITIAL_STORE);
 
@@ -152,4 +152,9 @@ export const changeSelection = (id: string, selected: boolean) => {
   } else {
     throw new Error("edge for selection change not found");
   }
+};
+
+export const updateCurrentGraph = () => {
+  const graph = getCurrentGraph();
+  updateGraph(graph);
 };

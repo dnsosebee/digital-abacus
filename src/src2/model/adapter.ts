@@ -1,7 +1,7 @@
 import { CircuitNode } from "@/schema/node";
 import { Wire } from "@/schema/wire";
-import { NodeOperation, handleNumToId } from "./graph/operation/node/node";
-import { WireOperation } from "./graph/operation/wire";
+import { NodeOperation, handleNumToId } from "./solver/operation/node/node";
+import { WireOperation } from "./solver/operation/wire";
 
 export const operationToWire = (operation: WireOperation): Wire => ({
   id: operation.id,

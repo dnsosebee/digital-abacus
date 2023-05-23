@@ -1,7 +1,7 @@
 import { logger } from "@/lib/logger";
-import { EffectiveNodeOperation } from "@/src2/model/graph/operation/node/effectives/effective";
-import { Coord } from "@/src2/model/graph/operation/vertex/coord";
-import { VertexId } from "@/src2/model/graph/operation/vertex/vertex";
+import { EffectiveNodeOperation } from "@/src2/model/solver/operation/node/effectives/effective";
+import { Coord } from "@/src2/model/solver/operation/vertex/coord";
+import { VertexId } from "@/src2/model/solver/operation/vertex/vertex";
 import { getCurrentGraph } from "@/src2/model/useStore";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 

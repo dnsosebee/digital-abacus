@@ -1,8 +1,8 @@
 // import p5 from "p5";
 import { SketchProps } from "react-p5/@types";
+import { drawGrid } from "../src2/p5/graphics";
 import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
-import { drawGrid } from "./graphics";
 import { indicator, settings, updateCycles } from "./settings";
 import { mainGraph } from "./store";
 
