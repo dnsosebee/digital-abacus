@@ -8,9 +8,7 @@ import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
 export const StandaloneNode = ({ data, selected }: MathProps) => {
-  const {
-    operation: { exposedVertices, label, id },
-  } = data as { operation: Standalone };
+  const { exposedVertices, id, label } = data.operation as Standalone;
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     (getOperation(id)! as Standalone).label = e.target.value;
   };

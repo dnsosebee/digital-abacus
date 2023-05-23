@@ -1,3 +1,4 @@
+import { EffectiveOperation } from "@/model/solver/operation/node/effectives/effective";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BinopNode } from "./binop";
@@ -9,7 +10,7 @@ export type MathNode = Node<MathData>;
 export type MathProps = NodeProps<MathData>;
 
 export const MathNode = (props: MathProps) => {
-  const { operation } = props.data;
+  const { operation } = props.data as { operation: EffectiveOperation };
 
   if (operation.isPrimitive) {
     switch (operation.opType) {

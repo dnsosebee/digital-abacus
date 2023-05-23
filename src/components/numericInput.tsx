@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { completeInversion, startInversion } from "@/model/solver/graph";
+import { Graph, checkIfTarget, completeInversion, startInversion } from "@/model/solver/graph";
 import { isBound } from "@/model/solver/operation/node/effectives/effective";
 import { Vertex, VertexId, vertexIdEq } from "@/model/solver/operation/vertex/vertex";
 import { getCurrentGraph, getVertex, useStore } from "@/model/useStore";
@@ -111,10 +111,11 @@ export const NumericInput = ({
  */
 const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
   const { current } = useStore();
-  const { inverting } = current;
+  const { inversionState } = current;
+  const { inverting } = inversionState;
 
   const bound = isBound(vertex);
-  const isClickable = bound ? !inverting : inverting && false;
+  const isClickable = bound ? !inverting : inverting && checkIfTarget(current as Graph, id);
   // mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
 
   // if not bound, make the lock glow overtly
@@ -131,7 +132,7 @@ const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
     completeInversion(getCurrentGraph(), id);
   };
 
-  const isFocus = inverting && vertexIdEq(current.focus, id);
+  const isFocus = inverting && vertexIdEq(inversionState.focus, id);
 
   return (
     <button

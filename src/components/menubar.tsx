@@ -14,7 +14,8 @@ import { Symbol } from "./symbol";
 
 const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
   const { current } = useStore();
-  const { inverting } = current;
+  const { inversionState } = current;
+  const { inverting } = inversionState;
 
   return (
     <div className="flex px-4 py-2 bg-slate-100">

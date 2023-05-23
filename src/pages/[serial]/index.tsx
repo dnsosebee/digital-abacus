@@ -13,7 +13,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 export default function Home({ serial }: { serial: string }) {
   let store: Store;
-  logger.debug({ serial }, "Home");
   try {
     const decoded = decodeURIComponent(serial);
     logger.debug({ decoded }, "Home");

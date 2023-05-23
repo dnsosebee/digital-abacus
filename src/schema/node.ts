@@ -1,4 +1,4 @@
-import { effectiveNodeOperationSchema } from "@/model/solver/operation/node/effectives/effective";
+import { nodeOperationSchema } from "@/model/solver/operation/node/node";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -18,7 +18,7 @@ const baseNodeSchema = z.object({
 const mathSchema = baseNodeSchema.extend({
   type: z.literal("math"),
   data: z.object({
-    operation: effectiveNodeOperationSchema,
+    operation: nodeOperationSchema,
   }),
 });
 

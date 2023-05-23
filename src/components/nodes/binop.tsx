@@ -8,7 +8,7 @@ import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
 export const BinopNode = ({ data, selected }: MathProps) => {
-  const { exposedVertices, opType, id, boundVertex } = data.operation as PrimitiveOperation;
+  const { exposedVertices, opType, id } = data.operation as PrimitiveOperation;
   return (
     <div>
       <DualHandle
@@ -45,7 +45,7 @@ const getSymbol = (type: string): string => {
   switch (type) {
     case "adder":
       return "+";
-    case "subtractor":
+    case "multiplier":
       return "*";
     default:
       return "???";

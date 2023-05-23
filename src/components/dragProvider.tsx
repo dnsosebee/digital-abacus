@@ -1,5 +1,4 @@
-import { logger } from "@/lib/logger";
-import { EffectiveNodeOperation } from "@/model/solver/operation/node/effectives/effective";
+import { EffectiveOperation } from "@/model/solver/operation/node/effectives/effective";
 import { Coord } from "@/model/solver/operation/vertex/coord";
 import { VertexId } from "@/model/solver/operation/vertex/vertex";
 import { getCurrentGraph } from "@/model/useStore";
@@ -73,7 +72,6 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    logger.debug({ drag }, "drag");
     if (drag.dragging) {
       const delta = (drag.mouseX - drag.initialX) / 100;
       const newCoord = { x: drag.initialCoord.x, y: drag.initialCoord.y };
@@ -85,7 +83,7 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
       (
         getCurrentGraph().operation.implementation.find(
           (op) => op.id === drag.vertexId.operationId
-        )! as EffectiveNodeOperation
+        )! as EffectiveOperation
       ).exposedVertices[drag.vertexId.index].value = newCoord;
     }
   }, [drag]);
