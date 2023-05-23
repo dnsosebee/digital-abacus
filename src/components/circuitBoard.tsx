@@ -1,6 +1,9 @@
 import { logger as parentLogger } from "@/lib/logger";
+
+import { Math } from "@/schema/node";
+import { AddNode, NodeOperation } from "@/src2/model/graph/operation/node/node";
+import { genOperationId } from "@/src2/model/graph/operation/operation";
 import {
-  SerialState,
   addNode,
   addWire,
   changeSelection,
@@ -8,9 +11,8 @@ import {
   removeNode,
   removeWire,
   updateNodePosition,
-  useMainGraph,
-} from "@/model/store";
-import { AddNode, Math } from "@/schema/node";
+  useStore,
+} from "@/src2/model/useStore";
 import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
@@ -40,31 +42,17 @@ const NODE_COMPONENTS = {
 
 const EDGE_TYPES = {
   coord: SmartBezierEdge,
-  // TODO: add LIST edge types
 };
 
-const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
-  const { nodes, wires } = useMainGraph(serialState);
-  // const updateNodeInternals = useUpdateNodeInternals();
+const CircuitBoard = ({ serialState }: { serialState: any }) => {
+  const { nodes, wires } = useStore(); // serialState
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
-
-  // logger.debug({ dragging, nodes, wires }, "CircuitBoard");
-
-  // useEffect(() => {
-  //   if (shouldUpdateNodeInternals) {
-  //     nodes.forEach((node) => {
-  //       updateNodeInternals(node.id);
-  //     });
-  //     registerNodeInternalsUpdated();
-  //   }
-  // }, [shouldUpdateNodeInternals]);
 
   const [copyRequested, setCopyRequested] = useState(false);
   const [copied, setCopied] = useState(false);
   const altPressed = useKeyPress("Alt");
-  // console.log("altPressed", altPressed);
-  // console.log("copied", copied);
+
   useEffect(() => {
     if (!altPressed) {
       setCopyRequested(false);
@@ -140,12 +128,10 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         throw new Error("reactFlowWrapper.current is null");
       }
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect() as DOMRect;
-      const addNodeData = JSON.parse(
-        event.dataTransfer.getData("application/reactflow")
-      ) as AddNode;
+      const node = JSON.parse(event.dataTransfer.getData("application/reactflow")) as AddNode;
 
       // check if the dropped element is valid
-      if (typeof addNodeData === "undefined" || !addNodeData) {
+      if (typeof node === "undefined" || !node) {
         return;
       }
 
@@ -153,21 +139,23 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
-      addNode({ ...addNodeData, position });
+
+      addNode({
+        ...node,
+        position,
+        id: genOperationId(),
+      } as NodeOperation);
     },
     [reactFlowInstance]
   );
 
   const activeNodes = nodes.filter((node) => node.selected);
   const activeMathNodes = activeNodes.filter((node) => node.type === "math") as Math[];
-  // logger.debug({ activeNodes }, "activeNodes");
 
   return (
     <div className="flex-grow flex flex-col">
       <Menubar activeNodes={activeMathNodes} />
       <div className="flex-grow flex flex-col items-stretch">
-        {/* <p>{store.edges.length}</p> */}
-        {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
         <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
@@ -180,21 +168,15 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             nodeTypes={NODE_COMPONENTS}
             edgeTypes={EDGE_TYPES}
             onInit={setReactFlowInstance}
-            // panOnScroll
-            // selectionOnDrag
-            // panOnDrag={[1, 2]}
             selectionMode={SelectionMode.Partial}
             multiSelectionKeyCode={"Shift"}
             selectionKeyCode={"Shift"}
-            // onConnectStart={() => setDragging(true)}
-            // onConnectEnd={() => setDragging(false)}
             connectionMode={ConnectionMode.Loose}
           >
             <Background />
             <Controls />
           </ReactFlow>
         </div>
-        {/* </CircuitsProvider> */}
       </div>
     </div>
   );

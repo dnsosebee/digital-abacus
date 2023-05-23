@@ -1,11 +1,16 @@
-import { logger } from "@/lib/logger";
-import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
-import { settings } from "@/model/settings";
+import { NodeEdge } from "@/model/coords/edges/nodeEdge";
 import { p } from "@/model/sketch";
 import { mainGraph, useMainGraph } from "@/model/store";
-import type { AddNode, Math } from "@/schema/node";
+import type { Math } from "@/schema/node";
+import { genAdder } from "@/src2/model/graph/operation/node/effectives/primitives/adder";
+import { genConjugator } from "@/src2/model/graph/operation/node/effectives/primitives/conjugator";
+import { genExponential } from "@/src2/model/graph/operation/node/effectives/primitives/exponential";
+import { genMultiplier } from "@/src2/model/graph/operation/node/effectives/primitives/multiplier";
+import { genStandalone } from "@/src2/model/graph/operation/node/effectives/primitives/standalone";
+import { AddNode } from "@/src2/model/graph/operation/node/node";
+import { genSticky } from "@/src2/model/graph/operation/node/sticky";
+import { getCurrentGraph, store, useStore } from "@/src2/model/useStore";
 import { LockOpenIcon } from "@heroicons/react/20/solid";
-import { useSnapshot } from "valtio";
 import { Symbol } from "./symbol";
 
 const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
@@ -55,60 +60,37 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
         <Draggable
           symbol="+"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.ADDER },
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genAdder({ x: 0, y: 0 }))
           }
         />
         <Draggable
           symbol="*"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.MULTIPLIER },
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genMultiplier({ x: 0, y: 0 }))
           }
         />
         <Draggable
           symbol="e^"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.EXPONENTIAL },
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genExponential({ x: 0, y: 0 }))
           }
         />
         <Draggable
           symbol="z̄"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.CONJUGATOR },
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genConjugator({ x: 0, y: 0 }))
           }
         />
         <Draggable
           symbol="#"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.STANDALONE },
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genStandalone({ x: 0, y: 0 }))
           }
         />
         <Draggable
           symbol="Aa"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "sticky",
-              position: { x: 0, y: 0 },
-            })
+            onDragStart(event, genSticky({ x: 0, y: 0 }))
           }
         />
         {activeNodes.length > 0 && <NodeControls activeNodes={activeNodes} />}
@@ -119,16 +101,24 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
 };
 
 const GlobalControls = () => {
-  const { showDifferentials, stepSize } = useSnapshot(settings);
+  const {
+    storeSnap: {
+      graphs,
+      currentGraphIndex,
+      globalSettings: { showDifferentials, showComplex, showLinkages },
+    },
+  } = useStore();
+
+  const { stepSize } = graphs[currentGraphIndex];
 
   const toggleShowDeltas = () => {
-    settings.showDifferentials = !showDifferentials;
+    store.globalSettings.showDifferentials = !showDifferentials;
   };
 
   const updateStepSize = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newSize = parseFloat(event.target.value);
     if (newSize > 0) {
-      settings.stepSize = newSize;
+      store.graphs[currentGraphIndex].stepSize = newSize;
     }
   };
 
@@ -165,7 +155,7 @@ const GlobalControls = () => {
 };
 
 const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
-  const hidden = activeNodes.every((node) => node.data.edge.hidden);
+  const hidden = activeNodes.every((node) => node.data.operation.hideLinkages);
   const toggleHidden = () => {
     activeNodes.forEach((node) => {
       const edge = mainGraph._getEdge(node.id) as NodeEdge;
@@ -179,11 +169,13 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
       minY: Infinity,
       maxY: -Infinity,
     };
-    logger.debug({ settings: JSON.stringify(settings) }, "settings");
-    const numVertices = activeNodes.reduce((acc, node) => acc + node.data.vertices.length, 0);
+    const numVertices = activeNodes.reduce(
+      (acc, node) => acc + node.data.operation.exposedVertices.length,
+      0
+    );
 
     activeNodes.forEach((node) => {
-      node.data.vertices.forEach((vertex) => {
+      node.data.operation.exposedVertices.forEach((vertex) => {
         boundingBox.minX = Math.min(boundingBox.minX, vertex.value.x);
         boundingBox.maxX = Math.max(boundingBox.maxX, vertex.value.x);
         boundingBox.minY = Math.min(boundingBox.minY, vertex.value.y);
@@ -193,21 +185,25 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
     const xScale = p!.windowWidth / 2 / (boundingBox.maxX - boundingBox.minX);
     const yScale = (p!.windowHeight - 40) / (boundingBox.maxY - boundingBox.minY);
     const scale =
-      numVertices < 2 ? settings.globalScale : Math.min(1100, Math.min(xScale, yScale) * 0.8);
+      numVertices < 2
+        ? getCurrentGraph().linkagesSettings.scale
+        : Math.min(1100, Math.min(xScale, yScale) * 0.8);
     const xBuffer = p!.windowWidth / 2 - (boundingBox.maxX - boundingBox.minX) * scale;
     const yBuffer = p!.windowHeight - 40 - (boundingBox.maxY - boundingBox.minY) * scale;
 
     const newCenterX = 0 - boundingBox.minX * scale + xBuffer / 2;
     const newCenterY = p!.windowHeight - 40 + boundingBox.minY * scale - yBuffer / 2;
 
-    const oldScale = settings.globalScale;
-    const oldCenterX = settings.CENTER_X;
-    const oldCenterY = settings.CENTER_Y;
+    const oldScale = getCurrentGraph().linkagesSettings.scale;
+    const oldCenterX = getCurrentGraph().linkagesSettings.centerX;
+    const oldCenterY = getCurrentGraph().linkagesSettings.centerY;
     for (let i = 1; i <= 25; i++) {
       await new Promise((resolve) => setTimeout(resolve, 10));
-      settings.CENTER_X = oldCenterX + (newCenterX - oldCenterX) * (i / 25);
-      settings.CENTER_Y = oldCenterY + (newCenterY - oldCenterY) * (i / 25);
-      settings.globalScale = oldScale + (scale - oldScale) * (i / 25);
+      getCurrentGraph().linkagesSettings.centerX =
+        oldCenterX + (newCenterX - oldCenterX) * (i / 25);
+      getCurrentGraph().linkagesSettings.centerY =
+        oldCenterY + (newCenterY - oldCenterY) * (i / 25);
+      getCurrentGraph().linkagesSettings.scale = oldScale + (scale - oldScale) * (i / 25);
     }
   };
   return (

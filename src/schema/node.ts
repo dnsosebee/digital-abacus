@@ -1,5 +1,5 @@
-import { CoordVertex } from "@/model/coords/coordVertex";
-import { NodeEdge, OpType, primitiveOpTypeSchema } from "@/model/coords/edges/nodeEdge";
+import { OpType } from "@/model/coords/edges/nodeEdge";
+import { effectiveNodeOperationSchema } from "@/src2/model/graph/operation/node/effectives/effective";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -13,29 +13,18 @@ const baseNodeSchema = z.object({
     x: z.number(),
     y: z.number(),
   }),
+  selected: z.boolean(),
 });
-
-// const vertexSchema = z.object({
-//   bound: z.boolean(),
-//   coord: z.object({
-//     x: z.number(),
-//     y: z.number(),
-//   }),
-// });
 
 const mathSchema = baseNodeSchema.extend({
   type: z.literal("math"),
   data: z.object({
-    cartesian: z.boolean(),
-    vertices: z.array(z.any()),
-    opType: primitiveOpTypeSchema,
-    label: z.string(),
+    operation: effectiveNodeOperationSchema,
   }),
 });
-// etc.
+
 export const stickySchema = baseNodeSchema.extend({
   type: z.literal("sticky"),
-  selected: z.boolean(),
   data: z.object({
     text: z.string(),
   }),
@@ -43,21 +32,7 @@ export const stickySchema = baseNodeSchema.extend({
 
 export const nodeSchema = z.union([mathSchema, stickySchema]);
 
-// export type VertexInfo = z.infer<typeof vertexSchema>;
-
-export type Math = {
-  id: string;
-  position: { x: number; y: number };
-  type: "math";
-  selected: boolean;
-  data: {
-    cartesian: boolean;
-    vertices: CoordVertex[];
-    opType: OpType;
-    label: string;
-    edge: NodeEdge;
-  };
-};
+export type Math = z.infer<typeof mathSchema>;
 export type Sticky = z.infer<typeof stickySchema>;
 
 // export type Popup = {

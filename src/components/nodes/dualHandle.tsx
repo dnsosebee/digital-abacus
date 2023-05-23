@@ -1,4 +1,4 @@
-import { handleNumToId } from "@/schema/handle";
+import { handleNumToId } from "@/src2/model/graph/operation/node/node";
 import { Handle, HandleProps, Position } from "reactflow";
 
 export const DualHandle = (

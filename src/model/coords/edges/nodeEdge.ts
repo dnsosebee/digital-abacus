@@ -50,20 +50,24 @@ export const ITERATIONS = iterations;
 
 type CircuitPosition = { x: number; y: number };
 
+const operatorConfigSchema = z.union([
+  z.object({
+    primitive: z.literal(true),
+    type: opTypeSchema,
+    bound: z.number(),
+  }),
+  z.object({
+    primitive: z.literal(false),
+    bound: z.number(),
+    subgraph: z.any(),
+    interfaceVertexIds: z.array(serialVertexIdSchema),
+  }),
+]);
+
+export type OperatorConfig = z.infer<typeof operatorConfigSchema>;
+
 export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
-  operator: z.union([
-    z.object({
-      primitive: z.literal(true),
-      type: opTypeSchema,
-      bound: z.number(),
-    }),
-    z.object({
-      primitive: z.literal(false),
-      bound: z.number(),
-      subgraph: z.any(),
-      interfaceVertexIds: z.array(serialVertexIdSchema),
-    }),
-  ]),
+  operator: operatorConfigSchema,
   position: z.object({
     x: z.number(),
     y: z.number(),
@@ -107,7 +111,7 @@ export class NodeEdge extends CircuitEdge {
   serialize(): SerialNodeEdge {
     const serialized = super.serialize();
     let operator;
-    if (this.type == OP_TYPE.COMPOSITE) {
+    if (this.constraint.primitive) {
       operator = (this.constraint as CompositeOperation).serialize();
     } else {
       operator = {

@@ -1,12 +1,20 @@
-import { Coord } from "@/model/coords/coord/coord";
-import { CoordVertex } from "@/model/coords/coordVertex";
-import { vertexIdEq } from "@/model/graph/vertex";
-import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
+import { logger } from "@/lib/logger";
+import { isBound } from "@/src2/model/graph/operation/node/effectives/effective";
+import { Vertex, VertexId, vertexIdEq } from "@/src2/model/graph/operation/vertex/vertex";
+import { getCurrentGraph, getVertex, useStore } from "@/src2/model/useStore";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { useDrag } from "./dragProvider";
 
-export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
+export const NumericInput = ({
+  vertex,
+  id,
+  wide = false,
+}: {
+  vertex: Vertex;
+  wide?: boolean;
+  id: VertexId;
+}) => {
   const { beginDrag } = useDrag();
   const [pendingReal, setPendingReal] = useState(false);
   const [pendingImaginary, setPendingImaginary] = useState(false);
@@ -15,7 +23,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     if (e.target.value === "" || e.target.value === "-") {
       if (!pendingReal) setPendingReal(true);
     } else {
-      updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
+      vertex.value.x = Number(e.target.value);
       if (pendingReal) setPendingReal(false);
     }
   };
@@ -23,19 +31,19 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     if (e.target.value === "" || e.target.value === "-") {
       if (!pendingImaginary) setPendingImaginary(true);
     } else {
-      updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
+      vertex.value.y = Number(e.target.value);
       if (pendingImaginary) setPendingImaginary(false);
     }
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "handleFocus");
-    mainGraph.setVertexSelectedness(vertex.id, true);
+    logger.debug({ e, id, currentGraph: getCurrentGraph() }, "handleFocus");
+    getVertex(id)!.selected = true;
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "handleBlur");
-    mainGraph.setVertexSelectedness(vertex.id, false);
+    getVertex(id)!.selected = false;
   };
 
   const roundedX = vertex.value.x < 0.000001 && vertex.value.x > -0.000001 ? 0 : vertex.value.x;
@@ -43,15 +51,15 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
 
   const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownReal");
-    if (!vertex.isBound()) {
-      beginDrag(vertex.id, e.clientX, vertex.value.copy(), true);
+    if (!isBound(vertex)) {
+      beginDrag(id, e.clientX, vertex.value, true);
     }
   };
 
   const onMousedownImaginary = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownImaginary");
-    if (!vertex.isBound()) {
-      beginDrag(vertex.id, e.clientX, vertex.value.copy(), false);
+    if (!isBound(vertex)) {
+      beginDrag(id, e.clientX, vertex.value, false);
     }
   };
 
@@ -59,7 +67,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
-        <LockButton vertex={vertex} />
+        <LockButton vertex={vertex} id={id} />
       </div>
       <div className="flex flex-col space-y-1">
         <div>
@@ -67,7 +75,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             type="number"
             value={pendingReal ? "" : roundedX}
             onChange={onChangeReal}
-            readOnly={vertex.isBound()}
+            readOnly={isBound(vertex)}
             className={`${
               wide ? "w-28" : "w-16"
             } text-lg font-bold rounded-lg px-1 border border-slate-300`}
@@ -82,7 +90,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             type="number"
             value={pendingImaginary ? "" : roundedY}
             onChange={onChangeImaginary}
-            readOnly={vertex.isBound()}
+            readOnly={isBound(vertex)}
             className={`${
               wide ? "w-28" : "w-16"
             } text-lg font-bold rounded-lg px-1 border border-slate-300`}
@@ -100,45 +108,42 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
 /**
  * If the vertex is bound, show a lock icon and make it clickable. Otherwise show an open lock icon and make it unclickable.
  */
-const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
-  const { focus } = useMainGraph();
-  const reversing = !!focus;
+const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
+  const {
+    storeSnap: { graphs, currentGraphIndex },
+  } = useStore();
+  const graph = graphs[currentGraphIndex];
+  const { inverting } = graph;
 
-  const isBound = vertex.isBound();
-  const isClickable = isBound
-    ? !reversing
-    : reversing &&
-      mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
-
-  if (reversing) {
-    // logger.debug({ depends: mainGraph.getDepends(focus as CoordVertex) }, "LockButton");
-  } else {
-    // logger.debug("LockButton not reversing");
-  }
+  const bound = isBound(vertex);
+  const isClickable = bound ? !inverting : inverting && false;
+  // mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
 
   // if not bound, make the lock glow overtly
   const clickableClasses = `bg-slate-300 hover:bg-slate-400 ${
-    isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
+    bound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
   }`;
-  const Icon = isBound ? LockClosedIcon : LockOpenIcon;
+  const Icon = bound ? LockClosedIcon : LockOpenIcon;
 
   const handleStartReversal = () => {
     // logger.debug({ focus: focus }, "handleStartReversal");
-    mainGraph.startReversal(vertex.id);
+    // mainGraph.startReversal(vertex.id);
   };
 
   const handleCompleteReversal = () => {
     // logger.debug({ focus: focus }, "handleCompleteReversal");
-    mainGraph.completeReversal(vertex.id);
+    // mainGraph.completeReversal(vertex.id);
   };
+
+  const isFocus = inverting && vertexIdEq(graph.focus, id);
 
   return (
     <button
       className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""} ${
-        reversing && vertexIdEq(focus.id, vertex.id) ? "bg-red-400" : ""
+        isFocus ? "bg-red-400" : ""
       }`}
       disabled={!isClickable}
-      onClick={isBound ? handleStartReversal : handleCompleteReversal}
+      onClick={bound ? handleStartReversal : handleCompleteReversal}
     >
       <Icon className="w-6 h-6 text-slate-800" />
     </button>

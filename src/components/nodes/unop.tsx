@@ -1,4 +1,6 @@
-import { OpType, OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { OP_TYPE, OpType } from "@/model/coords/edges/nodeEdge";
+import { isBound } from "@/src2/model/graph/operation/node/effectives/effective";
+import { PrimitiveOperation } from "@/src2/model/graph/operation/node/effectives/primitives/primitive";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
@@ -7,15 +9,16 @@ import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
 export const UnopNode = ({ data, selected }: MathProps) => {
+  const { exposedVertices, opType, id, boundVertex } = data.operation as PrimitiveOperation;
   return (
     <div>
-      <DualHandle idx={0} bound={data.vertices[0].isBound()} position={Position.Top} />
+      <DualHandle idx={0} bound={isBound(exposedVertices[0])} position={Position.Top} />
       <NodeShell selected={selected}>
-        <NumericInput vertex={data.vertices[0]} />
-        <Symbol text={getSymbol(data.opType)} />
-        <NumericInput vertex={data.vertices[1]} />
+        <NumericInput vertex={exposedVertices[0]} id={{ operationId: id, index: 0 }} />
+        <Symbol text={getSymbol(opType)} />
+        <NumericInput vertex={exposedVertices[1]} id={{ operationId: id, index: 1 }} />
       </NodeShell>
-      <DualHandle idx={1} bound={data.vertices[1].isBound()} position={Position.Bottom} />
+      <DualHandle idx={1} bound={isBound(exposedVertices[1])} position={Position.Bottom} />
     </div>
   );
 };

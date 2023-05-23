@@ -1,7 +1,8 @@
 import { logger } from "@/lib/logger";
-import { Coord } from "@/model/coords/coord/coord";
-import { VertexId } from "@/model/graph/vertex";
-import { updateCoord } from "@/model/store";
+import { EffectiveNodeOperation } from "@/src2/model/graph/operation/node/effectives/effective";
+import { Coord } from "@/src2/model/graph/operation/vertex/coord";
+import { VertexId } from "@/src2/model/graph/operation/vertex/vertex";
+import { getCurrentGraph } from "@/src2/model/useStore";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type BeginDrag = (vertexId: VertexId, initialX: number, initialCoord: Coord, real: boolean) => void;
@@ -75,13 +76,17 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
     logger.debug({ drag }, "drag");
     if (drag.dragging) {
       const delta = (drag.mouseX - drag.initialX) / 100;
-      const newCoord = drag.initialCoord.copy();
+      const newCoord = { x: drag.initialCoord.x, y: drag.initialCoord.y };
       if (drag.real) {
-        newCoord.x += delta;
+        newCoord.x = newCoord.x + delta;
       } else {
         newCoord.y += delta;
       }
-      updateCoord(drag.vertexId, newCoord);
+      (
+        getCurrentGraph().operation.implementation.find(
+          (op) => op.id === drag.vertexId.operationId
+        )! as EffectiveNodeOperation
+      ).exposedVertices[drag.vertexId.index].value = newCoord;
     }
   }, [drag]);
 
