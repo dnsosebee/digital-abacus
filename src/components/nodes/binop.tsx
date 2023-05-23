@@ -1,6 +1,5 @@
-import { OP_TYPE, OpType } from "@/model/coords/edges/nodeEdge";
-import { isBound } from "@/src2/model/solver/operation/node/effectives/effective";
-import { PrimitiveOperation } from "@/src2/model/solver/operation/node/effectives/primitives/primitive";
+import { isBound } from "@/model/solver/operation/node/effectives/effective";
+import { PrimitiveOperation } from "@/model/solver/operation/node/effectives/primitives/primitive";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
@@ -42,11 +41,11 @@ export const BinopNode = ({ data, selected }: MathProps) => {
   );
 };
 
-const getSymbol = (type: OpType): string => {
+const getSymbol = (type: string): string => {
   switch (type) {
-    case OP_TYPE.ADDER:
+    case "adder":
       return "+";
-    case OP_TYPE.MULTIPLIER:
+    case "subtractor":
       return "*";
     default:
       return "???";

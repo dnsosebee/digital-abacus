@@ -1,4 +1,4 @@
-import { SerialState } from "@/model/store";
+import { Store } from "@/model/solver/store";
 import Head from "next/head";
 import { ReactFlowProvider } from "reactflow";
 import CircuitBoard from "./circuitBoard";
@@ -10,7 +10,7 @@ import Linkages from "./linkages";
 //   setShowDeltas: (showDeltas: boolean) => void;
 // }>({ showDeltas: false, setShowDeltas: () => {} });
 
-export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => {
+export const DigitalAbacus = ({ store }: { store: Store }) => {
   return (
     <DragProvider>
       <Head>
@@ -27,7 +27,7 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
           <div className="flex-grow flex overflow-hidden">
             <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
-                <CircuitBoard serialState={serialState} />
+                <CircuitBoard store={store} />
               </ReactFlowProvider>
             </div>
             <div className="split">

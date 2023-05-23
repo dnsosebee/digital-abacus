@@ -1,4 +1,3 @@
-import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BinopNode } from "./binop";
@@ -14,15 +13,15 @@ export const MathNode = (props: MathProps) => {
 
   if (operation.isPrimitive) {
     switch (operation.opType) {
-      case OP_TYPE.ADDER:
+      case "adder":
         return <BinopNode {...props} />;
-      case OP_TYPE.MULTIPLIER:
+      case "multiplier":
         return <BinopNode {...props} />;
-      case OP_TYPE.EXPONENTIAL:
+      case "exponential":
         return <UnopNode {...props} />;
-      case OP_TYPE.CONJUGATOR:
+      case "conjugator":
         return <UnopNode {...props} />;
-      case OP_TYPE.STANDALONE:
+      case "standalone":
         return <StandaloneNode {...props} />;
       default:
         throw new Error(`Unknown primitive node type: ${props.type}`);

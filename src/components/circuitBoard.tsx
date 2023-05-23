@@ -1,8 +1,8 @@
 import { logger as parentLogger } from "@/lib/logger";
 
-import { Math } from "@/schema/node";
-import { AddNode, NodeOperation } from "@/src2/model/solver/operation/node/node";
-import { genOperationId } from "@/src2/model/solver/operation/operation";
+import { AddNode, NodeOperation } from "@/model/solver/operation/node/node";
+import { genOperationId } from "@/model/solver/operation/operation";
+import { Store } from "@/model/solver/store";
 import {
   addNode,
   addWire,
@@ -12,7 +12,8 @@ import {
   removeWire,
   updateNodePosition,
   useStore,
-} from "@/src2/model/useStore";
+} from "@/model/useStore";
+import { Math } from "@/schema/node";
 import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
@@ -44,8 +45,8 @@ const EDGE_TYPES = {
   coord: SmartBezierEdge,
 };
 
-const CircuitBoard = ({ serialState }: { serialState: any }) => {
-  const { nodes, wires } = useStore(); // serialState
+const CircuitBoard = ({ store }: { store: Store }) => {
+  const { nodes, wires } = useStore(store); // serialState
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
 

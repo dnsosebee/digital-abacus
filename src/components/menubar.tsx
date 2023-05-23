@@ -1,30 +1,32 @@
-import { NodeEdge } from "@/model/coords/edges/nodeEdge";
-import { p } from "@/model/sketch";
-import { mainGraph, useMainGraph } from "@/model/store";
+import { cancelInversion } from "@/model/solver/graph";
+import { genAdder } from "@/model/solver/operation/node/effectives/primitives/adder";
+import { genConjugator } from "@/model/solver/operation/node/effectives/primitives/conjugator";
+import { genExponential } from "@/model/solver/operation/node/effectives/primitives/exponential";
+import { genMultiplier } from "@/model/solver/operation/node/effectives/primitives/multiplier";
+import { genStandalone } from "@/model/solver/operation/node/effectives/primitives/standalone";
+import { AddNode } from "@/model/solver/operation/node/node";
+import { genSticky } from "@/model/solver/operation/node/sticky";
+import { resetGraph } from "@/model/solver/store";
+import { getCurrentGraph, store, useStore } from "@/model/useStore";
 import type { Math } from "@/schema/node";
-import { genAdder } from "@/src2/model/solver/operation/node/effectives/primitives/adder";
-import { genConjugator } from "@/src2/model/solver/operation/node/effectives/primitives/conjugator";
-import { genExponential } from "@/src2/model/solver/operation/node/effectives/primitives/exponential";
-import { genMultiplier } from "@/src2/model/solver/operation/node/effectives/primitives/multiplier";
-import { genStandalone } from "@/src2/model/solver/operation/node/effectives/primitives/standalone";
-import { AddNode } from "@/src2/model/solver/operation/node/node";
-import { genSticky } from "@/src2/model/solver/operation/node/sticky";
-import { getCurrentGraph, store, useStore } from "@/src2/model/useStore";
 import { LockOpenIcon } from "@heroicons/react/20/solid";
 import { Symbol } from "./symbol";
 
 const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
-  const { focus } = useMainGraph();
-  const reversing = !!focus;
+  const { current } = useStore();
+  const { inverting } = current;
 
   return (
     <div className="flex px-4 py-2 bg-slate-100">
-      {reversing ? <ReversalMenu /> : <RegularMenu activeNodes={activeNodes} />}
+      {inverting ? <InversionMenu /> : <RegularMenu activeNodes={activeNodes} />}
     </div>
   );
 };
 
-const ReversalMenu = () => {
+const InversionMenu = () => {
+  const handleCancelInversion = () => {
+    cancelInversion(getCurrentGraph());
+  };
   return (
     <div className="grow flex space-x-4 pt-2 pb-3">
       <div>
@@ -38,7 +40,7 @@ const ReversalMenu = () => {
       </div>
       <div>
         <button
-          onClick={() => mainGraph.cancelReversal()}
+          onClick={handleCancelInversion}
           className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"
         >
           Cancel Reversal
@@ -145,83 +147,84 @@ const GlobalControls = () => {
         />
       </div>
       <button
-        onClick={() => mainGraph.reset()}
+        onClick={() => resetGraph(store)}
         className="ml-auto rounded-xl bg-red-100 px-4 py-0.5 hover:bg-red-500"
       >
-        Erase All
+        Erase Graph
       </button>
     </div>
   );
 };
 
 const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
-  const hidden = activeNodes.every((node) => node.data.operation.hideLinkages);
-  const toggleHidden = () => {
-    activeNodes.forEach((node) => {
-      const edge = mainGraph._getEdge(node.id) as NodeEdge;
-      edge.setHidden(!hidden);
-    });
-  };
-  const centerLinkages = async () => {
-    const boundingBox = {
-      minX: Infinity,
-      maxX: -Infinity,
-      minY: Infinity,
-      maxY: -Infinity,
-    };
-    const numVertices = activeNodes.reduce(
-      (acc, node) => acc + node.data.operation.exposedVertices.length,
-      0
-    );
+  return null;
+  // const hidden = activeNodes.every((node) => node.data.operation.hideLinkages);
+  // const toggleHidden = () => {
+  //   activeNodes.forEach((node) => {
+  //     const edge = mainGraph._getEdge(node.id) as NodeEdge;
+  //     edge.setHidden(!hidden);
+  //   });
+  // };
+  // const centerLinkages = async () => {
+  //   const boundingBox = {
+  //     minX: Infinity,
+  //     maxX: -Infinity,
+  //     minY: Infinity,
+  //     maxY: -Infinity,
+  //   };
+  //   const numVertices = activeNodes.reduce(
+  //     (acc, node) => acc + node.data.operation.exposedVertices.length,
+  //     0
+  //   );
 
-    activeNodes.forEach((node) => {
-      node.data.operation.exposedVertices.forEach((vertex) => {
-        boundingBox.minX = Math.min(boundingBox.minX, vertex.value.x);
-        boundingBox.maxX = Math.max(boundingBox.maxX, vertex.value.x);
-        boundingBox.minY = Math.min(boundingBox.minY, vertex.value.y);
-        boundingBox.maxY = Math.max(boundingBox.maxY, vertex.value.y);
-      });
-    });
-    const xScale = p!.windowWidth / 2 / (boundingBox.maxX - boundingBox.minX);
-    const yScale = (p!.windowHeight - 40) / (boundingBox.maxY - boundingBox.minY);
-    const scale =
-      numVertices < 2
-        ? getCurrentGraph().linkagesSettings.scale
-        : Math.min(1100, Math.min(xScale, yScale) * 0.8);
-    const xBuffer = p!.windowWidth / 2 - (boundingBox.maxX - boundingBox.minX) * scale;
-    const yBuffer = p!.windowHeight - 40 - (boundingBox.maxY - boundingBox.minY) * scale;
+  //   activeNodes.forEach((node) => {
+  //     node.data.operation.exposedVertices.forEach((vertex) => {
+  //       boundingBox.minX = Math.min(boundingBox.minX, vertex.value.x);
+  //       boundingBox.maxX = Math.max(boundingBox.maxX, vertex.value.x);
+  //       boundingBox.minY = Math.min(boundingBox.minY, vertex.value.y);
+  //       boundingBox.maxY = Math.max(boundingBox.maxY, vertex.value.y);
+  //     });
+  //   });
+  //   const xScale = p!.windowWidth / 2 / (boundingBox.maxX - boundingBox.minX);
+  //   const yScale = (p!.windowHeight - 40) / (boundingBox.maxY - boundingBox.minY);
+  //   const scale =
+  //     numVertices < 2
+  //       ? getCurrentGraph().linkagesSettings.scale
+  //       : Math.min(1100, Math.min(xScale, yScale) * 0.8);
+  //   const xBuffer = p!.windowWidth / 2 - (boundingBox.maxX - boundingBox.minX) * scale;
+  //   const yBuffer = p!.windowHeight - 40 - (boundingBox.maxY - boundingBox.minY) * scale;
 
-    const newCenterX = 0 - boundingBox.minX * scale + xBuffer / 2;
-    const newCenterY = p!.windowHeight - 40 + boundingBox.minY * scale - yBuffer / 2;
+  //   const newCenterX = 0 - boundingBox.minX * scale + xBuffer / 2;
+  //   const newCenterY = p!.windowHeight - 40 + boundingBox.minY * scale - yBuffer / 2;
 
-    const oldScale = getCurrentGraph().linkagesSettings.scale;
-    const oldCenterX = getCurrentGraph().linkagesSettings.centerX;
-    const oldCenterY = getCurrentGraph().linkagesSettings.centerY;
-    for (let i = 1; i <= 25; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      getCurrentGraph().linkagesSettings.centerX =
-        oldCenterX + (newCenterX - oldCenterX) * (i / 25);
-      getCurrentGraph().linkagesSettings.centerY =
-        oldCenterY + (newCenterY - oldCenterY) * (i / 25);
-      getCurrentGraph().linkagesSettings.scale = oldScale + (scale - oldScale) * (i / 25);
-    }
-  };
-  return (
-    <div className="flex space-x-4">
-      <button
-        onClick={toggleHidden}
-        className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
-      >
-        {hidden ? "Unhide" : "Hide"}
-      </button>
-      <button
-        onClick={centerLinkages}
-        className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
-      >
-        Center Selection
-      </button>
-    </div>
-  );
+  //   const oldScale = getCurrentGraph().linkagesSettings.scale;
+  //   const oldCenterX = getCurrentGraph().linkagesSettings.centerX;
+  //   const oldCenterY = getCurrentGraph().linkagesSettings.centerY;
+  //   for (let i = 1; i <= 25; i++) {
+  //     await new Promise((resolve) => setTimeout(resolve, 10));
+  //     getCurrentGraph().linkagesSettings.centerX =
+  //       oldCenterX + (newCenterX - oldCenterX) * (i / 25);
+  //     getCurrentGraph().linkagesSettings.centerY =
+  //       oldCenterY + (newCenterY - oldCenterY) * (i / 25);
+  //     getCurrentGraph().linkagesSettings.scale = oldScale + (scale - oldScale) * (i / 25);
+  //   }
+  // };
+  // return (
+  //   <div className="flex space-x-4">
+  //     <button
+  //       onClick={toggleHidden}
+  //       className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
+  //     >
+  //       {hidden ? "Unhide" : "Hide"}
+  //     </button>
+  //     <button
+  //       onClick={centerLinkages}
+  //       className="rounded-xl bg-red-100 px-4 py-0.5 hover:bg-blue-100"
+  //     >
+  //       Center Selection
+  //     </button>
+  //   </div>
+  // );
 };
 
 const Draggable = ({

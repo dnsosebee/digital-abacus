@@ -1,8 +1,8 @@
 import { logger } from "@/lib/logger";
-import { EffectiveNodeOperation } from "@/src2/model/solver/operation/node/effectives/effective";
-import { Coord } from "@/src2/model/solver/operation/vertex/coord";
-import { VertexId } from "@/src2/model/solver/operation/vertex/vertex";
-import { getCurrentGraph } from "@/src2/model/useStore";
+import { EffectiveNodeOperation } from "@/model/solver/operation/node/effectives/effective";
+import { Coord } from "@/model/solver/operation/vertex/coord";
+import { VertexId } from "@/model/solver/operation/vertex/vertex";
+import { getCurrentGraph } from "@/model/useStore";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type BeginDrag = (vertexId: VertexId, initialX: number, initialCoord: Coord, real: boolean) => void;

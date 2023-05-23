@@ -1,7 +1,8 @@
 import { logger } from "@/lib/logger";
-import { isBound } from "@/src2/model/solver/operation/node/effectives/effective";
-import { Vertex, VertexId, vertexIdEq } from "@/src2/model/solver/operation/vertex/vertex";
-import { getCurrentGraph, getVertex, useStore } from "@/src2/model/useStore";
+import { completeInversion, startInversion } from "@/model/solver/graph";
+import { isBound } from "@/model/solver/operation/node/effectives/effective";
+import { Vertex, VertexId, vertexIdEq } from "@/model/solver/operation/vertex/vertex";
+import { getCurrentGraph, getVertex, useStore } from "@/model/useStore";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { useDrag } from "./dragProvider";
@@ -109,11 +110,8 @@ export const NumericInput = ({
  * If the vertex is bound, show a lock icon and make it clickable. Otherwise show an open lock icon and make it unclickable.
  */
 const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
-  const {
-    storeSnap: { graphs, currentGraphIndex },
-  } = useStore();
-  const graph = graphs[currentGraphIndex];
-  const { inverting } = graph;
+  const { current } = useStore();
+  const { inverting } = current;
 
   const bound = isBound(vertex);
   const isClickable = bound ? !inverting : inverting && false;
@@ -125,17 +123,15 @@ const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
   }`;
   const Icon = bound ? LockClosedIcon : LockOpenIcon;
 
-  const handleStartReversal = () => {
-    // logger.debug({ focus: focus }, "handleStartReversal");
-    // mainGraph.startReversal(vertex.id);
+  const handleStartInversion = () => {
+    startInversion(getCurrentGraph(), id);
   };
 
-  const handleCompleteReversal = () => {
-    // logger.debug({ focus: focus }, "handleCompleteReversal");
-    // mainGraph.completeReversal(vertex.id);
+  const handleCompleteInversion = () => {
+    completeInversion(getCurrentGraph(), id);
   };
 
-  const isFocus = inverting && vertexIdEq(graph.focus, id);
+  const isFocus = inverting && vertexIdEq(current.focus, id);
 
   return (
     <button
@@ -143,7 +139,7 @@ const LockButton = ({ vertex, id }: { vertex: Vertex; id: VertexId }) => {
         isFocus ? "bg-red-400" : ""
       }`}
       disabled={!isClickable}
-      onClick={bound ? handleStartReversal : handleCompleteReversal}
+      onClick={bound ? handleStartInversion : handleCompleteInversion}
     >
       <Icon className="w-6 h-6 text-slate-800" />
     </button>

@@ -1,4 +1,3 @@
-import { getCurrentGraph } from "@/src2/model/useStore";
 import {
   draw,
   p,
@@ -7,7 +6,8 @@ import {
   touchMoved,
   touchStarted,
   windowResized,
-} from "@/src2/p5/linkages";
+} from "@/model/p5/linkages";
+import { getCurrentGraph } from "@/model/useStore";
 
 import dynamic from "next/dynamic";
 import { createRef, useEffect } from "react";

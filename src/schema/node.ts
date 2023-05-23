@@ -1,5 +1,4 @@
-import { OpType } from "@/model/coords/edges/nodeEdge";
-import { effectiveNodeOperationSchema } from "@/src2/model/solver/operation/node/effectives/effective";
+import { effectiveNodeOperationSchema } from "@/model/solver/operation/node/effectives/effective";
 import { z } from "zod";
 import { genId } from "./id";
 
@@ -45,8 +44,3 @@ export type Sticky = z.infer<typeof stickySchema>;
 //   draggable: false;
 // };
 export type CircuitNode = Math | Sticky;
-
-export type AddNode = { position: { x: number; y: number } } & (
-  | { type: "sticky" }
-  | { type: "math"; data: { opType: OpType } }
-);

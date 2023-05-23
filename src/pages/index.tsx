@@ -1,6 +1,6 @@
 import { DigitalAbacus } from "@/components/digitalAbacus";
-import { DEFAULT_SERIAL_STATE } from "./[serial]";
+import { INITIAL_STORE } from "@/model/solver/store";
 
 export default function Home() {
-  return <DigitalAbacus serialState={DEFAULT_SERIAL_STATE} />;
+  return <DigitalAbacus store={INITIAL_STORE} />;
 }

@@ -1,7 +1,6 @@
 import { DigitalAbacus } from "@/components/digitalAbacus";
 import { logger } from "@/lib/logger";
-import { UPDATE_ITERATIVE } from "@/model/settings";
-import { SerialState, serialStateSchema } from "@/model/store";
+import { Store, storeSchema } from "@/model/solver/store";
 import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -13,29 +12,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Home({ serial }: { serial: string }) {
-  let serialState: SerialState;
+  let store: Store;
   logger.debug({ serial }, "Home");
   try {
     const decoded = decodeURIComponent(serial);
     logger.debug({ decoded }, "Home");
     const json = JSON.parse(decoded);
     logger.debug({ json }, "Home");
-    serialState = serialStateSchema.parse(json);
+    store = storeSchema.parse(json);
     console.log("done parsing");
   } catch (e) {
     logger.error(e);
-    serialState = DEFAULT_SERIAL_STATE;
+    throw e;
+    // store = DEFAULT_SERIAL_STATE;
   }
 
-  return <DigitalAbacus serialState={serialState} />;
+  return <DigitalAbacus store={store} />;
 }
-
-export const DEFAULT_SERIAL_STATE = {
-  graph: {
-    vertices: [],
-    edges: [],
-    focus: null,
-    mode: UPDATE_ITERATIVE,
-  },
-  stickies: [],
-};

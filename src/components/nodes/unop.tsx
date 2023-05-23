@@ -1,6 +1,5 @@
-import { OP_TYPE, OpType } from "@/model/coords/edges/nodeEdge";
-import { isBound } from "@/src2/model/solver/operation/node/effectives/effective";
-import { PrimitiveOperation } from "@/src2/model/solver/operation/node/effectives/primitives/primitive";
+import { isBound } from "@/model/solver/operation/node/effectives/effective";
+import { PrimitiveOperation } from "@/model/solver/operation/node/effectives/primitives/primitive";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
@@ -23,11 +22,11 @@ export const UnopNode = ({ data, selected }: MathProps) => {
   );
 };
 
-const getSymbol = (opType: OpType): string => {
+const getSymbol = (opType: string): string => {
   switch (opType) {
-    case OP_TYPE.EXPONENTIAL:
+    case "exponential":
       return "e^";
-    case OP_TYPE.CONJUGATOR:
+    case "conjugator":
       return "z̄";
     default:
       return "???";
