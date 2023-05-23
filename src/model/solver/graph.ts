@@ -1,8 +1,12 @@
 import z from "zod";
 import { linkagesSettingsSchema } from "./linkagesSettings";
-import { compositeOperationSchema, getShallowVertex } from "./operation/node/effectives/composite";
+import {
+  compositeOperationSchema,
+  invert,
+  targetPath,
+} from "./operation/node/effectives/composite";
 import { genOperationId } from "./operation/operation";
-import { Dep, VertexId, vertexIdEq, vertexIdSchema } from "./operation/vertex/vertex";
+import { Dep, VertexId, vertexIdSchema } from "./operation/vertex/vertex";
 
 export const modeSchema = z.union([
   z.literal("ideal"),
@@ -76,27 +80,9 @@ export const checkIfTarget = (graph: Graph, vertexId: VertexId): boolean => {
 export const getTargetPath = (
   graph: Graph,
   sourceId: VertexId,
-  targetId: VertexId,
-  seen: VertexId[] = []
+  targetId: VertexId
 ): Dep[] | null => {
-  if (vertexIdEq(sourceId, targetId)) {
-    return [];
-  }
-  const source = getShallowVertex(graph.operation, sourceId);
-  if (!source) {
-    throw new Error("source vertex not found");
-  }
-  const { deps } = source;
-  for (let i = 0; i < deps.length; i++) {
-    const dep = deps[i];
-    if (seen.findIndex((v) => vertexIdEq(v, dep.vertexId)) === -1) {
-      const path = getTargetPath(graph, dep.vertexId, targetId, [...seen, sourceId]);
-      if (path !== null) {
-        return [dep, ...path];
-      }
-    }
-  }
-  return null;
+  return targetPath(graph.operation, sourceId, targetId);
 };
 
 export const updateGraph = (graph: Graph) => {
@@ -111,7 +97,15 @@ export const startInversion = (graph: Graph, id: VertexId) => {
 };
 
 export const completeInversion = (graph: Graph, id: VertexId) => {
-  // throw new Error("not implemented");
+  if (graph.inversionState.inverting === false) {
+    throw new Error("not inverting");
+  }
+  const targetPath = getTargetPath(graph, graph.inversionState.focus, id);
+  if (!targetPath) {
+    throw new Error("target path not found");
+  }
+  invert(graph.operation, targetPath);
+  cancelInversion(graph);
 };
 
 export const cancelInversion = (graph: Graph) => {

@@ -1,9 +1,11 @@
+import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { Operation, operationSchema } from "../../operation";
-import { Vertex, VertexId } from "../../vertex/vertex";
+import { Dep, Vertex, VertexId, vertexIdEq } from "../../vertex/vertex";
 import { WireOperation } from "../../wire";
 import { baseEffectiveNodeOperationSchema } from "./baseEffective";
 import { EffectiveOperation } from "./effective";
+import { PrimitiveOperation } from "./primitives/primitive";
 
 const baseCompositeOperationSchema = baseEffectiveNodeOperationSchema.extend({
   isPrimitive: z.literal(false),
@@ -121,4 +123,116 @@ const updateDependencies = (
       vertexId: id,
     });
   });
+};
+
+export const invert = (parent: CompositeOperation, path: Dep[]): boolean => {
+  logger.debug("inverting", path);
+  if (path.length === 0) {
+    return true;
+  }
+  const [dep, ...rest] = path;
+  const currentRes = invertOperation(parent, dep);
+  if (currentRes) {
+    const restRes = invert(parent, rest);
+    if (restRes) {
+      return true;
+    }
+    // abort!
+    const abortRes = invertOperation(parent, dep);
+    if (abortRes) {
+      return false;
+    }
+    throw new Error("failed to abort");
+  }
+  return false;
+};
+
+const invertOperation = (parent: CompositeOperation, dep: Dep): boolean => {
+  logger.debug("inverting operation", dep);
+  const child = parent.implementation.find((op) => op.id === dep.bindingOperation);
+  if (!child) {
+    return false;
+  }
+  if (child.isNode) {
+    if (child.isEffective) {
+      if (child.isPrimitive) {
+        return invertPrimitive(child, dep);
+      }
+      return invertComposite(child, dep);
+    } else {
+      throw new Error("cannot invert ineffective node");
+    }
+  } else {
+    return invertWire(parent, child, dep);
+  }
+};
+
+const invertPrimitive = (child: PrimitiveOperation, dep: Dep): boolean => {
+  logger.debug("inverting primitive", dep);
+  if (child.boundVertex === dep.vertexId.index) {
+    return false;
+  }
+  child.boundVertex = dep.vertexId.index;
+  updateNodeDependencies(child);
+  return true;
+};
+
+const invertComposite = (child: CompositeOperation, dep: Dep): boolean => {
+  logger.debug("inverting composite", dep);
+  if (child.boundVertex === dep.vertexId.index) {
+    return false;
+  }
+  const innerPath = targetPath(
+    child,
+    { operationId: child.id, index: child.boundVertex },
+    dep.vertexId
+  );
+  if (!innerPath) {
+    return false;
+  }
+  const res = invert(child, innerPath);
+  if (!res) {
+    return false;
+  }
+  child.boundVertex = dep.vertexId.index;
+  updateNodeDependencies(child);
+  return true;
+};
+
+const invertWire = (parent: CompositeOperation, child: WireOperation, dep: Dep): boolean => {
+  logger.debug("inverting wire", dep);
+  if (child.targetVertexId.index === dep.vertexId.index) {
+    return false;
+  }
+  const oldTarget = { ...child.targetVertexId };
+  child.targetVertexId = { ...dep.vertexId };
+  child.sourceVertexId = oldTarget;
+  updateWireDependencies(parent, child);
+  return true;
+};
+
+export const targetPath = (
+  parent: CompositeOperation,
+  sourceId: VertexId,
+  targetId: VertexId,
+  seen: VertexId[] = []
+): Dep[] | null => {
+  if (vertexIdEq(sourceId, targetId)) {
+    return [];
+  }
+  const source = getShallowVertex(parent, sourceId);
+  if (!source) {
+    throw new Error("source vertex not found");
+  }
+  const { deps } = source;
+  for (let i = 0; i < deps.length; i++) {
+    const dep = deps[i];
+    if (seen.findIndex((v) => vertexIdEq(v, dep.vertexId)) === -1) {
+      const path = targetPath(parent, dep.vertexId, targetId, [...seen, sourceId]);
+      if (path !== null) {
+        return [dep, ...path];
+      }
+    }
+  }
+  return null;
 };
