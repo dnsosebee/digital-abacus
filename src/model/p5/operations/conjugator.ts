@@ -1,4 +1,4 @@
-import { Conjugator } from "@/model/solver/operation/node/effectives/primitives/conjugator";
+import { Conjugator } from "@/model/solver/schema/operation/node/effectives/primitives/conjugator";
 import { getCurrentGraph } from "@/model/useStore";
 import { toPx } from "../graphics";
 import { p } from "../linkages";

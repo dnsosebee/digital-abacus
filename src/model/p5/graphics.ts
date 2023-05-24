@@ -1,4 +1,4 @@
-import { Coord } from "../solver/operation/vertex/coord";
+import { Coord } from "../solver/schema/operation/vertex/coord";
 import { getCurrentGraph } from "../useStore";
 import { p } from "./linkages";
 

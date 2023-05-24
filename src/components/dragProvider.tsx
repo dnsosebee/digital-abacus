@@ -1,6 +1,6 @@
-import { EffectiveOperation } from "@/model/solver/operation/node/effectives/effective";
-import { Coord } from "@/model/solver/operation/vertex/coord";
-import { VertexId } from "@/model/solver/operation/vertex/vertex";
+import { EffectiveOperation } from "@/model/solver/schema/operation/node/effectives/effective";
+import { Coord } from "@/model/solver/schema/operation/vertex/coord";
+import { VertexId } from "@/model/solver/schema/operation/vertex/vertex";
 import { getCurrentGraph } from "@/model/useStore";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 

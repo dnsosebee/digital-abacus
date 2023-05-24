@@ -1,5 +1,5 @@
-import { isBound } from "@/model/solver/operation/node/effectives/effective";
-import { Standalone } from "@/model/solver/operation/node/effectives/primitives/standalone";
+import { isBound } from "@/model/solver/schema/operation/node/effectives/effective";
+import { Standalone } from "@/model/solver/schema/operation/node/effectives/primitives/standalone";
 import { getOperation } from "@/model/useStore";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";

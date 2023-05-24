@@ -1,7 +1,7 @@
 import { drawGrid, toAxis } from "@/model/p5/graphics";
 import { SketchProps } from "react-p5/@types";
-import { isBound } from "../solver/operation/node/effectives/effective";
-import { Vertex, VertexId } from "../solver/operation/vertex/vertex";
+import { isBound } from "../solver/schema/operation/node/effectives/effective";
+import { Vertex, VertexId } from "../solver/schema/operation/vertex/vertex";
 import { getCurrentGraph, getVertex, updateCurrentGraph } from "../useStore";
 import { displayCurrentGraph, getVisibleVertexAtMouse } from "./graph";
 
@@ -45,7 +45,7 @@ export function touchStarted() {
       // vertex.dragging = true;
 
       if (mode === "iterative") {
-        vertex.differential = { x: 0, y: 0 };
+        vertex.delta = { x: 0, y: 0 };
       }
     }
   } else if (p!.mouseX > 0 && p!.mouseX < p!.width && p!.mouseY > 0 && p!.mouseY < p!.height) {

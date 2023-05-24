@@ -1,4 +1,4 @@
-import { Multiplier } from "@/model/solver/operation/node/effectives/primitives/multiplier";
+import { Multiplier } from "@/model/solver/schema/operation/node/effectives/primitives/multiplier";
 import { getCurrentGraph } from "@/model/useStore";
 import { toPx } from "../graphics";
 import { p } from "../linkages";

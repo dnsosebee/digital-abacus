@@ -1,4 +1,4 @@
-import { nodeOperationSchema } from "@/model/solver/operation/node/node";
+import { nodeOperationSchema } from "@/model/solver/schema/operation/node/node";
 import { z } from "zod";
 import { genId } from "./id";
 

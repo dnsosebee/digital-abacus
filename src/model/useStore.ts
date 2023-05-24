@@ -4,16 +4,13 @@ import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { operationToNode, operationToWire } from "./flowchart/adapter";
-import { Graph, updateGraph } from "./solver/graph";
-import {
-  addSubOperation,
-  getSubOperation,
-  removeSubOperation,
-} from "./solver/operation/node/effectives/composite";
-import { NodeOperation, handleIdToNum } from "./solver/operation/node/node";
-import { Operation, genOperationId } from "./solver/operation/operation";
-import { VertexId } from "./solver/operation/vertex/vertex";
-import { INITIAL_STORE, Store, storeSchema } from "./solver/store";
+import { addSubOperation, removeSubOperation } from "./solver/dependencyManagement/addAndRemove";
+import { Graph, updateGraph } from "./solver/schema/graph";
+import { getSubOperation } from "./solver/schema/operation/node/effectives/composite";
+import { NodeOperation, handleIdToNum } from "./solver/schema/operation/node/node";
+import { Operation, genOperationId } from "./solver/schema/operation/operation";
+import { VertexId } from "./solver/schema/operation/vertex/vertex";
+import { INITIAL_STORE, Store, storeSchema } from "./solver/schema/store";
 
 export const store = proxy(INITIAL_STORE);
 
@@ -122,6 +119,8 @@ export const addWire = (conn: Connection) => {
     id: genOperationId(),
     selected: false,
     isNode: false,
+    tracked: true,
+    delayCounter: 0,
     sourceVertexId: {
       operationId: conn.source!,
       index: handleIdToNum(conn.sourceHandle!),

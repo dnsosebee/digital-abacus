@@ -1,10 +1,9 @@
-import { checkIfTarget } from "../solver/graph";
-import { CompositeOperation } from "../solver/operation/node/effectives/composite";
-import { EffectiveOperation, isBound } from "../solver/operation/node/effectives/effective";
-import { distance } from "../solver/operation/vertex/coord";
-import { Vertex, VertexId, vertexIdEq } from "../solver/operation/vertex/vertex";
+import { checkIfTarget } from "../solver/schema/graph";
+import { CompositeOperation } from "../solver/schema/operation/node/effectives/composite";
+import { EffectiveOperation, isBound } from "../solver/schema/operation/node/effectives/effective";
+import { isNear } from "../solver/schema/operation/vertex/coord";
+import { Vertex, VertexId, vertexIdEq } from "../solver/schema/operation/vertex/vertex";
 import { getCurrentGraph } from "../useStore";
-import { toPx } from "./graphics";
 import { p } from "./linkages";
 import { displayOperation } from "./operations/operation";
 import { displayVertex } from "./vertex";
@@ -49,7 +48,7 @@ const getVisibleVertexSingle = (
   for (let i = 0; i < operation.exposedVertices.length; i++) {
     const vertex = operation.exposedVertices[i];
     const vertexId = { operationId: operation.id, index: i };
-    if (isNear(vertex, mouse)) {
+    if (isNear(vertex.value, mouse)) {
       if (isBound(vertex)) {
         result = { vertexId, vertex, bound: true };
       } else {
@@ -123,8 +122,3 @@ const getVisibleVertexShallow = (
 //   });
 //   return result;
 // };
-
-const isNear = (vertex: Vertex, mouse: { x: number; y: number }) => {
-  const d = distance(toPx(vertex.value), mouse);
-  return d < 25;
-};

@@ -15,7 +15,7 @@ export type Dep = z.infer<typeof depSchema>;
 
 export const vertexSchema = z.object({
   value: coordSchema,
-  differential: coordSchema.nullable(),
+  delta: coordSchema.nullable(),
   selected: z.boolean(),
   deps: z.array(depSchema), // DEPS ARE RELATIVE TO ENCLOSING COMPOSITE ONLY, NOT TO ANY SUBGRAPH/IMPLEMENTATION
 });
@@ -28,7 +28,7 @@ export type VertexId = z.infer<typeof vertexIdSchema>;
 
 export const genVertex = (value?: Coord): Vertex => ({
   value: value ?? { x: 0, y: 0 },
-  differential: { x: 0, y: 0 },
+  delta: { x: 0, y: 0 },
   selected: false,
   deps: [],
 });

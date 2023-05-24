@@ -1,4 +1,4 @@
-import { EffectiveOperation } from "@/model/solver/operation/node/effectives/effective";
+import { EffectiveOperation } from "@/model/solver/schema/operation/node/effectives/effective";
 import { p } from "../linkages";
 import { displayAdder } from "./adder";
 import { displayConjugator } from "./conjugator";

@@ -1,6 +1,6 @@
-import { isBound } from "../solver/operation/node/effectives/effective";
-import { Coord } from "../solver/operation/vertex/coord";
-import { Vertex } from "../solver/operation/vertex/vertex";
+import { isBound } from "../solver/schema/operation/node/effectives/effective";
+import { Coord } from "../solver/schema/operation/vertex/coord";
+import { Vertex } from "../solver/schema/operation/vertex/vertex";
 import { store } from "../useStore";
 import { toPx } from "./graphics";
 import { p } from "./linkages";
@@ -26,10 +26,10 @@ export function displayVertex(
     drawDraggableRing(px);
   }
 
-  if (showDifferentials && vertex.differential) {
+  if (showDifferentials && vertex.delta) {
     p!.fill(255);
     p!.noStroke();
-    p!.text(vertex.differential.toString(), px.x + 10, px.y - 20);
+    p!.text(vertex.delta.toString(), px.x + 10, px.y - 20);
   }
 }
 

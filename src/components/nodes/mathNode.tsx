@@ -1,4 +1,4 @@
-import { EffectiveOperation } from "@/model/solver/operation/node/effectives/effective";
+import { EffectiveOperation } from "@/model/solver/schema/operation/node/effectives/effective";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BinopNode } from "./binop";

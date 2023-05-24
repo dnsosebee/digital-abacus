@@ -1,5 +1,5 @@
-import { isBound } from "@/model/solver/operation/node/effectives/effective";
-import { PrimitiveOperation } from "@/model/solver/operation/node/effectives/primitives/primitive";
+import { isBound } from "@/model/solver/schema/operation/node/effectives/effective";
+import { PrimitiveOperation } from "@/model/solver/schema/operation/node/effectives/primitives/primitive";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";

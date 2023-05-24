@@ -1,6 +1,6 @@
 import { DigitalAbacus } from "@/components/digitalAbacus";
 import { logger } from "@/lib/logger";
-import { Store, storeSchema } from "@/model/solver/store";
+import { Store, storeSchema } from "@/model/solver/schema/store";
 import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {

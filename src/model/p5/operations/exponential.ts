@@ -1,5 +1,5 @@
-import { Exponential } from "@/model/solver/operation/node/effectives/primitives/exponential";
-import { getR } from "@/model/solver/operation/vertex/coord";
+import { Exponential } from "@/model/solver/schema/operation/node/effectives/primitives/exponential";
+import { getR } from "@/model/solver/schema/operation/vertex/coord";
 import { getCurrentGraph } from "@/model/useStore";
 import { toPx } from "../graphics";
 import { p } from "../linkages";

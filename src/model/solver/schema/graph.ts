@@ -1,10 +1,8 @@
 import z from "zod";
+import { invert, targetPath } from "../dependencyManagement/invert";
+import { updateComposite } from "../update/updateComposite";
 import { linkagesSettingsSchema } from "./linkagesSettings";
-import {
-  compositeOperationSchema,
-  invert,
-  targetPath,
-} from "./operation/node/effectives/composite";
+import { compositeOperationSchema } from "./operation/node/effectives/composite";
 import { genOperationId } from "./operation/operation";
 import { Dep, VertexId, vertexIdSchema } from "./operation/vertex/vertex";
 
@@ -86,7 +84,7 @@ export const getTargetPath = (
 };
 
 export const updateGraph = (graph: Graph) => {
-  // throw new Error("not implemented");
+  updateComposite(graph.operation);
 };
 
 export const startInversion = (graph: Graph, id: VertexId) => {

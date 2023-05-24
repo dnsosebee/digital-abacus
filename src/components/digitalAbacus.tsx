@@ -1,4 +1,4 @@
-import { Store } from "@/model/solver/store";
+import { Store } from "@/model/solver/schema/store";
 import Head from "next/head";
 import { ReactFlowProvider } from "reactflow";
 import CircuitBoard from "./circuitBoard";

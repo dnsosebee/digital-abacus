@@ -1,8 +1,8 @@
 import { logger as parentLogger } from "@/lib/logger";
 
-import { AddNode, NodeOperation } from "@/model/solver/operation/node/node";
-import { genOperationId } from "@/model/solver/operation/operation";
-import { Store } from "@/model/solver/store";
+import { AddNode, NodeOperation } from "@/model/solver/schema/operation/node/node";
+import { genOperationId } from "@/model/solver/schema/operation/operation";
+import { Store } from "@/model/solver/schema/store";
 import {
   addNode,
   addWire,

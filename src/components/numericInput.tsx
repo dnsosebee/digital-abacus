@@ -1,7 +1,12 @@
 import { logger } from "@/lib/logger";
-import { Graph, checkIfTarget, completeInversion, startInversion } from "@/model/solver/graph";
-import { isBound } from "@/model/solver/operation/node/effectives/effective";
-import { Vertex, VertexId, vertexIdEq } from "@/model/solver/operation/vertex/vertex";
+import {
+  Graph,
+  checkIfTarget,
+  completeInversion,
+  startInversion,
+} from "@/model/solver/schema/graph";
+import { isBound } from "@/model/solver/schema/operation/node/effectives/effective";
+import { Vertex, VertexId, vertexIdEq } from "@/model/solver/schema/operation/vertex/vertex";
 import { getCurrentGraph, getVertex, useStore } from "@/model/useStore";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
