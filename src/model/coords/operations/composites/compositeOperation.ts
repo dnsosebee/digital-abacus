@@ -1,3 +1,4 @@
+import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { OperatorConstraint } from "../../../graph/constraint";
 import { VertexId, serialVertexIdSchema } from "../../../graph/vertex";
@@ -32,7 +33,6 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
   graph: CoordGraph;
   interfaceVertexIds: VertexId[];
   constructor(graph: CoordGraph, interfaceVertexIds: VertexId[]) {
-    const updaters = CompositeOperation.buildUpdaters(graph, interfaceVertexIds);
     const eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
@@ -40,26 +40,22 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
       return zOld.copy().mut_sendTo(zNew);
     };
     const check = (d: Coord[]) => true; // WARNING: MAYBE WRONG
-    super(updaters, eq, cp, check);
+    const dummyUpdaters = [1, 2, 3].map((i) => (data: any) => new Coord(0, 0));
+    super(dummyUpdaters, eq, cp, check);
     this.graph = graph;
     this.interfaceVertexIds = interfaceVertexIds;
   }
 
-  static buildUpdaters(
-    graph: CoordGraph,
-    interfaceVertexIds: VertexId[]
-  ): ((data: DifferentialCoord[]) => DifferentialCoord)[] {
-    return interfaceVertexIds.map((vertexId) => (data: DifferentialCoord[]) => {
-      data.forEach((d, i) => {
-        const interfaceVertexId = interfaceVertexIds[i];
-        const interfaceVertex = graph._getVertex(interfaceVertexId);
-        interfaceVertex.value.mut_sendTo(d);
-      });
-
-      graph.update(1);
-
-      return graph._getVertex(vertexId).value;
+  update(data: DifferentialCoord[]): DifferentialCoord[] {
+    data.forEach((d, i) => {
+      const interfaceVertexId = this.interfaceVertexIds[i];
+      const interfaceVertex = this.graph._getVertex(interfaceVertexId);
+      interfaceVertex.value.mut_sendTo(d);
     });
+
+    this.graph.update(1);
+
+    return this.interfaceVertexIds.map((vertexId) => this.graph._getVertex(vertexId).value);
   }
 
   serialize(): SerialCompositeOperation {
@@ -69,5 +65,28 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
       interfaceVertexIds: this.interfaceVertexIds,
       subgraph: this.graph.serialize(),
     };
+  }
+
+  invert(take: number, give: number) {
+    const innerTake = this.interfaceVertexIds[take];
+    const innerGive = this.interfaceVertexIds[give];
+    const innerTakeVertex = this.graph._getVertex(innerTake);
+    const innerGiveVertex = this.graph._getVertex(innerGive);
+    if (!innerTakeVertex || !innerGiveVertex) {
+      return false;
+    }
+    if (this.graph.invert(innerTakeVertex, innerGiveVertex)) {
+      // logger.debug({ graph: JSON.parse(JSON.stringify(this.graph.edges[0])) }, "inverted");
+      if (super.invert(take, give)) {
+        logger.debug({ graph: JSON.parse(JSON.stringify(this.graph.edges[0])) }, "inverted");
+
+        return true;
+      }
+      if (this.graph.invert(innerGiveVertex, innerTakeVertex)) {
+        return false;
+      }
+      throw new Error("Failed to abort inversion");
+    }
+    return false;
   }
 }
