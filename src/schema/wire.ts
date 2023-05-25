@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { genId } from "./id";
-import { NODE_ID_LENGTH } from "./node";
+import { NODE_ID_LENGTH, genId } from "./id";
 
 export const WIRE_ID_LENGTH = 8;
 

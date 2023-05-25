@@ -5,6 +5,8 @@ export const genId = (idLength: number) => () => {
   return customAlphabet(ALPHABET, idLength)();
 };
 
+export const NODE_ID_LENGTH = 8;
+
 // rotates through nanoid uuids to prevent collisions
 // might overflow if given a long ID, intending to only use for flow and dart IDs
 // export const nextId = (id: string) => {

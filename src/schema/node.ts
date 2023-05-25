@@ -1,9 +1,13 @@
 import { CoordVertex } from "@/model/coords/coordVertex";
-import { NodeEdge, OpType, primitiveOpTypeSchema } from "@/model/coords/edges/nodeEdge";
+import {
+  NodeEdge,
+  OpType,
+  PrimitiveOpType,
+  primitiveOpTypeSchema,
+} from "@/model/coords/edges/nodeEdge";
+import { BuiltinComposite } from "@/model/coords/operations/composites/compositeOperation";
 import { z } from "zod";
-import { genId } from "./id";
-
-export const NODE_ID_LENGTH = 8;
+import { NODE_ID_LENGTH, genId } from "./id";
 
 export const genNodeId = genId(NODE_ID_LENGTH);
 
@@ -60,18 +64,10 @@ export type Math = {
 };
 export type Sticky = z.infer<typeof stickySchema>;
 
-// export type Popup = {
-//   id: "popup";
-//   for: string;
-//   position: { x: number; y: number };
-//   type: "popup";
-//   selectable: false;
-//   deletable: false;
-//   draggable: false;
-// };
 export type CircuitNode = Math | Sticky;
 
 export type AddNode = { position: { x: number; y: number } } & (
   | { type: "sticky" }
-  | { type: "math"; data: { opType: OpType } }
+  | { type: "math"; data: { opType: PrimitiveOpType } }
+  | { type: "composite"; data: { opType: BuiltinComposite } }
 );

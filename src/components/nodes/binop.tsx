@@ -1,4 +1,4 @@
-import { OpType, OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { OP_TYPE, PrimitiveOpType } from "@/model/coords/edges/nodeEdge";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
@@ -7,6 +7,8 @@ import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
 export const BinopNode = ({ data, selected }: MathProps) => {
+  const symbol = data.opType === OP_TYPE.COMPOSITE ? data.label : getSymbol(data.opType);
+
   return (
     <div>
       <DualHandle
@@ -26,7 +28,7 @@ export const BinopNode = ({ data, selected }: MathProps) => {
           <NumericInput vertex={data.vertices[0]} />
           <NumericInput vertex={data.vertices[1]} />
         </div>
-        <Symbol text={getSymbol(data.opType)} />
+        <Symbol text={symbol} />
         <NumericInput vertex={data.vertices[2]} />
       </NodeShell>
       <DualHandle
@@ -39,7 +41,7 @@ export const BinopNode = ({ data, selected }: MathProps) => {
   );
 };
 
-const getSymbol = (type: OpType): string => {
+const getSymbol = (type: PrimitiveOpType): string => {
   switch (type) {
     case OP_TYPE.ADDER:
       return "+";

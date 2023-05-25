@@ -1,4 +1,4 @@
-import { OpType, OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { OP_TYPE, PrimitiveOpType } from "@/model/coords/edges/nodeEdge";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { Symbol } from "../symbol";
@@ -7,12 +7,13 @@ import { MathProps } from "./mathNode";
 import { NodeShell } from "./nodeShell";
 
 export const UnopNode = ({ data, selected }: MathProps) => {
+  const symbol = data.opType === OP_TYPE.COMPOSITE ? data.label : getSymbol(data.opType);
   return (
     <div>
       <DualHandle idx={0} bound={data.vertices[0].isBound()} position={Position.Top} />
       <NodeShell selected={selected}>
         <NumericInput vertex={data.vertices[0]} />
-        <Symbol text={getSymbol(data.opType)} />
+        <Symbol text={symbol} />
         <NumericInput vertex={data.vertices[1]} />
       </NodeShell>
       <DualHandle idx={1} bound={data.vertices[1].isBound()} position={Position.Bottom} />
@@ -20,7 +21,7 @@ export const UnopNode = ({ data, selected }: MathProps) => {
   );
 };
 
-const getSymbol = (opType: OpType): string => {
+const getSymbol = (opType: PrimitiveOpType): string => {
   switch (opType) {
     case OP_TYPE.EXPONENTIAL:
       return "e^";

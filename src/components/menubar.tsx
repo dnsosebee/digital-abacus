@@ -1,7 +1,8 @@
 import { logger } from "@/lib/logger";
 import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
 import { settings } from "@/model/settings";
-import { p } from "@/model/sketch";
+import { p } from "@/model/setup";
 import { mainGraph, useMainGraph } from "@/model/store";
 import type { AddNode, Math } from "@/schema/node";
 import { LockOpenIcon } from "@heroicons/react/20/solid";
@@ -98,6 +99,16 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
             onDragStart(event, {
               type: "math",
               data: { opType: OP_TYPE.STANDALONE },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="-"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.SUBTRACTOR },
               position: { x: 0, y: 0 },
             })
           }

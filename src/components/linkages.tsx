@@ -1,13 +1,6 @@
 import { settings } from "@/model/settings";
-import {
-  draw,
-  p,
-  setup,
-  touchEnded,
-  touchMoved,
-  touchStarted,
-  windowResized,
-} from "@/model/sketch";
+import { p, setup } from "@/model/setup";
+import { draw, touchEnded, touchMoved, touchStarted, windowResized } from "@/model/sketch";
 import dynamic from "next/dynamic";
 import { createRef, useEffect } from "react";
 

@@ -1,17 +1,15 @@
-import { serialVertexIdSchema } from "@/model/graph/vertex";
+import { deserializeGraph } from "@/model/deserializeGraph";
 import { z } from "zod";
-import {
-  Constraint,
-  NonConstraint,
-  OperatorConstraint,
-  StandaloneConstraint,
-} from "../../graph/constraint";
+import { Constraint, OperatorConstraint, StandaloneConstraint } from "../../graph/constraint";
 import { UPDATE_IDEAL, UPDATE_ITERATIVE, iterations, searchSize, settings } from "../../settings";
-import { p } from "../../sketch";
-import { Coord, Polar } from "../coord/coord";
+import { p } from "../../setup";
+import { Polar } from "../coord/coord";
 import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
-import { CompositeOperation } from "../operations/composites/compositeOperation";
+import {
+  CompositeOperation,
+  serialCompositeOperationSchema,
+} from "../operations/composites/compositeOperation";
 import {
   IdealComplexAdder,
   IdealComplexConjugator,
@@ -32,9 +30,10 @@ export const OP_TYPE = {
   CONJUGATOR: "conjugator" as const,
   EXPONENTIAL: "exponential" as const,
   STANDALONE: "standalone" as const,
+  COMPOSITE: "composite" as const,
 };
 
-export const opTypeSchema = z.union([
+export const primitiveOpTypeSchema = z.union([
   z.literal(OP_TYPE.ADDER),
   z.literal(OP_TYPE.MULTIPLIER),
   z.literal(OP_TYPE.CONJUGATOR),
@@ -42,28 +41,33 @@ export const opTypeSchema = z.union([
   z.literal(OP_TYPE.STANDALONE),
 ]);
 
+export const opTypeSchema = z.union([primitiveOpTypeSchema, z.literal("composite")]);
+
+export type PrimitiveOpType = z.infer<typeof primitiveOpTypeSchema>;
+
 export type OpType = z.infer<typeof opTypeSchema>;
 
 // these should be in settings.js
 export const STEP_SIZE = searchSize;
 export const ITERATIONS = iterations;
 
-type CircuitPosition = { x: number; y: number };
+export type CircuitPosition = { x: number; y: number };
+
+const serialPrimitiveOperationSchema = z.object({
+  primitive: z.literal(true),
+  type: primitiveOpTypeSchema,
+  bound: z.number().optional(),
+});
+
+const serialOperationSchema = z.union([
+  serialPrimitiveOperationSchema,
+  serialCompositeOperationSchema,
+]);
+
+export type SerialOperation = z.infer<typeof serialOperationSchema>;
 
 export const serialNodeEdgeSchema = serialCircuitEdgeSchema.extend({
-  operator: z.union([
-    z.object({
-      primitive: z.literal(true),
-      type: opTypeSchema,
-      bound: z.number(),
-    }),
-    z.object({
-      primitive: z.literal(false),
-      bound: z.number(),
-      subgraph: z.any(),
-      interfaceVertexIds: z.array(serialVertexIdSchema),
-    }),
-  ]),
+  operator: serialOperationSchema,
   position: z.object({
     x: z.number(),
     y: z.number(),
@@ -77,26 +81,38 @@ export type SerialNodeEdge = z.infer<typeof serialNodeEdgeSchema>;
 export class NodeEdge extends CircuitEdge {
   // :Edge<LinkagePoint>
 
-  type: OpType | null; // :operator type
+  type: OpType; // :operator type
   hidden: boolean; // :whether to draw this operator in Linkages
   position: CircuitPosition;
   label: string;
 
   constructor(
     v: CoordVertex[],
-    type: OpType,
+    operationData: SerialOperation,
     mode: number,
     id: string,
     position: CircuitPosition,
     hidden = false,
     selected = false,
-    label = "",
-    constraint: Constraint<DifferentialCoord> | null = null
+    label = ""
   ) {
-    if (constraint === null) {
-      let c = getBaseConstraintByType(mode, type);
-      constraint = c as Constraint<DifferentialCoord>;
+    let constraint: Constraint<DifferentialCoord>;
+    if (operationData.primitive) {
+      constraint = getBaseConstraintByType(mode, operationData.type);
+    } else {
+      const subgraph = deserializeGraph(operationData.subgraph);
+      constraint = new CompositeOperation(subgraph, operationData.interfaceVertexIds);
     }
+    if (operationData.bound != undefined) {
+      if (constraint instanceof OperatorConstraint) {
+        constraint.bound = operationData.bound;
+      } else {
+        throw new Error("Bound vertex specified for non-operator constraint");
+      }
+    }
+
+    const type = operationData.primitive ? operationData.type : OP_TYPE.COMPOSITE;
+
     super(v, constraint as Constraint<DifferentialCoord>, id, selected);
     this.type = type;
     this.position = position;
@@ -111,6 +127,7 @@ export class NodeEdge extends CircuitEdge {
       operator = (this.constraint as CompositeOperation).serialize();
     } else {
       operator = {
+        primitive: true as const,
         type: this.type,
         bound: (this.constraint as OperatorConstraint<DifferentialCoord>).bound,
       };
@@ -270,11 +287,12 @@ export function getBaseConstraintByType(mode: number, type: string) {
           c = new IdealComplexExponent(false);
           break;
         case OP_TYPE.STANDALONE:
-          c = new StandaloneConstraint();
+          c = new StandaloneConstraint<DifferentialCoord>();
           break;
         default:
           console.log("Warning: Unsupported Operator Type");
-          c = new NonConstraint<Coord>(2);
+          // c = new NonConstraint<Coord>(2);
+          throw new Error("Unsupported Operator Type");
       }
       break;
     case UPDATE_ITERATIVE:
@@ -292,11 +310,12 @@ export function getBaseConstraintByType(mode: number, type: string) {
           c = new IterativeComplexExponent(ITERATIONS);
           break;
         case OP_TYPE.STANDALONE:
-          c = new StandaloneConstraint();
+          c = new StandaloneConstraint<DifferentialCoord>();
           break;
         default:
           console.log("Warning: Unsupported Operator Type");
-          c = new NonConstraint<Coord>(2);
+          // c = new NonConstraint<Coord>(2);
+          throw new Error("Unsupported Operator Type");
       }
       break;
     // case UPDATE_DIFFERENTIAL:
@@ -323,7 +342,8 @@ export function getBaseConstraintByType(mode: number, type: string) {
     //   break;
     default:
       console.log("Warning: Invalid Update Mode");
-      c = new NonConstraint<Coord>(2);
+      // c = new NonConstraint<Coord>(2);
+      throw new Error(`Invalid Update Mode: ${mode}`);
   }
   return c;
 }

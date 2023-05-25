@@ -1,7 +1,7 @@
 import { Coord } from "./coords/coord/coord";
 import { NodeEdge } from "./coords/edges/nodeEdge";
 import { settings } from "./settings";
-import { p } from "./sketch";
+import { p } from "./setup";
 import { mainGraph } from "./store";
 
 export function drawGrid() {

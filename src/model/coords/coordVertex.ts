@@ -2,7 +2,7 @@ import { logger as parentLogger } from "@/lib/logger";
 import { z } from "zod";
 import { Vertex, VertexId, serialVertexSchema } from "../graph/vertex";
 import { settings } from "../settings";
-import { p } from "../sketch";
+import { p } from "../setup";
 import { Coord, getMouse, getMousePx } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
 

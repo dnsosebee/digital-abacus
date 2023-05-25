@@ -1,41 +1,28 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
-import { z } from "zod";
-import { OperatorConstraint, makeEqualityConstraintBuilder } from "../graph/constraint";
-import { RelGraph, serialRelGraphSchema } from "../graph/relGraph";
-import { VertexId, serialVertexIdSchema, vertexIdEq } from "../graph/vertex";
+import { makeEqualityConstraintBuilder } from "../graph/constraint";
+import { RelGraph } from "../graph/relGraph";
+import { VertexId, vertexIdEq } from "../graph/vertex";
+import { SerialCoordGraph, SerialSubgraph } from "../serialSchemas/serialCoordGraph";
 import { UPDATE_IDEAL, UPDATE_ITERATIVE } from "../settings";
-import { p } from "../sketch";
+import { p } from "../setup";
 import { Coord } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
-import { CoordVertex, SerialCoordVertex } from "./coordVertex";
+import { CoordVertex } from "./coordVertex";
 import { CircuitEdge } from "./edges/circuitEdge";
 import {
   ITERATIONS,
   NodeEdge,
   OP_TYPE,
-  OpType,
+  PrimitiveOpType,
   STEP_SIZE,
   SerialNodeEdge,
-  serialNodeEdgeSchema,
 } from "./edges/nodeEdge";
-import { SerialWireEdge, WireEdge, serialWireEdgeSchema } from "./edges/wireEdge";
+import { SerialWireEdge, WireEdge } from "./edges/wireEdge";
 import { makeIterativeComplexEqualityConstraintBuilder } from "./operations/iterative";
 
 const logger = parentLogger.child({ module: "CoordGraph" });
-
-export const serialSubgraphSchema = serialRelGraphSchema.extend({
-  edges: z.array(z.union([serialNodeEdgeSchema, serialWireEdgeSchema])),
-});
-
-export const serialCoordGraphSchema = serialSubgraphSchema.extend({
-  mode: z.number(),
-  focus: z.nullable(serialVertexIdSchema),
-});
-
-export type SerialCoordGraph = z.infer<typeof serialCoordGraphSchema>;
-export type SerialSubgraph = z.infer<typeof serialSubgraphSchema>;
 
 export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   // :RelGraph<LinkagePoint>
@@ -83,77 +70,6 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     return eq;
   }
 
-  static fromJSON(data: SerialCoordGraph): CoordGraph {
-    const equalityConstraintBuilder = CoordGraph.getEqualityConstraintBuilder(data.mode);
-    const nodes: SerialNodeEdge[] = [];
-    const wires: SerialWireEdge[] = [];
-    data.edges.forEach((e) => {
-      if (e.hasOwnProperty("source")) {
-        wires.push(e as SerialWireEdge);
-      } else {
-        nodes.push(e as SerialNodeEdge);
-      }
-    });
-
-    const vertices: CoordVertex[] = [];
-
-    const nodeEdges = nodes.map((e: SerialNodeEdge) => {
-      const nodeEdge = new NodeEdge(
-        e.vertices.map((v: SerialCoordVertex) => {
-          const vertex = new CoordVertex(
-            new DifferentialCoord(
-              v.value.x,
-              v.value.y,
-              new Coord(v.value.delta.x, v.value.delta.y)
-            ),
-            v.id,
-            v.dragging,
-            v.hidden,
-            v.selected
-          );
-          vertices.push(vertex);
-          return vertex;
-        }),
-        e.type,
-        data.mode,
-        e.id,
-        e.position,
-        e.hidden ?? false,
-        e.selected ?? false,
-        e.label ?? undefined
-      );
-      const constraint = nodeEdge.constraint as OperatorConstraint<DifferentialCoord>;
-      const oldBound = constraint.bound;
-      const invert = nodeEdge.invert(oldBound, e.bound);
-
-      return nodeEdge;
-    });
-
-    const wireEdges = wires.map((e) => {
-      return new WireEdge(
-        e.vertices.map((v) => {
-          const vertex = vertices.find((v2) => vertexIdEq(v2.id, v.id));
-          if (vertex == null) {
-            throw new Error("Vertex not found");
-          }
-          return vertex;
-        }),
-        e.id,
-        e.source,
-        e.target,
-        equalityConstraintBuilder(),
-        e.selected ?? false
-      );
-    });
-
-    return new CoordGraph(
-      data.mode,
-      data.focus ? vertices.find((v) => v.id == data.focus) ?? undefined : undefined,
-      [...nodeEdges, ...wireEdges],
-      vertices
-    );
-  }
-
   serialize(): SerialCoordGraph {
     return {
       edges: this.edges.map((e) => e.serialize() as SerialNodeEdge | SerialWireEdge),
@@ -169,7 +85,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   }
 
   // use this instead of addRelated
-  addOperation(type: OpType, position = { x: 0, y: 0 }): string {
+  addOperation(type: PrimitiveOpType, position = { x: 0, y: 0 }): string {
     const nodeId = genNodeId();
 
     let vs: CoordVertex[] = [];
@@ -193,7 +109,12 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
       throw new Error("Invalid operation type");
     }
 
-    let e = new NodeEdge(vs, type, this.mode, nodeId, position);
+    const operationData = {
+      primitive: true as const,
+      type,
+    };
+
+    let e = new NodeEdge(vs, operationData, this.mode, nodeId, position);
     this.edges.push(e);
     return nodeId;
   }

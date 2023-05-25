@@ -21,6 +21,16 @@ export const MathNode = (props: MathProps) => {
       return <UnopNode {...props} />;
     case OP_TYPE.STANDALONE:
       return <StandaloneNode {...props} />;
+    case OP_TYPE.COMPOSITE:
+      const arity = props.data.vertices.length - 1;
+      switch (arity) {
+        case 1:
+          return <UnopNode {...props} />;
+        case 2:
+          return <BinopNode {...props} />;
+        default:
+          throw new Error(`Unsupported composite node arity: ${arity}`);
+      }
     default:
       throw new Error(`Unknown node type: ${props.type}`);
   }

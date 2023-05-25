@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { settings } from "../../settings";
-import { p } from "../../sketch";
+import { p } from "../../setup";
 
 export const serialCoordSchema = z.object({
   x: z.number(),

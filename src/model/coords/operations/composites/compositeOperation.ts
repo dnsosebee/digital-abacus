@@ -1,8 +1,32 @@
+import { z } from "zod";
 import { OperatorConstraint } from "../../../graph/constraint";
-import { VertexId } from "../../../graph/vertex";
+import { VertexId, serialVertexIdSchema } from "../../../graph/vertex";
 import { Coord } from "../../coord/coord";
 import { DifferentialCoord } from "../../coord/differentialCoord";
 import { CoordGraph } from "../../coordGraph";
+
+export const BUILTIN_COMPOSITES = {
+  SUBTRACTOR: "subtractor" as const,
+  DIVIDER: "divider" as const,
+  EXPONENTIATOR: "exponentiator" as const,
+} as const;
+
+export const builtinCompositeSchema = z.union([
+  z.literal(BUILTIN_COMPOSITES.SUBTRACTOR),
+  z.literal(BUILTIN_COMPOSITES.DIVIDER),
+  z.literal(BUILTIN_COMPOSITES.EXPONENTIATOR),
+]);
+
+export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;
+
+export const serialCompositeOperationSchema = z.object({
+  primitive: z.literal(false),
+  subgraph: z.any(),
+  bound: z.number(),
+  interfaceVertexIds: z.array(serialVertexIdSchema),
+});
+
+export type SerialCompositeOperation = z.infer<typeof serialCompositeOperationSchema>;
 
 export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
   graph: CoordGraph;
@@ -38,12 +62,12 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
     });
   }
 
-  serialize() {
+  serialize(): SerialCompositeOperation {
     return {
-      type: "composite",
+      primitive: false,
       bound: this.bound,
       interfaceVertexIds: this.interfaceVertexIds,
-      graph: this.graph.serializeAsSubgraph(),
+      subgraph: this.graph.serialize(),
     };
   }
 }

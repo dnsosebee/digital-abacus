@@ -6,13 +6,17 @@ import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
+import { addSubtractor } from "../model/coords/operations/composites/subtractor";
 import { Coord } from "./coords/coord/coord";
-import { CoordGraph, serialCoordGraphSchema } from "./coords/coordGraph";
+import { CoordGraph } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
-import { NodeEdge } from "./coords/edges/nodeEdge";
+import { NodeEdge, OP_TYPE } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
+import { CompositeOperation } from "./coords/operations/composites/compositeOperation";
+import { deserializeGraph } from "./deserializeGraph";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
+import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
 import { UPDATE_MODE } from "./settings";
 
 const logger = parentLogger.child({ module: "store" });
@@ -55,6 +59,10 @@ export const addNode = (addNode: AddNode) => {
       break;
     case "math":
       mainGraph.addOperation(addNode.data.opType, addNode.position);
+      break;
+    case "composite":
+      addSubtractor(addNode.position);
+      logger.debug("added subtractor");
       break;
     default:
       throw new Error("unknown node type");
@@ -107,16 +115,30 @@ export const cloneSelected = () => {
   const idMap = new Map<string, string>();
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
-      const newId = mainGraph.addOperation(e.type, e.position);
-      const newEdge = mainGraph._getEdge(newId) as NodeEdge;
-      newEdge.label = e.label;
-      const newEdgeBound = (newEdge.constraint as OperatorConstraint<any>).bound;
-      const edgeBound = (e.constraint as OperatorConstraint<any>).bound;
-      newEdge.invert(newEdgeBound, edgeBound);
-      newEdge.vertices.forEach((v, i) => {
-        v.value.mut_sendTo(e.vertices[i].value.copy());
-      });
-      idMap.set(e.id, newId);
+      const id = genNodeId();
+      const verticesClone = e.vertices.map((v) =>
+        mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle })
+      );
+      const newEdge = new NodeEdge(
+        verticesClone,
+        e.type === OP_TYPE.COMPOSITE
+          ? (e.constraint as CompositeOperation).serialize()
+          : {
+              primitive: true as const,
+              type: e.type,
+              bound: e.constraint.hasOwnProperty("bound")
+                ? (e.constraint as OperatorConstraint<any>).bound
+                : undefined,
+            },
+        UPDATE_MODE,
+        id,
+        { ...e.position },
+        e.hidden,
+        e.selected,
+        e.label
+      );
+      mainGraph.edges.push(newEdge);
+      idMap.set(e.id, id);
     }
   });
   // wait until our map is full to process wires
@@ -186,7 +208,7 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   useEffect(() => {
     if (initial) {
       // logger.debug({ initial }, "restoring from url");
-      mainGraph = proxy(CoordGraph.fromJSON(initial.graph));
+      mainGraph = proxy(deserializeGraph(initial.graph));
       stickies.splice(0, stickies.length, ...initial.stickies);
       // logger.debug({ mainGraph, stickies }, "restored from url");
     }

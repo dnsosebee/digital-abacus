@@ -1,5 +1,5 @@
 import { OperatorConstraint } from "../../graph/constraint";
-import { p } from "../../sketch";
+import { p } from "../../setup";
 import { Coord } from "../coord/coord";
 import { DifferentialCoord } from "../coord/differentialCoord";
 
