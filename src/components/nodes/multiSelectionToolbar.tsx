@@ -69,12 +69,12 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
           {hidden ? (
             <>
               <p className="mr-2">linkages</p>
-              <EyeIcon className="w-5 h-5" />
+              <EyeSlashIcon className="w-5 h-5" />
             </>
           ) : (
             <>
               <p className="mr-2">linkages</p>
-              <EyeSlashIcon className="w-5 h-5" />
+              <EyeIcon className="w-5 h-5" />
             </>
           )}
         </Button>
