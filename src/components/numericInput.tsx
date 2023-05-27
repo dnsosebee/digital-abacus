@@ -4,7 +4,7 @@ import { vertexIdEq } from "@/model/graph/vertex";
 import { settings } from "@/model/settings";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
 
@@ -38,7 +38,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
 
   return (
     <div
-      className={`p-1 flex items-center nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}
+      className={`p-1 flex items-center nodrag ${vertex.selected ? "rounded-lg bg-blue-500" : ""}`}
     >
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
@@ -89,6 +89,7 @@ export const PureSingleNumericInput = ({
   onBlur = () => {},
   onFocus = () => {},
   onMouseDown = () => {},
+  className = "",
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -97,18 +98,14 @@ export const PureSingleNumericInput = ({
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onMouseDown?: (e: React.MouseEvent<HTMLInputElement>) => void;
+  className?: string;
 }) => {
   const [pending, setPending] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
 
-  // const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.value === "" || e.target.value === "-") {
-  //     if (!pending) setPending(true);
-  //   } else {
-  //     onChange(Number(e.target.value));
-  //     if (pending) setPending(false);
-  //   }
-  // };
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
 
   const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "" || e.target.value === "-") {
@@ -130,7 +127,7 @@ export const PureSingleNumericInput = ({
       readOnly={readonly}
       className={`${
         wide ? "w-28" : "w-16"
-      } rounded-lg px-0.5 bg-slate-900 border-2 border-slate-500`}
+      } rounded-lg px-0.5 bg-slate-900 border-2 border-slate-500 ${className}`}
       onFocus={onFocus}
       onBlur={onBlur}
       onMouseDown={onMouseDown}
@@ -159,10 +156,10 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
 
   // if not bound, make the lock glow overtly
   const clickableClasses = `bg-slate-900 hover:bg-slate-500 border-2 border-slate-500 ${
-    isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
+    isBound ? "" : "ring-8 ring-yellow-400 ring-offset-8 ring-offset-slate-700 ring-opacity-50 z-10"
   }`;
 
-  const unClickableClasses = "text-gray-500";
+  const unClickableClasses = "text-slate-500 border-2 border-slate-700";
 
   const Icon = isBound ? LockClosedIcon : LockOpenIcon;
 
@@ -184,7 +181,9 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
       disabled={!isClickable}
       onClick={isBound ? handleStartReversal : handleCompleteReversal}
     >
-      <Icon className="w-5 h-5" />
+      <div className="w-5 h-5">
+        <Icon className="w-5 h-5" />
+      </div>
     </button>
   );
 };

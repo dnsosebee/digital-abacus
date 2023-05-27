@@ -26,7 +26,6 @@ import ReactFlow, {
   SelectionMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import Menubar from "./menubar";
 import { MathNode } from "./nodes/mathNode";
 import { StickyNode } from "./nodes/sticky";
 import { WireView } from "./wires/wire";
@@ -164,7 +163,6 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
 
   return (
     <div className="flex-grow flex flex-col">
-      <Menubar activeNodes={activeMathNodes} />
       <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}

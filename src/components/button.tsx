@@ -8,10 +8,7 @@ export const Button = ({
   className?: string;
 }) => {
   return (
-    <button
-      onClick={onClick}
-      className={`hover:bg-slate-500 px-6 flex justify-center items-center ${className}`}
-    >
+    <button onClick={onClick} className={`px-6 flex justify-center items-center ${className}`}>
       {children}
     </button>
   );

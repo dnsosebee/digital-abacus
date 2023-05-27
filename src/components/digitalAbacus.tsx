@@ -7,6 +7,7 @@ import { useSnapshot } from "valtio";
 import CircuitBoard from "./circuitBoard";
 import { DragProvider } from "./dragProvider";
 import Linkages from "./linkages";
+import { Sidebar } from "./sidebar";
 import { Toolbar } from "./toolbar";
 
 const normalFont = Source_Code_Pro({
@@ -32,6 +33,8 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
         <div className="flex flex-col h-screen">
           <Toolbar />
           <div className="flex-grow flex overflow-hidden">
+            <Sidebar />{" "}
+            <div className="flex-none shadow-2xl h-full border-l-4 border-slate-500 z-50" />
             <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
                 <CircuitBoard serialState={serialState} />
@@ -39,7 +42,7 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
             </div>
             {showLinkages && (
               <>
-                <div className="flex-none shadow-2xl h-full w-1 border-2 border-slate-900 bg-black z-50" />
+                <div className="flex-none shadow-2xl h-full border-l-4 border-slate-500 z-50" />
                 <div className="split">
                   <Linkages />
                 </div>

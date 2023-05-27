@@ -13,8 +13,8 @@ body,
 }
 
 .react-flow .react-flow__handle {
-  width: 135px;
-  height: 15px;
+  width: 130px;
+  height: 25px;
   border-radius: 300px;
   background-color: #52c33b;
   border: none;
@@ -56,4 +56,21 @@ input::-webkit-inner-spin-button {
   border-top-right-radius: 1.5rem;
   border-bottom-left-radius: 100px;
   border-bottom-right-radius: 100px;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+.react-flow__controls button {
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+  border-bottom: 1 solid rgb(100 116 139 / var(--tw-border-opacity));
+}
+
+.react-flow__controls button:hover {
+  background-color: #334155;
+}
+
+.react-flow__controls svg {
+  fill: rgb(248 250 252 / var(--tw-text-opacity));
 }
