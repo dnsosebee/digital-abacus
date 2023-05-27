@@ -1,32 +1,16 @@
 import { Coord } from "@/model/coords/coord/coord";
 import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
+import { settings } from "@/model/settings";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const { beginDrag } = useDrag();
-  const [pendingReal, setPendingReal] = useState(false);
-  const [pendingImaginary, setPendingImaginary] = useState(false);
-
-  const onChangeReal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "" || e.target.value === "-") {
-      if (!pendingReal) setPendingReal(true);
-    } else {
-      updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
-      if (pendingReal) setPendingReal(false);
-    }
-  };
-  const onChangeImaginary = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "" || e.target.value === "-") {
-      if (!pendingImaginary) setPendingImaginary(true);
-    } else {
-      updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
-      if (pendingImaginary) setPendingImaginary(false);
-    }
-  };
+  const { showComplex } = useSnapshot(settings);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "handleFocus");
@@ -37,9 +21,6 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     // logger.debug({ e }, "handleBlur");
     mainGraph.setVertexSelectedness(vertex.id, false);
   };
-
-  const roundedX = vertex.value.x < 0.000001 && vertex.value.x > -0.000001 ? 0 : vertex.value.x;
-  const roundedY = vertex.value.y < 0.000001 && vertex.value.y > -0.000001 ? 0 : vertex.value.y;
 
   const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownReal");
@@ -56,44 +37,101 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
   };
 
   return (
-    <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
+    <div
+      className={`p-1 flex items-center nodrag ${vertex.selected ? "rounded-lg bg-blue-500" : ""}`}
+    >
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
         <LockButton vertex={vertex} />
       </div>
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-0.5 items-center">
         <div>
-          <input
-            type="number"
-            value={pendingReal ? "" : roundedX}
-            onChange={onChangeReal}
-            readOnly={vertex.isBound()}
-            className={`${
-              wide ? "w-28" : "w-16"
-            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
-            onFocus={handleFocus}
+          <PureSingleNumericInput
+            value={vertex.value.x}
+            onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y))}
+            wide={wide}
+            readonly={vertex.isBound()}
             onBlur={handleBlur}
+            onFocus={handleFocus}
             onMouseDown={onMousedownReal}
           />
-          <span className="ml-1 font-extrabold">+</span>
+          {/* if not then blank char */}
+          {showComplex ? (
+            <span className="ml-1 font-extrabold">+</span>
+          ) : (
+            <span className="ml-1 font-extrabold">&nbsp;</span>
+          )}
         </div>
-        <div>
-          <input
-            type="number"
-            value={pendingImaginary ? "" : roundedY}
-            onChange={onChangeImaginary}
-            readOnly={vertex.isBound()}
-            className={`${
-              wide ? "w-28" : "w-16"
-            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onMouseDown={onMousedownImaginary}
-          />
-          <span className="ml-1 font-extrabold italic">i</span>
-        </div>
+        {showComplex && (
+          <div>
+            <PureSingleNumericInput
+              value={vertex.value.y}
+              onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}
+              wide={wide}
+              readonly={vertex.isBound()}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+              onMouseDown={onMousedownImaginary}
+            />
+            <span className="ml-1 font-extrabold italic">i</span>
+          </div>
+        )}
       </div>
     </div>
+  );
+};
+
+export const PureSingleNumericInput = ({
+  value,
+  onChange,
+  wide = false,
+  readonly = false,
+  onBlur = () => {},
+  onFocus = () => {},
+  onMouseDown = () => {},
+  className = "",
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  wide?: boolean;
+  readonly?: boolean;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLInputElement>) => void;
+  className?: string;
+}) => {
+  const [pending, setPending] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "" || e.target.value === "-") {
+      if (!pending) setPending(true);
+    } else {
+      onChange(Number(e.target.value));
+      setInternalValue(Number(e.target.value));
+      if (pending) setPending(false);
+    }
+  };
+
+  const rounded = internalValue < 0.000001 && internalValue > -0.000001 ? 0 : internalValue;
+
+  return (
+    <input
+      type="number"
+      value={pending ? "" : rounded}
+      onChange={onChangeValue}
+      readOnly={readonly}
+      className={`${
+        wide ? "w-28" : "w-16"
+      } rounded-lg px-0.5 bg-slate-900 border-2 border-slate-500 ${className}`}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onMouseDown={onMouseDown}
+    />
   );
 };
 
@@ -117,9 +155,12 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   }
 
   // if not bound, make the lock glow overtly
-  const clickableClasses = `bg-slate-300 hover:bg-slate-400 ${
-    isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
+  const clickableClasses = `bg-slate-900 hover:bg-slate-500 border-2 border-slate-500 ${
+    isBound ? "" : "ring-8 ring-yellow-400 ring-offset-8 ring-offset-slate-700 ring-opacity-50 z-10"
   }`;
+
+  const unClickableClasses = "text-slate-500 border-2 border-slate-700";
+
   const Icon = isBound ? LockClosedIcon : LockOpenIcon;
 
   const handleStartReversal = () => {
@@ -134,13 +175,15 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
 
   return (
     <button
-      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""} ${
+      className={`rounded-full mr-2  p-2 ${isClickable ? clickableClasses : unClickableClasses} ${
         reversing && vertexIdEq(focus.id, vertex.id) ? "bg-red-400" : ""
       }`}
       disabled={!isClickable}
       onClick={isBound ? handleStartReversal : handleCompleteReversal}
     >
-      <Icon className="w-6 h-6 text-slate-800" />
+      <div className="w-5 h-5">
+        <Icon className="w-5 h-5" />
+      </div>
     </button>
   );
 };

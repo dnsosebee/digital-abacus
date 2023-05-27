@@ -1,5 +1,7 @@
 // import { Edge, EdgeProps, getSmoothStepPath } from "reactflow";
 
+import SmartBezierEdge from "@tisoap/react-flow-smart-edge";
+
 // export type WireEdge = Edge & { sourceHandle: string; targetHandle: string };
 // export type WireEdgeProps = EdgeProps;
 
@@ -41,4 +43,10 @@
 //   );
 // };
 
-export {};
+export const WireView = (props: any) => {
+  const styles = {
+    strokeWidth: 20,
+    stroke: props.selected ? "#3b82f6" : "#64748b",
+  };
+  return <SmartBezierEdge {...props} style={styles} />;
+};

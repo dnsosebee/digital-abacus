@@ -13,10 +13,16 @@ body,
 }
 
 .react-flow .react-flow__handle {
-  width: 100px;
-  height: 14px;
-  border-radius: 3px;
+  width: 130px;
+  height: 25px;
+  border-radius: 300px;
   background-color: #52c33b;
+  border: none;
+}
+
+.react-flow__edge.selected {
+  stroke: #52c33b !important;
+  stroke-width: 3px !important;
 }
 
 .react-flow .bound {
@@ -26,4 +32,45 @@ body,
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   display: none;
+}
+
+.gradient {
+  background: linear-gradient(
+    to right,
+    rgba(75, 0, 130, 0.2),
+    rgba(0, 0, 139, 0.2),
+    rgba(0, 128, 128, 0.2),
+    rgba(0, 128, 0, 0.2),
+    rgba(255, 215, 0, 0.2),
+    rgba(255, 127, 0, 0.2),
+    rgba(255, 0, 0, 0.2),
+    rgb(15 23 42)
+  );
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.round-binop {
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  border-bottom-left-radius: 100px;
+  border-bottom-right-radius: 100px;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+.react-flow__controls button {
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+  border-bottom: 1 solid rgb(100 116 139 / var(--tw-border-opacity));
+}
+
+.react-flow__controls button:hover {
+  background-color: #334155;
+}
+
+.react-flow__controls svg {
+  fill: rgb(248 250 252 / var(--tw-text-opacity));
 }

@@ -11,7 +11,7 @@ export const UPDATE_ITERATIVE = 1;
 export const UPDATE_MODE = UPDATE_ITERATIVE;
 
 //background color and debug variable
-export const indicator = 50;
+export const indicator = 30;
 
 //how far to look in each direction
 export const searchSize = 0.02;
@@ -45,7 +45,7 @@ type DragData =
     };
 
 export const settings = proxy({
-  CENTER_X: 650,
+  CENTER_X: 400,
   CENTER_Y: 450,
   globalScale: DEFAULT_SCALE,
   dragData: {
@@ -74,4 +74,9 @@ export const settings = proxy({
   showDifferentials: false,
 
   stepSize: searchSize,
+
+  showComplex: false,
+
+  showLinkages: true,
+  showSidebar: true,
 });

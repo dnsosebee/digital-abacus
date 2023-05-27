@@ -7,7 +7,7 @@ export let p: p5 | null = null;
 
 export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
-  p5.createCanvas(p.windowWidth / 2, p.windowHeight - 40).parent(canvasParentRef);
+  p5.createCanvas(p.windowWidth / 2 - 66, p.windowHeight - 30).parent(canvasParentRef);
 }
 
 // TODO: commented this out since myLevels is not defined

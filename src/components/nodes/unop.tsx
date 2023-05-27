@@ -11,7 +11,7 @@ export const UnopNode = ({ data, selected }: MathProps) => {
   return (
     <div>
       <DualHandle idx={0} bound={data.vertices[0].isBound()} position={Position.Top} />
-      <NodeShell selected={selected}>
+      <NodeShell selected={selected} className="rounded-3xl">
         <NumericInput vertex={data.vertices[0]} />
         <Symbol text={symbol} />
         <NumericInput vertex={data.vertices[1]} />

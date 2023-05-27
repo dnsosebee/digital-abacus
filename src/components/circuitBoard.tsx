@@ -11,7 +11,6 @@ import {
   useMainGraph,
 } from "@/model/store";
 import { AddNode, Math } from "@/schema/node";
-import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
@@ -27,9 +26,10 @@ import ReactFlow, {
   SelectionMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import Menubar from "./menubar";
 import { MathNode } from "./nodes/mathNode";
+import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
 import { StickyNode } from "./nodes/sticky";
+import { WireView } from "./wires/wire";
 
 const logger = parentLogger.child({ component: "CircuitBoard" });
 
@@ -39,7 +39,7 @@ const NODE_COMPONENTS = {
 };
 
 const EDGE_TYPES = {
-  coord: SmartBezierEdge,
+  coord: WireView,
   // TODO: add LIST edge types
 };
 
@@ -48,6 +48,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
+  const [midSelection, setMidSelection] = useState(false);
 
   // logger.debug({ dragging, nodes, wires }, "CircuitBoard");
 
@@ -158,18 +159,19 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
     [reactFlowInstance]
   );
 
-  const activeNodes = nodes.filter((node) => node.selected);
-  const activeMathNodes = activeNodes.filter((node) => node.type === "math") as Math[];
+  const selectedNodes = nodes
+    .filter((node) => node.selected)
+    .filter((node) => node.type === "math") as Math[];
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
     <div className="flex-grow flex flex-col">
-      <Menubar activeNodes={activeMathNodes} />
       <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
         <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
           <ReactFlow
+            className=" bg-gray-800"
             nodes={nodes}
             onNodesChange={onNodesChange}
             edges={wires}
@@ -180,6 +182,8 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             nodeTypes={NODE_COMPONENTS}
             edgeTypes={EDGE_TYPES}
             onInit={setReactFlowInstance}
+            onSelectionStart={() => setMidSelection(true)}
+            onSelectionEnd={() => setMidSelection(false)}
             // panOnScroll
             // selectionOnDrag
             // panOnDrag={[1, 2]}
@@ -192,6 +196,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
           >
             <Background />
             <Controls />
+            {!midSelection && <MultiSelectionToolbar selectedNodes={selectedNodes} />}
           </ReactFlow>
         </div>
         {/* </CircuitsProvider> */}
