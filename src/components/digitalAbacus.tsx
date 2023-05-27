@@ -1,38 +1,50 @@
+import { settings } from "@/model/settings";
 import { SerialState } from "@/model/store";
+import { Source_Code_Pro } from "next/font/google";
 import Head from "next/head";
 import { ReactFlowProvider } from "reactflow";
+import { useSnapshot } from "valtio";
 import CircuitBoard from "./circuitBoard";
 import { DragProvider } from "./dragProvider";
 import Linkages from "./linkages";
+import { Toolbar } from "./toolbar";
 
-// export const deltasContext = React.createContext<{
-//   showDeltas: boolean;
-//   setShowDeltas: (showDeltas: boolean) => void;
-// }>({ showDeltas: false, setShowDeltas: () => {} });
+const normalFont = Source_Code_Pro({
+  weight: "600",
+  style: "normal",
+  subsets: ["latin", "cyrillic"],
+});
 
 export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => {
+  const { showLinkages } = useSnapshot(settings);
   return (
     <DragProvider>
       <Head>
         <title>The Digital Abacus</title>
-        <meta name="description" content="An Awesome Algebra Playground" />
+        <meta
+          name="description"
+          content="The Digital Abacus is an educational and practical playground for solving complex math problems."
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
+      <main className={`bg-slate-100 ${normalFont.className} text-slate-50`}>
         <div className="flex flex-col h-screen">
-          <h1 className="text-2xl font-bold text-gray-800 bg-slate-300 shadow-xl px-2 py-1">
-            The Digital Abacus
-          </h1>
+          <Toolbar />
           <div className="flex-grow flex overflow-hidden">
             <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
                 <CircuitBoard serialState={serialState} />
               </ReactFlowProvider>
             </div>
-            <div className="split">
-              <Linkages />
-            </div>
+            {showLinkages && (
+              <>
+                <div className="flex-none shadow-2xl h-full w-1 border-2 border-slate-900 bg-black z-50" />
+                <div className="split">
+                  <Linkages />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>

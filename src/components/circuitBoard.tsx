@@ -11,7 +11,6 @@ import {
   useMainGraph,
 } from "@/model/store";
 import { AddNode, Math } from "@/schema/node";
-import { SmartBezierEdge } from "@tisoap/react-flow-smart-edge";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
@@ -30,6 +29,7 @@ import "reactflow/dist/style.css";
 import Menubar from "./menubar";
 import { MathNode } from "./nodes/mathNode";
 import { StickyNode } from "./nodes/sticky";
+import { WireView } from "./wires/wire";
 
 const logger = parentLogger.child({ component: "CircuitBoard" });
 
@@ -39,7 +39,7 @@ const NODE_COMPONENTS = {
 };
 
 const EDGE_TYPES = {
-  coord: SmartBezierEdge,
+  coord: WireView,
   // TODO: add LIST edge types
 };
 
@@ -170,6 +170,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
         <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
           <ReactFlow
+            className=" bg-gray-800"
             nodes={nodes}
             onNodesChange={onNodesChange}
             edges={wires}

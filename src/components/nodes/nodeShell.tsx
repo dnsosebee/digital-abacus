@@ -12,8 +12,8 @@ export const NodeShell = ({
   return (
     <div
       className={`flex ${row ? "flex-row space-x-4" : "flex-col space-y-4"} ${
-        selected ? "bg-blue-100" : "bg-slate-100"
-      } items-center justify-center rounded-lg shadow-lg p-3 rounded-3xl border border-slate-200`}
+        selected ? "bg-blue-700 border-blue-500" : "bg-slate-700 border-slate-500"
+      } items-center justify-center shadow-lg p-3 rounded-3xl border-4 `}
     >
       {children}
     </div>

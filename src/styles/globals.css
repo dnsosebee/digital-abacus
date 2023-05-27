@@ -14,9 +14,14 @@ body,
 
 .react-flow .react-flow__handle {
   width: 100px;
-  height: 14px;
-  border-radius: 3px;
+  height: 15px;
+  border-radius: 300px;
   background-color: #52c33b;
+}
+
+.react-flow__edge.selected {
+  stroke: #52c33b !important;
+  stroke-width: 3px !important;
 }
 
 .react-flow .bound {
@@ -26,4 +31,21 @@ body,
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   display: none;
+}
+
+.gradient {
+  background: linear-gradient(
+    to right,
+    rgba(75, 0, 130, 0.2),
+    rgba(0, 0, 139, 0.2),
+    rgba(0, 128, 128, 0.2),
+    rgba(0, 128, 0, 0.2),
+    rgba(255, 215, 0, 0.2),
+    rgba(255, 127, 0, 0.2),
+    rgba(255, 0, 0, 0.2),
+    rgb(15 23 42)
+  );
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 }

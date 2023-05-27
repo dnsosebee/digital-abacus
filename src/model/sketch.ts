@@ -3,7 +3,7 @@ import { SketchProps } from "react-p5/@types";
 import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
 import { drawGrid } from "./graphics";
-import { indicator, settings, updateCycles } from "./settings";
+import { settings, updateCycles } from "./settings";
 import { p } from "./setup";
 import { mainGraph } from "./store";
 
@@ -57,7 +57,7 @@ export function touchEnded() {
 }
 
 export function windowResized(p: p5) {
-  p.resizeCanvas(p.windowWidth / 2, p.windowHeight - 40);
+  p.resizeCanvas(p.windowWidth / 2, p.windowHeight - 30);
 }
 
 export function draw(p: p5) {
@@ -70,7 +70,7 @@ export function draw(p: p5) {
 
   mainGraph.update(updateCycles);
 
-  p!.background(indicator);
+  p!.background(31, 41, 55);
 
   drawGrid();
   // drawButtons();

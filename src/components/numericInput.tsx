@@ -8,25 +8,6 @@ import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const { beginDrag } = useDrag();
-  const [pendingReal, setPendingReal] = useState(false);
-  const [pendingImaginary, setPendingImaginary] = useState(false);
-
-  const onChangeReal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "" || e.target.value === "-") {
-      if (!pendingReal) setPendingReal(true);
-    } else {
-      updateCoord(vertex.id, new Coord(Number(e.target.value), vertex.value.y));
-      if (pendingReal) setPendingReal(false);
-    }
-  };
-  const onChangeImaginary = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "" || e.target.value === "-") {
-      if (!pendingImaginary) setPendingImaginary(true);
-    } else {
-      updateCoord(vertex.id, new Coord(vertex.value.x, Number(e.target.value)));
-      if (pendingImaginary) setPendingImaginary(false);
-    }
-  };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "handleFocus");
@@ -37,9 +18,6 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     // logger.debug({ e }, "handleBlur");
     mainGraph.setVertexSelectedness(vertex.id, false);
   };
-
-  const roundedX = vertex.value.x < 0.000001 && vertex.value.x > -0.000001 ? 0 : vertex.value.x;
-  const roundedY = vertex.value.y < 0.000001 && vertex.value.y > -0.000001 ? 0 : vertex.value.y;
 
   const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "onMousedownReal");
@@ -63,37 +41,86 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
       </div>
       <div className="flex flex-col space-y-1">
         <div>
-          <input
-            type="number"
-            value={pendingReal ? "" : roundedX}
-            onChange={onChangeReal}
-            readOnly={vertex.isBound()}
-            className={`${
-              wide ? "w-28" : "w-16"
-            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
-            onFocus={handleFocus}
+          <PureSingleNumericInput
+            value={vertex.value.x}
+            onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y))}
+            wide={wide}
+            readonly={vertex.isBound()}
             onBlur={handleBlur}
+            onFocus={handleFocus}
             onMouseDown={onMousedownReal}
           />
           <span className="ml-1 font-extrabold">+</span>
         </div>
         <div>
-          <input
-            type="number"
-            value={pendingImaginary ? "" : roundedY}
-            onChange={onChangeImaginary}
-            readOnly={vertex.isBound()}
-            className={`${
-              wide ? "w-28" : "w-16"
-            } text-lg font-bold rounded-lg px-1 border border-slate-300`}
-            onFocus={handleFocus}
+          <PureSingleNumericInput
+            value={vertex.value.y}
+            onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}
+            wide={wide}
+            readonly={vertex.isBound()}
             onBlur={handleBlur}
+            onFocus={handleFocus}
             onMouseDown={onMousedownImaginary}
           />
           <span className="ml-1 font-extrabold italic">i</span>
         </div>
       </div>
     </div>
+  );
+};
+
+export const PureSingleNumericInput = ({
+  value,
+  onChange,
+  wide = false,
+  readonly = false,
+  onBlur = () => {},
+  onFocus = () => {},
+  onMouseDown = () => {},
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  wide?: boolean;
+  readonly?: boolean;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLInputElement>) => void;
+}) => {
+  const [pending, setPending] = useState(false);
+  const [internalValue, setInternalValue] = useState(value);
+
+  // const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.value === "" || e.target.value === "-") {
+  //     if (!pending) setPending(true);
+  //   } else {
+  //     onChange(Number(e.target.value));
+  //     if (pending) setPending(false);
+  //   }
+  // };
+
+  const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "" || e.target.value === "-") {
+      if (!pending) setPending(true);
+    } else {
+      onChange(Number(e.target.value));
+      setInternalValue(Number(e.target.value));
+      if (pending) setPending(false);
+    }
+  };
+
+  const rounded = internalValue < 0.000001 && internalValue > -0.000001 ? 0 : internalValue;
+
+  return (
+    <input
+      type="number"
+      value={pending ? "" : rounded}
+      onChange={onChangeValue}
+      readOnly={readonly}
+      className={`${wide ? "w-28" : "w-16"} rounded px-0.5 bg-slate-900 border-2 border-slate-600`}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onMouseDown={onMouseDown}
+    />
   );
 };
 
@@ -117,9 +144,12 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   }
 
   // if not bound, make the lock glow overtly
-  const clickableClasses = `bg-slate-300 hover:bg-slate-400 ${
+  const clickableClasses = `bg-slate-900 hover:bg-slate-500 border-2 border-slate-500 p-2 ${
     isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
   }`;
+
+  const unClickableClasses = "text-gray-500";
+
   const Icon = isBound ? LockClosedIcon : LockOpenIcon;
 
   const handleStartReversal = () => {
@@ -134,13 +164,13 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
 
   return (
     <button
-      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : ""} ${
+      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : unClickableClasses} ${
         reversing && vertexIdEq(focus.id, vertex.id) ? "bg-red-400" : ""
       }`}
       disabled={!isClickable}
       onClick={isBound ? handleStartReversal : handleCompleteReversal}
     >
-      <Icon className="w-6 h-6 text-slate-800" />
+      <Icon className="w-6 h-6" />
     </button>
   );
 };
