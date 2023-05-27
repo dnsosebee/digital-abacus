@@ -75,7 +75,7 @@ export const settings = proxy({
 
   stepSize: searchSize,
 
-  showImaginary: false,
+  showComplex: false,
 
   showLinkages: true,
   showSidebar: true,

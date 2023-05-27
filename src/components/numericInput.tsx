@@ -1,13 +1,16 @@
 import { Coord } from "@/model/coords/coord/coord";
 import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
+import { settings } from "@/model/settings";
 import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
+import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const { beginDrag } = useDrag();
+  const { showComplex } = useSnapshot(settings);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "handleFocus");
@@ -34,12 +37,14 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
   };
 
   return (
-    <div className={`p-1 flex nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}>
+    <div
+      className={`p-1 flex items-center nodrag ${vertex.selected ? "rounded-lg bg-blue-400" : ""}`}
+    >
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
         <LockButton vertex={vertex} />
       </div>
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-0.5 items-center">
         <div>
           <PureSingleNumericInput
             value={vertex.value.x}
@@ -50,20 +55,27 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             onFocus={handleFocus}
             onMouseDown={onMousedownReal}
           />
-          <span className="ml-1 font-extrabold">+</span>
+          {/* if not then blank char */}
+          {showComplex ? (
+            <span className="ml-1 font-extrabold">+</span>
+          ) : (
+            <span className="ml-1 font-extrabold">&nbsp;</span>
+          )}
         </div>
-        <div>
-          <PureSingleNumericInput
-            value={vertex.value.y}
-            onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}
-            wide={wide}
-            readonly={vertex.isBound()}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            onMouseDown={onMousedownImaginary}
-          />
-          <span className="ml-1 font-extrabold italic">i</span>
-        </div>
+        {showComplex && (
+          <div>
+            <PureSingleNumericInput
+              value={vertex.value.y}
+              onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}
+              wide={wide}
+              readonly={vertex.isBound()}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+              onMouseDown={onMousedownImaginary}
+            />
+            <span className="ml-1 font-extrabold italic">i</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -116,7 +128,9 @@ export const PureSingleNumericInput = ({
       value={pending ? "" : rounded}
       onChange={onChangeValue}
       readOnly={readonly}
-      className={`${wide ? "w-28" : "w-16"} rounded px-0.5 bg-slate-900 border-2 border-slate-600`}
+      className={`${
+        wide ? "w-28" : "w-16"
+      } rounded-lg px-0.5 bg-slate-900 border-2 border-slate-500`}
       onFocus={onFocus}
       onBlur={onBlur}
       onMouseDown={onMouseDown}
@@ -144,7 +158,7 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   }
 
   // if not bound, make the lock glow overtly
-  const clickableClasses = `bg-slate-900 hover:bg-slate-500 border-2 border-slate-500 p-2 ${
+  const clickableClasses = `bg-slate-900 hover:bg-slate-500 border-2 border-slate-500 ${
     isBound ? "" : "ring-offset-2 ring-4 ring-yellow-400"
   }`;
 
@@ -164,13 +178,13 @@ const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
 
   return (
     <button
-      className={`rounded-full p-1 m-1 ${isClickable ? clickableClasses : unClickableClasses} ${
+      className={`rounded-full mr-2  p-2 ${isClickable ? clickableClasses : unClickableClasses} ${
         reversing && vertexIdEq(focus.id, vertex.id) ? "bg-red-400" : ""
       }`}
       disabled={!isClickable}
       onClick={isBound ? handleStartReversal : handleCompleteReversal}
     >
-      <Icon className="w-6 h-6" />
+      <Icon className="w-5 h-5" />
     </button>
   );
 };

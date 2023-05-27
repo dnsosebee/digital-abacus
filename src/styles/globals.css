@@ -13,10 +13,11 @@ body,
 }
 
 .react-flow .react-flow__handle {
-  width: 100px;
+  width: 135px;
   height: 15px;
   border-radius: 300px;
   background-color: #52c33b;
+  border: none;
 }
 
 .react-flow__edge.selected {
@@ -48,4 +49,11 @@ input::-webkit-inner-spin-button {
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.round-binop {
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  border-bottom-left-radius: 100px;
+  border-bottom-right-radius: 100px;
 }

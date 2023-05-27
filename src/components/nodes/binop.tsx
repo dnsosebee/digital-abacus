@@ -23,8 +23,8 @@ export const BinopNode = ({ data, selected }: MathProps) => {
         position={Position.Top}
         style={{ left: "75%" }}
       />
-      <NodeShell selected={selected}>
-        <div className="flex flex-row space-x-10">
+      <NodeShell selected={selected} className="round-binop">
+        <div className="flex flex-row space-x-5">
           <NumericInput vertex={data.vertices[0]} />
           <NumericInput vertex={data.vertices[1]} />
         </div>

@@ -31,10 +31,10 @@ const Title = () => (
 );
 
 const GeneralSettings = () => {
-  const { showImaginary, stepSize } = useSnapshot(settings);
+  const { showComplex: showImaginary, stepSize } = useSnapshot(settings);
 
   const toggleShowImaginary = () => {
-    settings.showImaginary = !settings.showImaginary;
+    settings.showComplex = !settings.showComplex;
   };
 
   const setStepSize = (n: number) => {
