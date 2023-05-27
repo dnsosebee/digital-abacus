@@ -57,7 +57,7 @@ export function touchEnded() {
 }
 
 export function windowResized(p: p5) {
-  p.resizeCanvas(p.windowWidth / 2, p.windowHeight - 30);
+  p.resizeCanvas(p.windowWidth / 2 - 66, p.windowHeight - 30);
 }
 
 export function draw(p: p5) {

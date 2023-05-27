@@ -1,13 +1,12 @@
+import { canvasHeight, canvasWidth } from "@/lib/canvas";
 import { logger } from "@/lib/logger";
-import { NodeEdge, OP_TYPE } from "@/model/coords/edges/nodeEdge";
-import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
+import { NodeEdge } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { p } from "@/model/setup";
 import { mainGraph, useMainGraph } from "@/model/store";
 import type { AddNode, Math } from "@/schema/node";
 import { LockOpenIcon } from "@heroicons/react/20/solid";
 import { useSnapshot } from "valtio";
-import { Symbol } from "./symbol";
 
 const Menubar = ({ activeNodes }: { activeNodes: Math[] }) => {
   const { focus } = useMainGraph();
@@ -51,81 +50,7 @@ const RegularMenu = ({ activeNodes }: { activeNodes: Math[] }) => {
   };
 
   return (
-    <>
-      <div className="flex space-x-4 ">
-        <Draggable
-          symbol="+"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.ADDER },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="*"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.MULTIPLIER },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="e^"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.EXPONENTIAL },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="z̄"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.CONJUGATOR },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="#"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "math",
-              data: { opType: OP_TYPE.STANDALONE },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="-"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.SUBTRACTOR },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="Aa"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "sticky",
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        {activeNodes.length > 0 && <NodeControls activeNodes={activeNodes} />}
-      </div>
-      <GlobalControls />
-    </>
+    
   );
 };
 
@@ -190,6 +115,10 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
       minY: Infinity,
       maxY: -Infinity,
     };
+
+    const w = canvasWidth(p!.windowWidth);
+    const h = canvasHeight(p!.windowHeight);
+
     logger.debug({ settings: JSON.stringify(settings) }, "settings");
     const numVertices = activeNodes.reduce((acc, node) => acc + node.data.vertices.length, 0);
 
@@ -201,15 +130,15 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
         boundingBox.maxY = Math.max(boundingBox.maxY, vertex.value.y);
       });
     });
-    const xScale = p!.windowWidth / 2 / (boundingBox.maxX - boundingBox.minX);
-    const yScale = (p!.windowHeight - 40) / (boundingBox.maxY - boundingBox.minY);
+    const xScale = w / (boundingBox.maxX - boundingBox.minX);
+    const yScale =h / (boundingBox.maxY - boundingBox.minY);
     const scale =
       numVertices < 2 ? settings.globalScale : Math.min(1100, Math.min(xScale, yScale) * 0.8);
-    const xBuffer = p!.windowWidth / 2 - (boundingBox.maxX - boundingBox.minX) * scale;
-    const yBuffer = p!.windowHeight - 40 - (boundingBox.maxY - boundingBox.minY) * scale;
+    const xBuffer = w - (boundingBox.maxX - boundingBox.minX) * scale;
+    const yBuffer = h - (boundingBox.maxY - boundingBox.minY) * scale;
 
     const newCenterX = 0 - boundingBox.minX * scale + xBuffer / 2;
-    const newCenterY = p!.windowHeight - 40 + boundingBox.minY * scale - yBuffer / 2;
+    const newCenterY = h + boundingBox.minY * scale - yBuffer / 2;
 
     const oldScale = settings.globalScale;
     const oldCenterX = settings.CENTER_X;
@@ -239,18 +168,3 @@ const NodeControls = ({ activeNodes }: { activeNodes: Math[] }) => {
   );
 };
 
-const Draggable = ({
-  onDragStart,
-  symbol,
-}: {
-  onDragStart: (event: React.DragEvent<HTMLElement>) => void;
-  symbol: string;
-}) => {
-  return (
-    <div onDragStart={(event) => onDragStart(event)} draggable>
-      <Symbol text={symbol} />
-    </div>
-  );
-};
-
-export default Menubar;

@@ -27,6 +27,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { MathNode } from "./nodes/mathNode";
+import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
 import { StickyNode } from "./nodes/sticky";
 import { WireView } from "./wires/wire";
 
@@ -47,6 +48,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
+  const [midSelection, setMidSelection] = useState(false);
 
   // logger.debug({ dragging, nodes, wires }, "CircuitBoard");
 
@@ -157,8 +159,9 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
     [reactFlowInstance]
   );
 
-  const activeNodes = nodes.filter((node) => node.selected);
-  const activeMathNodes = activeNodes.filter((node) => node.type === "math") as Math[];
+  const selectedNodes = nodes
+    .filter((node) => node.selected)
+    .filter((node) => node.type === "math") as Math[];
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
@@ -179,6 +182,8 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             nodeTypes={NODE_COMPONENTS}
             edgeTypes={EDGE_TYPES}
             onInit={setReactFlowInstance}
+            onSelectionStart={() => setMidSelection(true)}
+            onSelectionEnd={() => setMidSelection(false)}
             // panOnScroll
             // selectionOnDrag
             // panOnDrag={[1, 2]}
@@ -191,6 +196,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
           >
             <Background />
             <Controls />
+            {!midSelection && <MultiSelectionToolbar selectedNodes={selectedNodes} />}
           </ReactFlow>
         </div>
         {/* </CircuitsProvider> */}

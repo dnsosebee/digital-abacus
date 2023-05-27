@@ -15,7 +15,7 @@ export const Sidebar = () => {
   const { height } = bounds;
 
   return (
-    <div className=" bg-slate-900 flex flex-col items-center " ref={ref}>
+    <div className=" bg-slate-900 flex flex-col items-center" ref={ref}>
       <ComponentSidebar hidden={reversing} />
       {reversing && <ReversingSidebar height={height} />}
     </div>

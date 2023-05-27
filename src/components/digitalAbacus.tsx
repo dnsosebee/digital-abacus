@@ -33,7 +33,7 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
         <div className="flex flex-col h-screen">
           <Toolbar />
           <div className="flex-grow flex overflow-hidden">
-            <Sidebar />{" "}
+            <Sidebar />
             <div className="flex-none shadow-2xl h-full border-l-4 border-slate-500 z-50" />
             <div className="split flex-grow flex flex-col">
               <ReactFlowProvider>
