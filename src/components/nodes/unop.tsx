@@ -24,7 +24,7 @@ export const UnopNode = ({ data, selected }: MathProps) => {
 const getSymbol = (opType: PrimitiveOpType): string => {
   switch (opType) {
     case OP_TYPE.EXPONENTIAL:
-      return "e^";
+      return "eᶻ";
     case OP_TYPE.CONJUGATOR:
       return "z̄";
     default:

@@ -16,7 +16,7 @@ const Linkages = () => {
     const magnitude = p!.dist(p!.mouseX, p!.mouseY, CENTER_X, CENTER_Y);
     const angle = p!.atan2(CENTER_Y - p!.mouseY, CENTER_X - p!.mouseX);
 
-    const scaleFactor = 1 - event.deltaY / 1000;
+    const scaleFactor = Math.max(0.1, 1 - event.deltaY / 1000);
     settings.globalScale *= scaleFactor;
     settings.CENTER_X = p!.mouseX + scaleFactor * magnitude * p!.cos(angle);
     settings.CENTER_Y = p!.mouseY + scaleFactor * magnitude * p!.sin(angle);

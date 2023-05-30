@@ -6,13 +6,25 @@ import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
+import { addAverage } from "../model/coords/operations/composites/average";
+import { addCos } from "../model/coords/operations/composites/cos";
+import { addDivider } from "../model/coords/operations/composites/divider";
+import { addExponent } from "../model/coords/operations/composites/exponent";
+import { addLog } from "../model/coords/operations/composites/log";
+import { addNthRoot } from "../model/coords/operations/composites/nthRoot";
+import { addReciprocal } from "../model/coords/operations/composites/reciprocal";
+import { addSin } from "../model/coords/operations/composites/sin";
 import { addSubtractor } from "../model/coords/operations/composites/subtractor";
+import { addTan } from "../model/coords/operations/composites/tan";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
 import { NodeEdge, OP_TYPE } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
-import { CompositeOperation } from "./coords/operations/composites/compositeOperation";
+import {
+  BUILTIN_COMPOSITES,
+  CompositeOperation,
+} from "./coords/operations/composites/compositeOperation";
 import { deserializeGraph } from "./deserializeGraph";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
@@ -61,8 +73,40 @@ export const addNode = (addNode: AddNode) => {
       mainGraph.addOperation(addNode.data.opType, addNode.position);
       break;
     case "composite":
-      addSubtractor(addNode.position);
-      logger.debug("added subtractor");
+      switch (addNode.data.opType) {
+        case BUILTIN_COMPOSITES.SUBTRACTOR:
+          addSubtractor(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.DIVIDER:
+          addDivider(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.RECIPROCAL:
+          addReciprocal(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.AVERAGE:
+          addAverage(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.EXPONENT:
+          addExponent(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.NTH_ROOT:
+          addNthRoot(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.LOG:
+          addLog(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.SIN:
+          addSin(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.COS:
+          addCos(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.TAN:
+          addTan(addNode.position);
+          break;
+        default:
+          throw new Error("unknown composite type");
+      }
       break;
     default:
       throw new Error("unknown node type");

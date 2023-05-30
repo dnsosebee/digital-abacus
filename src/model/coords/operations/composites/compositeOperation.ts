@@ -9,13 +9,27 @@ import { CoordGraph } from "../../coordGraph";
 export const BUILTIN_COMPOSITES = {
   SUBTRACTOR: "subtractor" as const,
   DIVIDER: "divider" as const,
-  EXPONENTIATOR: "exponentiator" as const,
+  EXPONENT: "exponent" as const,
+  RECIPROCAL: "reciprocal" as const,
+  AVERAGE: "average" as const,
+  NTH_ROOT: "nthRoot" as const,
+  LOG: "log" as const,
+  SIN: "sin" as const,
+  COS: "cos" as const,
+  TAN: "tan" as const,
 } as const;
 
 export const builtinCompositeSchema = z.union([
   z.literal(BUILTIN_COMPOSITES.SUBTRACTOR),
   z.literal(BUILTIN_COMPOSITES.DIVIDER),
-  z.literal(BUILTIN_COMPOSITES.EXPONENTIATOR),
+  z.literal(BUILTIN_COMPOSITES.EXPONENT),
+  z.literal(BUILTIN_COMPOSITES.RECIPROCAL),
+  z.literal(BUILTIN_COMPOSITES.AVERAGE),
+  z.literal(BUILTIN_COMPOSITES.NTH_ROOT),
+  z.literal(BUILTIN_COMPOSITES.LOG),
+  z.literal(BUILTIN_COMPOSITES.SIN),
+  z.literal(BUILTIN_COMPOSITES.COS),
+  z.literal(BUILTIN_COMPOSITES.TAN),
 ]);
 
 export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;

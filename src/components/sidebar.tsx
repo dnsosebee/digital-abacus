@@ -85,7 +85,7 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
             }
           />
           <Draggable
-            symbol="e^"
+            symbol="eᶻ"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
               onDragStart(event, {
                 type: "math",
@@ -116,6 +116,96 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
               onDragStart(event, {
                 type: "composite",
                 data: { opType: BUILTIN_COMPOSITES.SUBTRACTOR },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="÷"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.DIVIDER },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="¹⁄ₐ"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.RECIPROCAL },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="avg"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.AVERAGE },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="aᵇ"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.EXPONENT },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="ᵃ√b"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.NTH_ROOT },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="㏒ₐb"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.LOG },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="sin"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.SIN },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="cos"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.COS },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="tan"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.TAN },
                 position: { x: 0, y: 0 },
               })
             }
