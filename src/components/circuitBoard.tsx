@@ -15,6 +15,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Connection,
+  ConnectionLineType,
   ConnectionMode,
   Controls,
   EdgeChange,
@@ -171,7 +172,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
         <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
           <ReactFlow
-            className=" bg-gray-800"
+            className="spotlight"
             nodes={nodes}
             onNodesChange={onNodesChange}
             edges={wires}
@@ -193,6 +194,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
             // onConnectStart={() => setDragging(true)}
             // onConnectEnd={() => setDragging(false)}
             connectionMode={ConnectionMode.Loose}
+            connectionLineType={ConnectionLineType.Straight}
           >
             <Background />
             <Controls />

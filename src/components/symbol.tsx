@@ -1,15 +1,31 @@
-import { Source_Serif_4 } from "next/font/google";
+import { Noto_Serif } from "next/font/google";
 
-const mathFont = Source_Serif_4({
-  weight: "900",
+// const mathFont = Noto_Sans_Math({
+//   weight: "400",
+//   style: "normal",
+//   subsets: ["math"],
+// });
+
+const mathFont = Noto_Serif({
+  weight: "400",
   style: "normal",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["cyrillic"],
 });
 
-export const Symbol = ({ text, className = "" }: { text: string; className?: string }) => {
+export const Symbol = ({
+  text,
+  className = "",
+  selected,
+}: {
+  text: string;
+  className?: string;
+  selected: boolean;
+}) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center h-12 min-w-[3rem] px-2 py-1 text-4xl font-bold bg-slate-500 rounded-full shadow-2xl ${mathFont.className} ${className}`}
+      className={`flex flex-col items-center justify-center h-10 min-w-[3rem] px-3 text-2xl font-bold rounded-full shadow-2xl ${
+        mathFont.className
+      } ${selected ? "bg-white ring-2 ring-blue-400" : "bg-gray-200"} ${className}`}
     >
       {text}
     </div>

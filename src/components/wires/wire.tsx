@@ -45,8 +45,8 @@ import SmartBezierEdge from "@tisoap/react-flow-smart-edge";
 
 export const WireView = (props: any) => {
   const styles = {
-    strokeWidth: 20,
-    stroke: props.selected ? "#3b82f6" : "#64748b",
+    strokeWidth: 5,
+    stroke: props.selected ? "#93c5fd" : "#e2e2e2",
   };
   return <SmartBezierEdge {...props} style={styles} />;
 };

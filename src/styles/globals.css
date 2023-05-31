@@ -13,20 +13,20 @@ body,
 }
 
 .react-flow .react-flow__handle {
-  width: 130px;
-  height: 25px;
+  width: 30px;
+  height: 30px;
   border-radius: 300px;
-  background-color: #52c33b;
-  border: none;
+  background-color: #6ffa53;
+  @apply border-none;
 }
-
+/* 
 .react-flow__edge.selected {
   stroke: #52c33b !important;
   stroke-width: 3px !important;
-}
+} */
 
 .react-flow .bound {
-  background-color: rgb(208, 60, 31) !important;
+  background-color: rgb(255, 114, 86) !important;
 }
 
 input::-webkit-outer-spin-button,
@@ -52,10 +52,21 @@ input::-webkit-inner-spin-button {
 }
 
 .round-binop {
-  border-top-left-radius: 1.5rem;
-  border-top-right-radius: 1.5rem;
-  border-bottom-left-radius: 100px;
-  border-bottom-right-radius: 100px;
+  border-top-left-radius: 15% 25%;
+  border-top-right-radius: 15% 25%;
+  border-bottom-left-radius: 50% 75%;
+  border-bottom-right-radius: 50% 75%;
+}
+
+.round-unop {
+  border-radius: 2rem;
+}
+
+.round-standalone {
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
 }
 
 .react-flow__attribution {
@@ -73,4 +84,8 @@ input::-webkit-inner-spin-button {
 
 .react-flow__controls svg {
   fill: rgb(248 250 252 / var(--tw-text-opacity));
+}
+
+.spotlight {
+  background: radial-gradient(circle, #343643, #2e2f3b);
 }

@@ -15,27 +15,27 @@ export const BinopNode = ({ data, selected }: MathProps) => {
         idx={0}
         bound={data.vertices[0].isBound()}
         position={Position.Top}
-        style={{ left: "24%", top: "-10px" }}
+        style={{ left: "24%", top: "-12px" }}
       />
       <DualHandle
         idx={1}
         bound={data.vertices[1].isBound()}
         position={Position.Top}
-        style={{ left: "76%", top: "-10px" }}
+        style={{ left: "76%", top: "-12px" }}
       />
       <NodeShell selected={selected} className="round-binop">
         <div className="flex flex-row space-x-5">
           <NumericInput vertex={data.vertices[0]} />
           <NumericInput vertex={data.vertices[1]} />
         </div>
-        <Symbol text={symbol} />
+        <Symbol text={symbol} selected={selected} />
         <NumericInput vertex={data.vertices[2]} />
       </NodeShell>
       <DualHandle
         idx={2}
         bound={data.vertices[2].isBound()}
         position={Position.Bottom}
-        style={{ left: "50%", bottom: "-10px" }}
+        style={{ left: "50%", bottom: "-12px" }}
       />
     </div>
   );
@@ -44,9 +44,9 @@ export const BinopNode = ({ data, selected }: MathProps) => {
 const getSymbol = (type: PrimitiveOpType): string => {
   switch (type) {
     case OP_TYPE.ADDER:
-      return "+";
+      return "a + b";
     case OP_TYPE.MULTIPLIER:
-      return "*";
+      return "a × b";
     default:
       return "???";
   }
