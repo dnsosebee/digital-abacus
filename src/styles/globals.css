@@ -54,8 +54,8 @@ input::-webkit-inner-spin-button {
 .round-binop {
   border-top-left-radius: 15% 25%;
   border-top-right-radius: 15% 25%;
-  border-bottom-left-radius: 50% 75%;
-  border-bottom-right-radius: 50% 75%;
+  border-bottom-left-radius: 50% 73%;
+  border-bottom-right-radius: 50% 73%;
 }
 
 .round-unop {
@@ -63,8 +63,8 @@ input::-webkit-inner-spin-button {
 }
 
 .round-standalone {
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
   border-bottom-left-radius: 50px;
   border-bottom-right-radius: 50px;
 }
@@ -88,4 +88,22 @@ input::-webkit-inner-spin-button {
 
 .spotlight {
   background: radial-gradient(circle, #343643, #2e2f3b);
+}
+
+::-webkit-scrollbar {
+  width: 10px; /* Set the width of the scrollbar */
+  @apply bg-gray-800 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px; /* Set the border radius of the scrollbar thumb */
+  @apply bg-gray-700;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900 rounded-full;
 }

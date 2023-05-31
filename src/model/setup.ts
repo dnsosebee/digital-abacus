@@ -1,4 +1,5 @@
 // import p5 from "p5";
+import { canvasHeight, canvasWidth } from "@/lib/canvas";
 import { SketchProps } from "react-p5/@types";
 
 type p5 = Parameters<SketchProps["setup"]>[0];
@@ -7,7 +8,9 @@ export let p: p5 | null = null;
 
 export function setup(p5: p5, canvasParentRef: Element) {
   p = p5;
-  p5.createCanvas(p.windowWidth / 2 - 66, p.windowHeight - 30).parent(canvasParentRef);
+  p5.createCanvas(canvasWidth(p!.windowWidth), canvasHeight(p!.windowHeight)).parent(
+    canvasParentRef
+  );
 }
 
 // TODO: commented this out since myLevels is not defined

@@ -1,9 +1,8 @@
 import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
-import { mainGraph, useMainGraph } from "@/model/store";
+import { useMainGraph } from "@/model/store";
 import { AddNode } from "@/schema/node";
 import useMeasure from "react-use-measure";
-import { Button } from "./button";
 import { Draggable } from "./draggable";
 
 export const Sidebar = () => {
@@ -15,26 +14,26 @@ export const Sidebar = () => {
   const { height } = bounds;
 
   return (
-    <div className=" bg-slate-900 flex flex-col items-center" ref={ref}>
+    <div className="flex flex-col items-center bg-gray-800" ref={ref}>
       <ComponentSidebar hidden={reversing} />
-      {reversing && <ReversingSidebar height={height} />}
+      {/* {reversing && <ReversingSidebar height={height} />} */}
     </div>
   );
 };
 
-const ReversingSidebar = ({ height }: { height: number | undefined }) => {
-  if (!height) return null;
-  return (
-    <div className="absolute" style={{ height: `${height}px` }}>
-      <Button
-        onClick={() => mainGraph.cancelReversal()}
-        className="hover:bg-slate-700 h-full border-0"
-      >
-        Cancel Reversal
-      </Button>
-    </div>
-  );
-};
+// const ReversingSidebar = ({ height }: { height: number | undefined }) => {
+//   if (!height) return null;
+//   return (
+//     <div className="absolute" style={{ height: `${height}px` }}>
+//       <Button
+//         onClick={() => mainGraph.cancelReversal()}
+//         className="hover:bg-slate-700 h-full border-0"
+//       >
+//         Cancel Reversal
+//       </Button>
+//     </div>
+//   );
+// };
 
 const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
@@ -43,9 +42,9 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
   };
 
   return (
-    <div className={`w-40 bg-white overflow-y-scroll spotlight`}>
+    <div className={`w-40 overflow-y-scroll spotlight my-2 select-none`}>
       <div className="flex flex-col items-stretch">
-        <p className="py-2 text-white text-xl text-center">Add Nodes</p>
+        <p className="py-2 text-gray-300 text-xl text-center">Add Nodes</p>
         <p className="text-gray-550 text-lg text-center">Numbers</p>
         <div className={`flex flex-col items-center space-y-4 py-4`}>
           {" "}

@@ -39,7 +39,20 @@ module.exports = {
       "brown-600": "#9a6b6b",
       "brown-700": "#885252",
       "brown-800": "#733f3f",
+      "yellow-400": "#fbbf24",
+      "red-400": "#ef4444",
     },
   },
-  plugins: [],
+  daisyui: {
+    themes: [
+      {
+        pastel: {
+          ...require("daisyui/src/colors/themes")["[data-theme=pastel]"],
+          neutral: "black",
+          "neutral-focus": "gray",
+        },
+      },
+    ],
+  },
+  plugins: [require("daisyui")],
 };

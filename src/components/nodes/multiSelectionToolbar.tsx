@@ -6,7 +6,6 @@ import { mainGraph } from "@/model/store";
 import { Math as MathNode } from "@/schema/node";
 import { EyeIcon, EyeSlashIcon, ViewfinderCircleIcon } from "@heroicons/react/20/solid";
 import { NodeToolbar } from "reactflow";
-import { Button } from "../button";
 
 export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNode[] }) => {
   const selectedNodeIds = selectedNodes.map((node) => node.id);
@@ -64,8 +63,8 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
 
   return (
     <NodeToolbar nodeId={selectedNodeIds} isVisible={isVisible} className="select-none">
-      <div className="m-2 flex flex-row bg-slate-900 border-2 border-slate-500 select-none">
-        <Button onClick={toggleHidden} className="hover:bg-slate-700 p-1">
+      <div className="btn-group">
+        <button onClick={toggleHidden} className="btn">
           {hidden ? (
             <>
               {/* <p className="mr-2">linkages</p> */}
@@ -77,11 +76,11 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
               <EyeIcon className="w-5 h-5" />
             </>
           )}
-        </Button>
+        </button>
         <div className="border-l-2 border-slate-500" />
-        <Button onClick={centerLinkages} className="hover:bg-slate-700 p-1">
+        <button onClick={centerLinkages} className="btn">
           <ViewfinderCircleIcon className="w-5 h-5" />
-        </Button>
+        </button>
       </div>
     </NodeToolbar>
   );

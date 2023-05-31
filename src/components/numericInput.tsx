@@ -9,7 +9,7 @@ import { LockButton } from "./lockButton";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
   const { beginDrag } = useDrag();
-  const { showComplex } = useSnapshot(settings);
+  const { showComplex, stepSize } = useSnapshot(settings);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     // logger.debug({ e }, "handleFocus");
@@ -53,6 +53,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             onBlur={handleBlur}
             onFocus={handleFocus}
             onMouseDown={onMousedownReal}
+            fineNess={stepSize}
           />
           {/* if not then blank char */}
           {showComplex ? (
@@ -71,6 +72,7 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
               onBlur={handleBlur}
               onFocus={handleFocus}
               onMouseDown={onMousedownImaginary}
+              fineNess={stepSize}
             />
             <span className="ml-1 font-extrabold italic">i</span>
           </div>
@@ -88,6 +90,7 @@ export const PureSingleNumericInput = ({
   onBlur = () => {},
   onFocus = () => {},
   onMouseDown = () => {},
+  fineNess,
   className = "",
 }: {
   value: number;
@@ -97,6 +100,7 @@ export const PureSingleNumericInput = ({
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onMouseDown?: (e: React.MouseEvent<HTMLInputElement>) => void;
+  fineNess?: number;
   className?: string;
 }) => {
   const [pending, setPending] = useState(false);
@@ -116,7 +120,8 @@ export const PureSingleNumericInput = ({
     }
   };
 
-  const rounded = internalValue < 0.000001 && internalValue > -0.000001 ? 0 : internalValue;
+  const rounded = fineNess ? Math.round(internalValue / fineNess) * fineNess : internalValue;
+  console.log({ rounded, internalValue, fineNess }, "rounded");
 
   return (
     <input
@@ -124,9 +129,7 @@ export const PureSingleNumericInput = ({
       value={pending ? "" : rounded}
       onChange={onChangeValue}
       readOnly={readonly}
-      className={`${
-        wide ? "w-28" : "w-16"
-      } rounded-lg px-0.5 bg-slate-900 border-2 border-gray-600 ${className}`}
+      className={`${wide ? "w-28" : "w-16"} rounded-lg px-0.5 border border-gray-800 ${className}`}
       onFocus={onFocus}
       onBlur={onBlur}
       onMouseDown={onMouseDown}

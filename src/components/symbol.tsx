@@ -7,7 +7,7 @@ import { Noto_Serif } from "next/font/google";
 // });
 
 const mathFont = Noto_Serif({
-  weight: "400",
+  weight: "700",
   style: "normal",
   subsets: ["cyrillic"],
 });

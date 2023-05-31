@@ -3,7 +3,6 @@ import { mainGraph } from "@/model/store";
 import { AdjustmentsHorizontalIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid";
 import { Source_Code_Pro } from "next/font/google";
 import { useSnapshot } from "valtio";
-import { Button, VerticalLine } from "./button";
 import { PureSingleNumericInput } from "./numericInput";
 
 const headingFont = Source_Code_Pro({
@@ -15,7 +14,7 @@ const headingFont = Source_Code_Pro({
 export const Toolbar = () => {
   return (
     <div
-      className={`font-bold bg-slate-900 border-b-4 border-slate-500 shadow-xl ${headingFont.className} justify-between flex items-stretch`}
+      className={`font-bold ${headingFont.className} justify-between flex items-stretch text-gray-200 px-2 pt-2 pb-1`}
     >
       <div className="flex items-stretch">
         <Title />
@@ -27,8 +26,8 @@ export const Toolbar = () => {
 };
 
 const Title = () => (
-  <h1 className="text-lg pl-2 gradient pr-10 lg:pr-16">
-    <AdjustmentsHorizontalIcon className="w-4 h-4 inline-block mr-2 mb-1" />
+  <h1 className="text-2xl pl-2 pr-10 lg:pr-4 select-none text-gray-600">
+    <AdjustmentsHorizontalIcon className="w-5 h-5 inline-block mr-2 mb-1" />
     <p className="hidden lg:inline">The Digital Abacus</p>
   </h1>
 );
@@ -41,7 +40,9 @@ const GeneralSettings = () => {
   };
 
   const setStepSize = (n: number) => {
-    settings.stepSize = n;
+    if (n > 0) {
+      settings.stepSize = n;
+    }
   };
 
   const eraseAll = () => {
@@ -49,12 +50,12 @@ const GeneralSettings = () => {
   };
 
   return (
-    <div className="flex">
-      <VerticalLine />
-      <VerticalLine />
-      <Button
+    <div className="flex space-x-4">
+      <button
         onClick={toggleShowImaginary}
-        className={showImaginary ? "bg-slate-500 hover:bg-slate-700 " : "hover:bg-slate-700 "}
+        className={`btn btn-sm ${
+          showImaginary ? "bg-slate-500 hover:bg-slate-700 " : "hover:bg-slate-700 "
+        }`}
       >
         {showImaginary ? (
           <>
@@ -67,19 +68,18 @@ const GeneralSettings = () => {
             <EyeSlashIcon className="w-6 h-6 inline-block" />
           </>
         )}
-      </Button>
-      <VerticalLine />
-      <p className="self-center justify-self-center pl-4 pr-2">interval</p>
-      <PureSingleNumericInput
-        value={stepSize}
-        onChange={setStepSize}
-        className="rounded-none border-none"
-      />
-      <VerticalLine />
-      <Button onClick={eraseAll} className="hover:bg-red-500">
+      </button>
+      <button onClick={eraseAll} className="btn btn-sm btn-error">
         reset
-      </Button>
-      <VerticalLine />
+      </button>
+      <div className="flex rounded-xl bg-gray-800">
+        <p className="self-center justify-self-center pl-2 pr-1 select-none">interval:</p>
+        <PureSingleNumericInput
+          value={stepSize}
+          onChange={setStepSize}
+          className="bg-neutral w-24 px-2"
+        />
+      </div>
     </div>
   );
 };
@@ -96,35 +96,25 @@ const LinkagesSettings = () => {
   };
 
   return (
-    <div className="flex">
-      <VerticalLine />
+    <div className="flex space-x-4">
       {showLinkages && (
         <>
-          <Button
-            onClick={toggleShowDifferentials}
-            className={
-              showDifferentials ? "bg-slate-500 hover:bg-slate-700 " : "hover:bg-slate-700 "
-            }
-          >
+          <button onClick={toggleShowDifferentials} className={`btn btn-sm`}>
             {showDifferentials ? (
               <>
-                <p className="mr-2">δs</p>
+                <p className="mr-2">deltas</p>
                 <EyeIcon className="w-6 h-6 inline-block" />
               </>
             ) : (
               <>
-                <p className="mr-2">δs</p>
+                <p className="mr-2">deltas</p>
                 <EyeSlashIcon className="w-6 h-6 inline-block" />
               </>
             )}
-          </Button>
-          <VerticalLine />
+          </button>
         </>
       )}
-      <Button
-        onClick={toggleShowLinkages}
-        className={showLinkages ? "bg-slate-500 hover:bg-slate-700 " : "hover:bg-slate-700 "}
-      >
+      <button onClick={toggleShowLinkages} className={`btn btn-sm`}>
         {showLinkages ? (
           <>
             <p className="mr-2">linkages</p>
@@ -136,8 +126,7 @@ const LinkagesSettings = () => {
             <EyeSlashIcon className="w-6 h-6 inline-block" />
           </>
         )}
-      </Button>
-      <VerticalLine />
+      </button>
     </div>
   );
 };

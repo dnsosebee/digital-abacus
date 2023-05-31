@@ -345,7 +345,7 @@ export const addCos = (position: CircuitPosition) => {
     position,
     false,
     false,
-    "cos"
+    "cos(a)"
   );
   mainGraph.edges.push(edge);
 };

@@ -18,7 +18,7 @@ export function drawGrid() {
   //vertical lines
   for (let i = p!.floor(leftEdge * gridScale); i < p!.ceil(rightEdge * gridScale); i++) {
     p!.strokeWeight(1);
-    p!.stroke(75);
+    p!.stroke(110);
     p!.noFill();
     p!.line(
       settings.CENTER_X + (i * settings.globalScale) / gridScale,
@@ -29,7 +29,7 @@ export function drawGrid() {
 
     p!.textSize(15);
     p!.textAlign(p!.CENTER, p!.CENTER);
-    p!.fill(150);
+    p!.fill(170);
     p!.noStroke();
     p!.ellipse(settings.CENTER_X + (i * settings.globalScale) / gridScale, settings.CENTER_Y, 5, 5);
     p!.text(
@@ -42,7 +42,7 @@ export function drawGrid() {
   //horizontal lines
   for (let i = p!.floor(topEdge * gridScale); i < p!.ceil(bottomEdge * gridScale); i++) {
     p!.strokeWeight(1);
-    p!.stroke(75);
+    p!.stroke(110);
     p!.noFill();
     p!.line(
       0,
@@ -53,7 +53,7 @@ export function drawGrid() {
 
     p!.textSize(15);
     p!.textAlign(p!.CENTER, p!.CENTER);
-    p!.fill(150);
+    p!.fill(170);
     p!.noStroke();
     p!.ellipse(settings.CENTER_X, settings.CENTER_Y + (i * settings.globalScale) / gridScale, 5, 5);
     p!.text(
@@ -65,7 +65,7 @@ export function drawGrid() {
 
   //axes,unit circle
   p!.noFill();
-  p!.stroke(200);
+  p!.stroke(140);
   p!.strokeWeight(1);
   p!.line(0, settings.CENTER_Y, p!.width, settings.CENTER_Y);
   p!.line(settings.CENTER_X, 0, settings.CENTER_X, p!.height);

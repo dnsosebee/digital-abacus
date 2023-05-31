@@ -346,7 +346,7 @@ export const addSin = (position: CircuitPosition) => {
     position,
     false,
     false,
-    "sin"
+    "sin(a)"
   );
   mainGraph.edges.push(edge);
 };

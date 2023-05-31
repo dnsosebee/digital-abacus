@@ -109,7 +109,7 @@ export const addSubtractor = (position: CircuitPosition) => {
     position,
     false,
     false,
-    "-"
+    "a - b"
   );
   mainGraph.edges.push(edge);
 };

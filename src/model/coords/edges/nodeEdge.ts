@@ -155,9 +155,9 @@ export class NodeEdge extends CircuitEdge {
       return;
     }
     p!.noFill();
-    p!.strokeWeight(1);
+    p!.strokeWeight(2);
     if (this.selected) {
-      p!.strokeWeight(4);
+      p!.strokeWeight(6);
     }
 
     if (this.type == OP_TYPE.ADDER) {
@@ -211,7 +211,7 @@ export class NodeEdge extends CircuitEdge {
         this.vertices[1].value.getYPx()
       );
     } else if (this.type == OP_TYPE.EXPONENTIAL) {
-      p!.stroke(200, 100, 200);
+      p!.stroke(220, 50, 220);
       if (this.vertices[0].dragging || this.vertices[1].dragging) {
         // still need to work out correct values for a and b
         let b = this.vertices[0].value.getX() / this.vertices[0].value.getY();

@@ -865,7 +865,7 @@ export const addTan = (position: CircuitPosition) => {
     position,
     false,
     false,
-    "tan"
+    "tan(a)"
   );
   mainGraph.edges.push(edge);
 };

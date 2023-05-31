@@ -1,4 +1,5 @@
 type p5 = Parameters<SketchProps["setup"]>[0];
+import { canvasHeight, canvasWidth } from "@/lib/canvas";
 import { SketchProps } from "react-p5/@types";
 import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
@@ -57,7 +58,7 @@ export function touchEnded() {
 }
 
 export function windowResized(p: p5) {
-  p.resizeCanvas(p.windowWidth / 2 - 66, p.windowHeight - 30);
+  p.resizeCanvas(canvasWidth(p.windowWidth), canvasHeight(p.windowHeight));
 }
 
 export function draw(p: p5) {
@@ -70,7 +71,7 @@ export function draw(p: p5) {
 
   mainGraph.update(updateCycles);
 
-  p!.background(31, 41, 55);
+  p!.background(80, 85, 105);
 
   drawGrid();
   // drawButtons();

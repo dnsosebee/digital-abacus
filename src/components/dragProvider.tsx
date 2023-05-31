@@ -31,6 +31,7 @@ const dragContext = createContext<DragContext>({
 
 export const DragProvider = ({ children }: { children: React.ReactNode }) => {
   const [drag, setDrag] = useState<DragState>({ dragging: false });
+  const [broken, setBroken] = useState(false);
   const dragRef = useRef(drag);
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
       mouseX: initialX,
       real,
     });
+    setBroken(false);
   };
 
   const setMouseX = (mouseX: number) => {
@@ -74,14 +76,19 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     logger.debug({ drag }, "drag");
     if (drag.dragging) {
-      const delta = (drag.mouseX - drag.initialX) / 100;
-      const newCoord = drag.initialCoord.copy();
-      if (drag.real) {
-        newCoord.x += delta;
-      } else {
-        newCoord.y += delta;
+      const delta = (drag.mouseX - drag.initialX) / 10;
+      if (delta > 0.5 || (delta < -0.5 && !broken)) {
+        setBroken(true);
       }
-      updateCoord(drag.vertexId, newCoord);
+      if (broken) {
+        const newCoord = drag.initialCoord.copy();
+        if (drag.real) {
+          newCoord.x = Math.round(newCoord.x + delta);
+        } else {
+          newCoord.y = Math.round(newCoord.y + delta);
+        }
+        updateCoord(drag.vertexId, newCoord);
+      }
     }
   }, [drag]);
 

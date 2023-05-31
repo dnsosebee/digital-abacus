@@ -29,21 +29,20 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${normalFont.className} text-gray-800`}>
+      <main className={`${normalFont.className} text-gray-800 bg-slate-750`}>
         <div className="flex flex-col h-screen">
           <Toolbar />
           <div className="flex-grow flex overflow-hidden">
-            <Sidebar />
-            <div className="flex-none shadow-2xl h-full border-l-4 border-black z-50" />
-            <div className="split flex-grow flex flex-col">
+            <div className="flex-1 rounded-3xl split flex overflow-hidden m-1  border-8 border-gray-900">
+              <Sidebar />
               <ReactFlowProvider>
                 <CircuitBoard serialState={serialState} />
               </ReactFlowProvider>
             </div>
             {showLinkages && (
               <>
-                <div className="flex-none shadow-2xl h-full border-l-4 border-black z-50" />
-                <div className="split">
+                <div className="h-full" />
+                <div className="flex-1 rounded-3xl overflow-hidden m-4 border-8 border-gray-800">
                   <Linkages />
                 </div>
               </>
