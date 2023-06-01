@@ -1,6 +1,11 @@
 import { settings } from "@/model/settings";
 import { mainGraph } from "@/model/store";
-import { AdjustmentsHorizontalIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid";
+import {
+  AdjustmentsHorizontalIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  TrashIcon,
+} from "@heroicons/react/20/solid";
 import { Source_Code_Pro } from "next/font/google";
 import { useSnapshot } from "valtio";
 import { PureSingleNumericInput } from "./numericInput";
@@ -69,8 +74,9 @@ const GeneralSettings = () => {
           </>
         )}
       </button>
-      <button onClick={eraseAll} className="btn btn-sm btn-error">
-        reset
+      <button onClick={eraseAll} className="btn btn-sm">
+        <p className="mr-2">reset</p>
+        <TrashIcon className="w-5 h-5 inline-block" />
       </button>
       <div className="flex rounded-xl bg-gray-800">
         <p className="self-center justify-self-center px-2 py-[0.45rem] select-none text-sm">
