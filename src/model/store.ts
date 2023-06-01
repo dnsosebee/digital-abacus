@@ -8,6 +8,8 @@ import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
 import { addAverage } from "../model/coords/operations/composites/average";
 import { addE } from "../model/coords/operations/composites/constants/e";
+import { addI } from "../model/coords/operations/composites/constants/i";
+import { addPhi } from "../model/coords/operations/composites/constants/phi";
 import { addPi } from "../model/coords/operations/composites/constants/pi";
 import { addCos } from "../model/coords/operations/composites/cos";
 import { addDivider } from "../model/coords/operations/composites/divider";
@@ -32,11 +34,19 @@ import { deserializeGraph } from "./deserializeGraph";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
-import { UPDATE_MODE } from "./settings";
+import { UPDATE_MODE, settings } from "./settings";
 
 const logger = parentLogger.child({ module: "store" });
 
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
+
+// WARNING: TIMEOUT PREVENTS p5 FROM BEING UNDEFINED (which is a dependency for unnecessary math functions)
+setTimeout(() => {
+  setInterval(() => {
+    mainGraph.update(settings.updateCycles);
+  }, 1000 / 60);
+}, 500);
+
 const stickies = proxy([] as Sticky[]);
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
@@ -112,6 +122,12 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.E:
           addE(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.I:
+          addI(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.PHI:
+          addPhi(addNode.position);
           break;
         case BUILTIN_COMPOSITES.LINEAR_SOLVER:
           addLinearSolver(addNode.position);

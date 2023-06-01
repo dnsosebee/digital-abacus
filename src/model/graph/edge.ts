@@ -68,7 +68,8 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
     // :-> void
     this.removeDependencies();
     let eid = this.id;
-    let free = this.getFreeVertices().map(function (v) {
+    // TODO: WARNING: big hack! Setting a dependency on every vertex, including itself! Even though it's kinda redundant to say you depend on yourself, though technically not false? Why this is here: this allows constant composite operator/edges to have their vertex be perceived as bound.
+    let free = this.vertices.map(function (v) {
       return {
         vertex: v.id,
         edge: eid,

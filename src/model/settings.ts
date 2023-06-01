@@ -22,9 +22,6 @@ export const iterations = 3;
 // how many adjustment iterations to run after automatic differentiation
 export const DIFF_ITERS = 1;
 
-//extra number of loops for updating positions, helps with rigidity
-export const updateCycles = 5;
-
 //global scale (standard, 50px = 1 unit)
 export const DEFAULT_SCALE = 50;
 
@@ -79,4 +76,7 @@ export const settings = proxy({
 
   showLinkages: true,
   showSidebar: true,
+
+  //extra number of loops for updating positions, helps with rigidity
+  updateCycles: 5,
 });

@@ -16,7 +16,7 @@ const headingFont = Source_Code_Pro({
   subsets: ["latin", "cyrillic"],
 });
 
-export const Toolbar = () => {
+export const Topbar = () => {
   return (
     <div
       className={`font-bold ${headingFont.className} justify-between flex items-stretch text-gray-200 px-2 pt-2 pb-1`}
@@ -38,7 +38,7 @@ const Title = () => (
 );
 
 const GeneralSettings = () => {
-  const { showComplex: showImaginary, stepSize } = useSnapshot(settings);
+  const { showComplex: showImaginary, stepSize, updateCycles } = useSnapshot(settings);
 
   const toggleShowImaginary = () => {
     settings.showComplex = !settings.showComplex;
@@ -47,6 +47,12 @@ const GeneralSettings = () => {
   const setStepSize = (n: number) => {
     if (n > 0) {
       settings.stepSize = n;
+    }
+  };
+
+  const setUpdateCycles = (n: number) => {
+    if (n > 1 && n < 100) {
+      settings.updateCycles = Math.round(n);
     }
   };
 
@@ -80,7 +86,7 @@ const GeneralSettings = () => {
       </button>
       <div className="flex rounded-xl bg-gray-800">
         <p className="self-center justify-self-center px-2 py-[0.45rem] select-none text-sm">
-          INTERVAL:
+          GRANULARITY:
         </p>
         <PureSingleNumericInput
           value={stepSize}
@@ -88,6 +94,18 @@ const GeneralSettings = () => {
           className="bg-neutral w-24 px-2"
           dragFineness={0.001}
           fineness={0.00001}
+        />
+      </div>
+      <div className="flex rounded-xl bg-gray-800">
+        <p className="self-center justify-self-center px-2 py-[0.45rem] select-none text-sm">
+          SPEED:
+        </p>
+        <PureSingleNumericInput
+          value={updateCycles}
+          onChange={setUpdateCycles}
+          className="bg-neutral w-24 px-2"
+          dragFineness={1}
+          fineness={1}
         />
       </div>
     </div>

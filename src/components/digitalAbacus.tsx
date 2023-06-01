@@ -8,7 +8,7 @@ import CircuitBoard from "./circuitBoard";
 import { DragProvider } from "./dragProvider";
 import Linkages from "./linkages";
 import { Sidebar } from "./sidebar";
-import { Toolbar } from "./toolbar";
+import { Topbar } from "./topbar";
 
 const normalFont = Source_Code_Pro({
   weight: "600",
@@ -31,7 +31,7 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
       </Head>
       <main className={`${normalFont.className} text-gray-800 bg-slate-750`}>
         <div className="flex flex-col h-screen">
-          <Toolbar />
+          <Topbar />
           <div className="flex-grow flex overflow-hidden">
             <div className="flex-1 rounded-3xl split flex overflow-hidden m-1  border-8 border-gray-900">
               <Sidebar />

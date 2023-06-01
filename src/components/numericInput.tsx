@@ -7,7 +7,15 @@ import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
 import { LockButton } from "./lockButton";
 
-export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
+export const NumericInput = ({
+  vertex,
+  wide = false,
+  alwaysBound = false,
+}: {
+  vertex: CoordVertex;
+  wide?: boolean;
+  alwaysBound?: boolean;
+}) => {
   const { showComplex, stepSize } = useSnapshot(settings);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -18,13 +26,15 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
     mainGraph.setVertexSelectedness(vertex.id, false);
   };
 
+  const readonly = alwaysBound || vertex.isBound();
+
   return (
     <div
       className={`p-1 flex items-center nodrag rounded-2xl ${vertex.selected ? "bg-blue-400" : ""}`}
     >
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">
-        <LockButton vertex={vertex} />
+        {!alwaysBound && <LockButton vertex={vertex} />}
       </div>
       <div className="flex flex-col space-y-0.5 items-center">
         <div>
@@ -32,10 +42,10 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             value={vertex.value.x}
             onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y))}
             wide={wide}
-            readonly={vertex.isBound()}
+            readonly={readonly}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            fineness={stepSize}
+            fineness={alwaysBound ? undefined : stepSize}
             dragFineness={1}
           />
           {/* if not then blank char */}
@@ -51,10 +61,10 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
               value={vertex.value.y}
               onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}
               wide={wide}
-              readonly={vertex.isBound()}
+              readonly={readonly}
               onBlur={handleBlur}
               onFocus={handleFocus}
-              fineness={stepSize}
+              fineness={alwaysBound ? undefined : stepSize}
               dragFineness={1}
             />
             <span className="ml-1 font-extrabold italic">i</span>
@@ -147,8 +157,10 @@ export const PureSingleNumericInput = ({
   };
 
   const rounded = fineness
-    ? (Math.round(internalValue / fineness) * fineness).toFixed(
-        fineness.toString().split(".")[1]?.length
+    ? parseFloat(
+        (Math.round(internalValue / fineness) * fineness).toFixed(
+          fineness.toString().split(".")[1]?.length
+        )
       )
     : internalValue;
 

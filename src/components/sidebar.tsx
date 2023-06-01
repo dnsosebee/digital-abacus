@@ -1,41 +1,17 @@
 import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
-import { useMainGraph } from "@/model/store";
 import { AddNode } from "@/schema/node";
-import useMeasure from "react-use-measure";
 import { Draggable } from "./draggable";
 
 export const Sidebar = () => {
-  const { focus } = useMainGraph();
-  const reversing = !!focus;
-
-  const [ref, bounds] = useMeasure();
-
-  const { height } = bounds;
-
   return (
-    <div className="flex flex-col items-center bg-gray-800" ref={ref}>
-      <ComponentSidebar hidden={reversing} />
-      {/* {reversing && <ReversingSidebar height={height} />} */}
+    <div className="flex flex-col items-center bg-gray-800">
+      <ComponentSidebar />
     </div>
   );
 };
 
-// const ReversingSidebar = ({ height }: { height: number | undefined }) => {
-//   if (!height) return null;
-//   return (
-//     <div className="absolute" style={{ height: `${height}px` }}>
-//       <Button
-//         onClick={() => mainGraph.cancelReversal()}
-//         className="hover:bg-slate-700 h-full border-0"
-//       >
-//         Cancel Reversal
-//       </Button>
-//     </div>
-//   );
-// };
-
-const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
+const ComponentSidebar = () => {
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
     event.dataTransfer.setData("application/reactflow", JSON.stringify(addNode));
     event.dataTransfer.effectAllowed = "move";
@@ -45,7 +21,7 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
     <div className={`w-40 overflow-y-scroll spotlight my-2 select-none`}>
       <div className="flex flex-col items-stretch">
         <p className="py-2 text-gray-300 text-xl text-center">Add Nodes</p>
-        <p className="text-gray-550 text-lg text-center">Numbers</p>
+        <p className="text-gray-550 text-lg text-center">Number</p>
         <div className={`flex flex-col items-center space-y-4 py-4`}>
           {" "}
           <Draggable
@@ -54,6 +30,54 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
               onDragStart(event, {
                 type: "math",
                 data: { opType: OP_TYPE.STANDALONE },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+        </div>
+      </div>
+
+      <p className="text-gray-550 text-lg text-center">Constants</p>
+      <div className="flex place-content-center space-x-4">
+        <div className={`flex flex-col items-center space-y-4 py-4`}>
+          <Draggable
+            symbol="π"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.PI },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="e"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.E },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+        </div>
+        <div className={`flex flex-col items-center space-y-4 py-4`}>
+          <Draggable
+            symbol="i"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.I },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+          <Draggable
+            symbol="φ"
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "composite",
+                data: { opType: BUILTIN_COMPOSITES.PHI },
                 position: { x: 0, y: 0 },
               })
             }
@@ -208,7 +232,8 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
           }
         />
       </div>
-      <p className="text-gray-550 text-lg text-center">Solver</p>
+
+      <p className="text-gray-550 text-lg text-center">Solvers</p>
       <div className={`flex flex-col items-center space-y-4 py-4`}>
         <Draggable
           symbol="linear"
@@ -221,49 +246,7 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
           }
         />
       </div>
-      <p className="text-gray-550 text-lg text-center">Constants</p>
-      <div className={`flex flex-col items-center space-y-4 py-4`}>
-        <Draggable
-          symbol="π"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.PI },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="e"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.E },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="i"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.I },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-        <Draggable
-          symbol="φ"
-          onDragStart={(event: React.DragEvent<HTMLElement>) =>
-            onDragStart(event, {
-              type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.PHI },
-              position: { x: 0, y: 0 },
-            })
-          }
-        />
-      </div>
+
       <p className="text-gray-550 text-lg text-center">Sticky Note</p>
       <div className={`flex flex-col items-center space-y-4 py-4`}>
         <Draggable

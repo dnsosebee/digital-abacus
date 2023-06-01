@@ -69,6 +69,13 @@ input::-webkit-inner-spin-button {
   border-bottom-right-radius: 50px;
 }
 
+.round-constant {
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
+}
+
 .react-flow__attribution {
   display: none !important;
 }

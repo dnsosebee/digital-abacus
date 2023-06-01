@@ -4,7 +4,7 @@ import { SketchProps } from "react-p5/@types";
 import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
 import { drawGrid } from "./graphics";
-import { settings, updateCycles } from "./settings";
+import { settings } from "./settings";
 import { p } from "./setup";
 import { mainGraph } from "./store";
 
@@ -68,8 +68,6 @@ export function draw(p: p5) {
   //     settings.tappedOnce = false;
   //   }
   // }
-
-  mainGraph.update(updateCycles);
 
   p!.background(80, 85, 105);
 

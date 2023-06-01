@@ -2,6 +2,7 @@ import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BigNode } from "./big";
+import { ConstantNode } from "./constant";
 import { StandaloneNode } from "./standalone";
 import { UnopNode } from "./unop";
 
@@ -26,7 +27,7 @@ export const MathNode = (props: MathProps) => {
       switch (arity) {
         case 0:
           console.log(props.data);
-          return <StandaloneNode {...props} />;
+          return <ConstantNode {...props} />;
         case 1:
           console.log(props.data);
           return <UnopNode {...props} />;
