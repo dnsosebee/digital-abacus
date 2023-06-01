@@ -72,7 +72,7 @@ export const PureSingleNumericInput = ({
   readonly = false,
   onBlur = () => {},
   onFocus = () => {},
-  fineness: fineNess,
+  fineness,
   dragFineness,
   className = "",
 }: {
@@ -88,6 +88,17 @@ export const PureSingleNumericInput = ({
 }) => {
   const [pending, setPending] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
+  const [focused, setFocused] = useState(false);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setFocused(true);
+    onFocus(e);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setFocused(false);
+    onBlur(e);
+  };
 
   const { beginDrag } = useDrag();
 
@@ -127,18 +138,18 @@ export const PureSingleNumericInput = ({
     }
   };
 
-  const rounded = fineNess ? Math.round(internalValue / fineNess) * fineNess : internalValue;
-  console.log({ rounded, internalValue, fineNess }, "rounded");
+  const rounded = fineness ? Math.round(internalValue / fineness) * fineness : internalValue;
+  console.log({ rounded, internalValue, fineNess: fineness }, "rounded");
 
   return (
     <input
       type="number"
-      value={pending ? "" : rounded}
+      value={pending ? "" : focused ? internalValue : rounded}
       onChange={onChangeValue}
       readOnly={readonly}
       className={`${wide ? "w-28" : "w-16"} rounded-lg px-0.5 border border-gray-800 ${className}`}
-      onFocus={onFocus}
-      onBlur={onBlur}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       onMouseDown={onMousedown}
     />
   );

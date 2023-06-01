@@ -87,6 +87,7 @@ const GeneralSettings = () => {
           onChange={setStepSize}
           className="bg-neutral w-24 px-2"
           dragFineness={0.001}
+          fineness={0.00001}
         />
       </div>
     </div>
