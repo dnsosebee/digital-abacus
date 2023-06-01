@@ -35,7 +35,7 @@ const Linkages = () => {
   }, [divRef]);
 
   return (
-    <div ref={divRef}>
+    <div ref={divRef} className="cursor-grab">
       <DynamicSketch
         setup={setup}
         draw={draw}

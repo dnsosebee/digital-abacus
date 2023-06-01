@@ -8,31 +8,14 @@ import { useDrag } from "./dragProvider";
 import { LockButton } from "./lockButton";
 
 export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wide?: boolean }) => {
-  const { beginDrag } = useDrag();
   const { showComplex, stepSize } = useSnapshot(settings);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "handleFocus");
     mainGraph.setVertexSelectedness(vertex.id, true);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "handleBlur");
     mainGraph.setVertexSelectedness(vertex.id, false);
-  };
-
-  const onMousedownReal = (e: React.MouseEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "onMousedownReal");
-    if (!vertex.isBound()) {
-      beginDrag(vertex.id, e.clientX, vertex.value.copy(), true);
-    }
-  };
-
-  const onMousedownImaginary = (e: React.MouseEvent<HTMLInputElement>) => {
-    // logger.debug({ e }, "onMousedownImaginary");
-    if (!vertex.isBound()) {
-      beginDrag(vertex.id, e.clientX, vertex.value.copy(), false);
-    }
   };
 
   return (
@@ -52,8 +35,8 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
             readonly={vertex.isBound()}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            onMouseDown={onMousedownReal}
-            fineNess={stepSize}
+            fineness={stepSize}
+            dragFineness={1}
           />
           {/* if not then blank char */}
           {showComplex ? (
@@ -71,8 +54,8 @@ export const NumericInput = ({ vertex, wide = false }: { vertex: CoordVertex; wi
               readonly={vertex.isBound()}
               onBlur={handleBlur}
               onFocus={handleFocus}
-              onMouseDown={onMousedownImaginary}
-              fineNess={stepSize}
+              fineness={stepSize}
+              dragFineness={1}
             />
             <span className="ml-1 font-extrabold italic">i</span>
           </div>
@@ -89,22 +72,24 @@ export const PureSingleNumericInput = ({
   readonly = false,
   onBlur = () => {},
   onFocus = () => {},
-  onMouseDown = () => {},
-  fineNess,
+  fineness: fineNess,
+  dragFineness,
   className = "",
 }: {
   value: number;
   onChange: (value: number) => void;
+  dragFineness: number;
   wide?: boolean;
   readonly?: boolean;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onMouseDown?: (e: React.MouseEvent<HTMLInputElement>) => void;
-  fineNess?: number;
+  fineness?: number;
   className?: string;
 }) => {
   const [pending, setPending] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
+
+  const { beginDrag } = useDrag();
 
   useEffect(() => {
     setInternalValue(value);
@@ -114,9 +99,31 @@ export const PureSingleNumericInput = ({
     if (e.target.value === "" || e.target.value === "-") {
       if (!pending) setPending(true);
     } else {
-      onChange(Number(e.target.value));
       setInternalValue(Number(e.target.value));
+      onChange(Number(e.target.value));
       if (pending) setPending(false);
+    }
+  };
+
+  const onMouseMove = (basis: number, delta: number) => {
+    console.log({ basis, delta }, "basis, delta");
+    const calculatedVal = basis + (delta / 10) * dragFineness;
+    const rounded = dragFineness
+      ? Math.round(calculatedVal / dragFineness) * dragFineness
+      : calculatedVal;
+    onChange(rounded);
+  };
+
+  const onMousedown = (e: React.MouseEvent<HTMLInputElement>) => {
+    if (!readonly) {
+      beginDrag({
+        dragging: true,
+        initialX: e.clientX,
+        currentX: e.clientX,
+        basis: internalValue,
+        onMouseMove,
+        breakBeyond: 5,
+      });
     }
   };
 
@@ -132,7 +139,7 @@ export const PureSingleNumericInput = ({
       className={`${wide ? "w-28" : "w-16"} rounded-lg px-0.5 border border-gray-800 ${className}`}
       onFocus={onFocus}
       onBlur={onBlur}
-      onMouseDown={onMouseDown}
+      onMouseDown={onMousedown}
     />
   );
 };

@@ -15,13 +15,13 @@ export const BinopNode = ({ data, selected }: MathProps) => {
         idx={0}
         bound={data.vertices[0].isBound()}
         position={Position.Top}
-        style={{ left: "24%", top: "-12px" }}
+        style={{ left: "24%", top: "-15px" }}
       />
       <DualHandle
         idx={1}
         bound={data.vertices[1].isBound()}
         position={Position.Top}
-        style={{ left: "76%", top: "-12px" }}
+        style={{ left: "76%", top: "-15px" }}
       />
       <NodeShell selected={selected} className="round-binop">
         <div className="flex flex-row space-x-5">
@@ -35,7 +35,7 @@ export const BinopNode = ({ data, selected }: MathProps) => {
         idx={2}
         bound={data.vertices[2].isBound()}
         position={Position.Bottom}
-        style={{ left: "50%", bottom: "-12px" }}
+        style={{ left: "50%", bottom: "-15px" }}
       />
     </div>
   );

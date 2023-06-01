@@ -151,7 +151,7 @@ export class NodeEdge extends CircuitEdge {
   // display connecting lines related to this operation
   // note: does not draw the vertices themselves
   displayLinkage() {
-    if (this.hidden && !this.selected) {
+    if (this.hidden) {
       return;
     }
     p!.noFill();

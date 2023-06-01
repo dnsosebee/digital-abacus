@@ -50,7 +50,7 @@ const GeneralSettings = () => {
   };
 
   return (
-    <div className="flex space-x-4">
+    <div className="flex space-x-3">
       <button
         onClick={toggleShowImaginary}
         className={`btn btn-sm ${
@@ -73,11 +73,14 @@ const GeneralSettings = () => {
         reset
       </button>
       <div className="flex rounded-xl bg-gray-800">
-        <p className="self-center justify-self-center pl-2 pr-1 select-none">interval:</p>
+        <p className="self-center justify-self-center px-2 py-[0.45rem] select-none text-sm">
+          INTERVAL:
+        </p>
         <PureSingleNumericInput
           value={stepSize}
           onChange={setStepSize}
           className="bg-neutral w-24 px-2"
+          dragFineness={0.001}
         />
       </div>
     </div>
@@ -96,7 +99,7 @@ const LinkagesSettings = () => {
   };
 
   return (
-    <div className="flex space-x-4">
+    <div className="flex space-x-3">
       {showLinkages && (
         <>
           <button onClick={toggleShowDifferentials} className={`btn btn-sm`}>
@@ -117,12 +120,12 @@ const LinkagesSettings = () => {
       <button onClick={toggleShowLinkages} className={`btn btn-sm`}>
         {showLinkages ? (
           <>
-            <p className="mr-2">linkages</p>
+            <p className="mr-2">plot</p>
             <EyeIcon className="w-6 h-6 inline-block" />
           </>
         ) : (
           <>
-            <p className="mr-2">linkages</p>
+            <p className="mr-2">plot</p>
             <EyeSlashIcon className="w-6 h-6 inline-block" />
           </>
         )}

@@ -16,9 +16,9 @@ export const StandaloneNode = ({ data, selected, id }: MathProps) => {
         idx={0}
         bound={data.vertices[0].isBound()}
         position={Position.Bottom}
-        style={{ bottom: "-12px" }}
+        style={{ bottom: "-15px" }}
       />
-      <NodeShell row={false} selected={selected} className="round-standalone px-3">
+      <NodeShell row={false} selected={selected} className="round-standalone px-4">
         <input
           type="text"
           name="label"

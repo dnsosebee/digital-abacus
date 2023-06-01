@@ -17,7 +17,7 @@ body,
   height: 30px;
   border-radius: 300px;
   background-color: #6ffa53;
-  @apply border-none;
+  @apply border-none shadow;
 }
 /* 
 .react-flow__edge.selected {

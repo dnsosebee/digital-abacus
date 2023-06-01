@@ -1,3 +1,3 @@
-export const canvasHeight = (windowHeght: number) => windowHeght - 47;
+export const canvasHeight = (windowHeght: number) => windowHeght - 90;
 
-export const canvasWidth = (windowWidth: number) => (windowWidth - 47) / 2;
+export const canvasWidth = (windowWidth: number) => (windowWidth - 70) / 2;

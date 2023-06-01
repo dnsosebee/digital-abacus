@@ -47,8 +47,8 @@ export const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
     <div>
       <button
         className={` mr-2 btn btn-sm btn-circle btn-outline ${
-          isReversalTarget && "ring-8 ring-yellow-400 ring-opacity-50 z-10"
-        } ${isReversalFocus && "btn-error ring-8 ring-red-400 ring-opacity-50 z-10"}`}
+          isReversalTarget && " ring-[0.4rem] ring-yellow-400 ring-opacity-50 z-10"
+        } ${isReversalFocus && "btn-error ring-[0.4rem] ring-red-400 ring-opacity-50 z-10"}`}
         disabled={reversing ? !isReversalFocus && !isReversalTarget : !isBound}
         onClick={handleClick}
       >

@@ -1,22 +1,18 @@
-import { logger } from "@/lib/logger";
-import { Coord } from "@/model/coords/coord/coord";
-import { VertexId } from "@/model/graph/vertex";
-import { updateCoord } from "@/model/store";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-type BeginDrag = (vertexId: VertexId, initialX: number, initialCoord: Coord, real: boolean) => void;
+type BeginDrag = (dragState: DragState) => void;
 
 type DragState =
   | {
       dragging: false;
     }
   | {
+      breakBeyond: number;
       dragging: true;
-      vertexId: VertexId;
       initialX: number;
-      initialCoord: Coord;
-      mouseX: number;
-      real: boolean;
+      currentX: number;
+      basis: number;
+      onMouseMove: (basis: number, delta: number) => void;
     };
 
 type DragContext = {
@@ -38,15 +34,8 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
     dragRef.current = drag;
   }, [drag]);
 
-  const beginDrag = (vertexId: VertexId, initialX: number, initialCoord: Coord, real: boolean) => {
-    setDrag({
-      dragging: true,
-      vertexId,
-      initialX,
-      initialCoord,
-      mouseX: initialX,
-      real,
-    });
+  const beginDrag = (dragState: DragState) => {
+    setDrag(dragState);
     setBroken(false);
   };
 
@@ -54,7 +43,7 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
     if (dragRef.current.dragging) {
       setDrag({
         ...dragRef.current,
-        mouseX,
+        currentX: mouseX,
       });
     }
   };
@@ -74,20 +63,13 @@ export const DragProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    logger.debug({ drag }, "drag");
     if (drag.dragging) {
-      const delta = (drag.mouseX - drag.initialX) / 10;
-      if (delta > 0.5 || (delta < -0.5 && !broken)) {
+      const delta = drag.currentX - drag.initialX;
+      if ((delta > drag.breakBeyond || delta < 0 - drag.breakBeyond) && !broken) {
         setBroken(true);
       }
       if (broken) {
-        const newCoord = drag.initialCoord.copy();
-        if (drag.real) {
-          newCoord.x = Math.round(newCoord.x + delta);
-        } else {
-          newCoord.y = Math.round(newCoord.y + delta);
-        }
-        updateCoord(drag.vertexId, newCoord);
+        drag.onMouseMove(drag.basis, delta);
       }
     }
   }, [drag]);
