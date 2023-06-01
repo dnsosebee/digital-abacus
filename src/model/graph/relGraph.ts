@@ -306,6 +306,7 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
       } else {
         // should not get here; issue is probably with e.constraint
         logger.warn("Warning: Unexpected failure to perform inversion.");
+        logger.debug({ e, idxT, idxG }, "inversion failure");
         return false;
       }
     } else if (recur) {

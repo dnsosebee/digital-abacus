@@ -1,7 +1,7 @@
 import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
-import { BinopNode } from "./binop";
+import { BigNode } from "./big";
 import { StandaloneNode } from "./standalone";
 import { UnopNode } from "./unop";
 
@@ -12,9 +12,9 @@ export type MathProps = NodeProps<MathData>;
 export const MathNode = (props: MathProps) => {
   switch (props.data.opType) {
     case OP_TYPE.ADDER:
-      return <BinopNode {...props} />;
+      return <BigNode {...props} />;
     case OP_TYPE.MULTIPLIER:
-      return <BinopNode {...props} />;
+      return <BigNode {...props} />;
     case OP_TYPE.EXPONENTIAL:
       return <UnopNode {...props} />;
     case OP_TYPE.CONJUGATOR:
@@ -24,10 +24,16 @@ export const MathNode = (props: MathProps) => {
     case OP_TYPE.COMPOSITE:
       const arity = props.data.vertices.length - 1;
       switch (arity) {
+        case 0:
+          console.log(props.data);
+          return <StandaloneNode {...props} />;
         case 1:
+          console.log(props.data);
           return <UnopNode {...props} />;
         case 2:
-          return <BinopNode {...props} />;
+        case 3:
+        case 4:
+          return <BigNode {...props} />;
         default:
           throw new Error(`Unsupported composite node arity: ${arity}`);
       }

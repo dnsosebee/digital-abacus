@@ -36,7 +36,7 @@ const getSymbol = (opType: PrimitiveOpType): string => {
     case OP_TYPE.EXPONENTIAL:
       return "eᵃ";
     case OP_TYPE.CONJUGATOR:
-      return "z̄";
+      return "ā";
     default:
       return "???";
   }

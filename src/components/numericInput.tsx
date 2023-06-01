@@ -89,6 +89,16 @@ export const PureSingleNumericInput = ({
   const [pending, setPending] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
   const [focused, setFocused] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const { beginDrag, drag } = useDrag();
+
+  useEffect(() => {
+    if (dragging) {
+      if (drag.dragging === false) {
+        setDragging(false);
+      }
+    }
+  }, [drag]);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setFocused(true);
@@ -99,8 +109,6 @@ export const PureSingleNumericInput = ({
     setFocused(false);
     onBlur(e);
   };
-
-  const { beginDrag } = useDrag();
 
   useEffect(() => {
     setInternalValue(value);
@@ -117,7 +125,7 @@ export const PureSingleNumericInput = ({
   };
 
   const onMouseMove = (basis: number, delta: number) => {
-    console.log({ basis, delta }, "basis, delta");
+    if (!dragging) setDragging(true);
     const calculatedVal = basis + (delta / 10) * dragFineness;
     const rounded = dragFineness
       ? Math.round(calculatedVal / dragFineness) * dragFineness
@@ -138,13 +146,16 @@ export const PureSingleNumericInput = ({
     }
   };
 
-  const rounded = fineness ? Math.round(internalValue / fineness) * fineness : internalValue;
-  console.log({ rounded, internalValue, fineNess: fineness }, "rounded");
+  const rounded = fineness
+    ? (Math.round(internalValue / fineness) * fineness).toFixed(
+        fineness.toString().split(".")[1]?.length
+      )
+    : internalValue;
 
   return (
     <input
       type="number"
-      value={pending ? "" : focused ? internalValue : rounded}
+      value={pending ? "" : focused && !dragging ? internalValue : rounded}
       onChange={onChangeValue}
       readOnly={readonly}
       className={`${wide ? "w-28" : "w-16"} rounded-lg px-0.5 border border-gray-800 ${className}`}

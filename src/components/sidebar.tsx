@@ -94,7 +94,7 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
           }
         />
         <Draggable
-          symbol="z̄"
+          symbol="ā"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
               type: "math",
@@ -203,6 +203,62 @@ const ComponentSidebar = ({ hidden = false }: { hidden?: boolean }) => {
             onDragStart(event, {
               type: "composite",
               data: { opType: BUILTIN_COMPOSITES.TAN },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+      </div>
+      <p className="text-gray-550 text-lg text-center">Solver</p>
+      <div className={`flex flex-col items-center space-y-4 py-4`}>
+        <Draggable
+          symbol="linear"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.LINEAR_SOLVER },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+      </div>
+      <p className="text-gray-550 text-lg text-center">Constants</p>
+      <div className={`flex flex-col items-center space-y-4 py-4`}>
+        <Draggable
+          symbol="π"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.PI },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="e"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.E },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="i"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.I },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="φ"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.PHI },
               position: { x: 0, y: 0 },
             })
           }

@@ -17,6 +17,11 @@ export const BUILTIN_COMPOSITES = {
   SIN: "sin" as const,
   COS: "cos" as const,
   TAN: "tan" as const,
+  PI: "pi" as const,
+  E: "e" as const,
+  I: "i" as const,
+  PHI: "phi" as const,
+  LINEAR_SOLVER: "linearSolver" as const,
 } as const;
 
 export const builtinCompositeSchema = z.union([
@@ -30,6 +35,11 @@ export const builtinCompositeSchema = z.union([
   z.literal(BUILTIN_COMPOSITES.SIN),
   z.literal(BUILTIN_COMPOSITES.COS),
   z.literal(BUILTIN_COMPOSITES.TAN),
+  z.literal(BUILTIN_COMPOSITES.PI),
+  z.literal(BUILTIN_COMPOSITES.E),
+  z.literal(BUILTIN_COMPOSITES.I),
+  z.literal(BUILTIN_COMPOSITES.PHI),
+  z.literal(BUILTIN_COMPOSITES.LINEAR_SOLVER),
 ]);
 
 export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;
@@ -54,7 +64,7 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
       return zOld.copy().mut_sendTo(zNew);
     };
     const check = (d: Coord[]) => true; // WARNING: MAYBE WRONG
-    const dummyUpdaters = [1, 2, 3].map((i) => (data: any) => new Coord(0, 0));
+    const dummyUpdaters = interfaceVertexIds.map((i) => (data: any) => new Coord(0, 0));
     super(dummyUpdaters, eq, cp, check);
     this.graph = graph;
     this.interfaceVertexIds = interfaceVertexIds;

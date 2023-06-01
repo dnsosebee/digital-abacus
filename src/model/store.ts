@@ -7,9 +7,12 @@ import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
 import { addAverage } from "../model/coords/operations/composites/average";
+import { addE } from "../model/coords/operations/composites/constants/e";
+import { addPi } from "../model/coords/operations/composites/constants/pi";
 import { addCos } from "../model/coords/operations/composites/cos";
 import { addDivider } from "../model/coords/operations/composites/divider";
 import { addExponent } from "../model/coords/operations/composites/exponent";
+import { addLinearSolver } from "../model/coords/operations/composites/linearSolver";
 import { addLog } from "../model/coords/operations/composites/log";
 import { addNthRoot } from "../model/coords/operations/composites/nthRoot";
 import { addReciprocal } from "../model/coords/operations/composites/reciprocal";
@@ -103,6 +106,15 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.TAN:
           addTan(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.PI:
+          addPi(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.E:
+          addE(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.LINEAR_SOLVER:
+          addLinearSolver(addNode.position);
           break;
         default:
           throw new Error("unknown composite type");

@@ -6,7 +6,6 @@ import { RelGraph } from "../graph/relGraph";
 import { VertexId, vertexIdEq } from "../graph/vertex";
 import { SerialCoordGraph, SerialSubgraph } from "../serialSchemas/serialCoordGraph";
 import { UPDATE_IDEAL, UPDATE_ITERATIVE } from "../settings";
-import { p } from "../setup";
 import { Coord } from "./coord/coord";
 import { DifferentialCoord } from "./coord/differentialCoord";
 import { CoordVertex } from "./coordVertex";
@@ -101,8 +100,8 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
       vs.push(this.addFree(0, 1, { node: nodeId, handle: 0 }));
       vs.push(this.addFree(0, -1, { node: nodeId, handle: 1 }));
     } else if (type == OP_TYPE.EXPONENTIAL) {
-      vs.push(this.addFree(0, p!.PI, { node: nodeId, handle: 0 }));
-      vs.push(this.addFree(-1, 0, { node: nodeId, handle: 1 }));
+      vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
+      vs.push(this.addFree(1, 0, { node: nodeId, handle: 1 }));
     } else if (type == OP_TYPE.STANDALONE) {
       vs.push(this.addFree(0, 0, { node: nodeId, handle: 0 }));
     } else {
