@@ -1,4 +1,3 @@
-import { logger } from "@/lib/logger";
 import { Cp, Eq, EqualityConstraint } from "../../graph/constraint";
 import { settings } from "../../settings";
 import { Coord, Polar } from "../coord/coord";
@@ -292,17 +291,6 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
         const denominator = Math.sqrt(1 + M * M - 2 * M * Math.cos(psi));
         theta = Math.asin(numerator / denominator) + phi;
       }
-      logger.debug(
-        {
-          z: JSON.stringify({ x: z.x, y: z.y }),
-          guess: JSON.stringify({ x: guess.x, y: guess.y }),
-          theta,
-          phi,
-          psi,
-          M,
-        },
-        "theta final"
-      );
     }
 
     return theta;

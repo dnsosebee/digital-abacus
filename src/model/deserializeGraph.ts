@@ -64,6 +64,10 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
     );
   });
 
+  wireEdges.forEach((e) => {
+    e.updateDependencies();
+  });
+
   return new CoordGraph(
     data.mode,
     data.focus ? vertices.find((v) => v.id == data.focus) ?? undefined : undefined,

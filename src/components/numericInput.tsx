@@ -85,6 +85,8 @@ export const PureSingleNumericInput = ({
   fineness,
   dragFineness,
   className = "",
+  min,
+  max,
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -95,6 +97,8 @@ export const PureSingleNumericInput = ({
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   fineness?: number;
   className?: string;
+  min?: number;
+  max?: number;
 }) => {
   const [pending, setPending] = useState(false);
   const [internalValue, setInternalValue] = useState(value);
@@ -124,14 +128,28 @@ export const PureSingleNumericInput = ({
     setInternalValue(value);
   }, [value]);
 
-  const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "" || e.target.value === "-") {
-      if (!pending) setPending(true);
-    } else {
-      setInternalValue(Number(e.target.value));
-      onChange(Number(e.target.value));
-      if (pending) setPending(false);
+  const changeValue = (value: string | number) => {
+    if (value === "-") {
+      if (min !== undefined && min < 0) {
+        if (!pending) setPending(true);
+      }
+      return;
     }
+    if (value === "") {
+      if (!pending) setPending(true);
+      return;
+    }
+    const num = Number(value);
+    if (isNaN(num) || (min !== undefined && num < min) || (max !== undefined && num > max)) {
+      return;
+    }
+    setInternalValue(Number(value));
+    onChange(Number(value));
+    if (pending) setPending(false);
+  };
+
+  const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    return changeValue(e.target.value);
   };
 
   const onMouseMove = (basis: number, delta: number) => {
@@ -140,7 +158,7 @@ export const PureSingleNumericInput = ({
     const rounded = dragFineness
       ? Math.round(calculatedVal / dragFineness) * dragFineness
       : calculatedVal;
-    onChange(rounded);
+    changeValue(rounded);
   };
 
   const onMousedown = (e: React.MouseEvent<HTMLInputElement>) => {
@@ -174,6 +192,8 @@ export const PureSingleNumericInput = ({
       onFocus={handleFocus}
       onBlur={handleBlur}
       onMouseDown={onMousedown}
+      min={min}
+      max={max}
     />
   );
 };

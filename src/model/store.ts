@@ -35,17 +35,24 @@ import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
 import { UPDATE_MODE, settings } from "./settings";
+import { p } from "./setup";
 
 const logger = parentLogger.child({ module: "store" });
 
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
 
-// WARNING: TIMEOUT PREVENTS p5 FROM BEING UNDEFINED (which is a dependency for unnecessary math functions)
-setTimeout(() => {
-  setInterval(() => {
-    mainGraph.update(settings.updateCycles);
-  }, 1000 / 60);
-}, 500);
+setInterval(() => {
+  if (!p) {
+    return;
+  }
+  if (!settings.centered) {
+    settings.centered = true;
+    settings.CENTER_X = p!.width / 2;
+    settings.CENTER_Y = p!.height / 2;
+  }
+
+  mainGraph.update(settings.updateCycles);
+}, 1000 / 60);
 
 const stickies = proxy([] as Sticky[]);
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
@@ -298,9 +305,7 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    logger.debug({ stickiesSnap }, "stickiesSnap got new snapshot");
-  }, [stickiesSnap]);
+  useEffect(() => {}, [stickiesSnap]);
 
   let nodes: CircuitNode[] = [];
   const wires: Wire[] = [];

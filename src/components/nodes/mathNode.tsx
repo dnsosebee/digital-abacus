@@ -26,10 +26,8 @@ export const MathNode = (props: MathProps) => {
       const arity = props.data.vertices.length - 1;
       switch (arity) {
         case 0:
-          console.log(props.data);
           return <ConstantNode {...props} />;
         case 1:
-          console.log(props.data);
           return <UnopNode {...props} />;
         case 2:
         case 3:

@@ -42,6 +42,7 @@ type DragData =
     };
 
 export const settings = proxy({
+  centered: false,
   CENTER_X: 400,
   CENTER_Y: 450,
   globalScale: DEFAULT_SCALE,

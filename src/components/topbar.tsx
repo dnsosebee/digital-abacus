@@ -45,15 +45,11 @@ const GeneralSettings = () => {
   };
 
   const setStepSize = (n: number) => {
-    if (n > 0) {
-      settings.stepSize = n;
-    }
+    settings.stepSize = n;
   };
 
   const setUpdateCycles = (n: number) => {
-    if (n > 1 && n < 100) {
-      settings.updateCycles = Math.round(n);
-    }
+    settings.updateCycles = n;
   };
 
   const eraseAll = () => {
@@ -93,7 +89,9 @@ const GeneralSettings = () => {
           onChange={setStepSize}
           className="bg-neutral w-24 px-2"
           dragFineness={0.001}
-          fineness={0.00001}
+          fineness={0.000001}
+          min={0.000001}
+          max={1}
         />
       </div>
       <div className="flex rounded-xl bg-gray-800">
@@ -106,6 +104,8 @@ const GeneralSettings = () => {
           className="bg-neutral w-24 px-2"
           dragFineness={1}
           fineness={1}
+          min={0}
+          max={100}
         />
       </div>
     </div>
