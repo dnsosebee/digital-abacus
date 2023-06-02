@@ -30,7 +30,6 @@ import {
   BUILTIN_COMPOSITES,
   CompositeOperation,
 } from "./coords/operations/composites/compositeOperation";
-import { deserializeGraph } from "./deserializeGraph";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
@@ -284,26 +283,27 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   const graphSnap = useSnapshot(mainGraph);
   const stickiesSnap = useSnapshot(stickies);
 
-  useEffect(() => {
-    if (initial) {
-      // logger.debug({ initial }, "restoring from url");
-      mainGraph = proxy(deserializeGraph(initial.graph));
-      stickies.splice(0, stickies.length, ...initial.stickies);
-      // logger.debug({ mainGraph, stickies }, "restored from url");
-    }
-  }, []);
+  // TODO: COMMENTING OUT URL ENCODING... for now
+  // useEffect(() => {
+  //   if (initial) {
+  //     // logger.debug({ initial }, "restoring from url");
+  //     mainGraph = proxy(deserializeGraph(initial.graph));
+  //     stickies.splice(0, stickies.length, ...initial.stickies);
+  //     // logger.debug({ mainGraph, stickies }, "restored from url");
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const serial: SerialState = {
-        graph: mainGraph.serialize(),
-        stickies,
-      };
-      const str = encodeURIComponent(JSON.stringify(serial));
-      window.history.pushState({}, "", str);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const serial: SerialState = {
+  //       graph: mainGraph.serialize(),
+  //       stickies,
+  //     };
+  //     const str = encodeURIComponent(JSON.stringify(serial));
+  //     window.history.pushState({}, "", str);
+  //   }, 500);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {}, [stickiesSnap]);
 
