@@ -4,9 +4,11 @@ import { Symbol } from "./symbol";
 export const Draggable = ({
   onDragStart,
   symbol,
+  squeeze = false,
 }: {
   onDragStart: (event: React.DragEvent<HTMLElement>) => void;
   symbol: string;
+  squeeze?: boolean;
 }) => {
   const [hovered, setHovered] = React.useState(false);
   return (
@@ -17,7 +19,7 @@ export const Draggable = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Symbol text={symbol} selected={hovered} />
+      <Symbol squeeze={squeeze} text={symbol} selected={hovered} />
     </div>
   );
 };

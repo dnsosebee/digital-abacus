@@ -3,11 +3,13 @@ import { EqualityConstraint } from "../../graph/constraint";
 import { VertexId, serialVertexIdSchema } from "../../graph/vertex";
 import { DifferentialCoord } from "../coord/differentialCoord";
 import { CoordVertex } from "../coordVertex";
+import { IterativeComplexEqualityConstraint } from "../operations/iterative";
 import { CircuitEdge, serialCircuitEdgeSchema } from "./circuitEdge";
 
 export const serialWireEdgeSchema = serialCircuitEdgeSchema.extend({
   source: serialVertexIdSchema,
   target: serialVertexIdSchema,
+  primaryLeft: z.boolean(),
 });
 
 export type SerialWireEdge = z.infer<typeof serialWireEdgeSchema>;
@@ -33,7 +35,12 @@ export class WireEdge extends CircuitEdge {
 
   serialize(): SerialWireEdge {
     const serialized = super.serialize();
-    return { ...serialized, source: this.source, target: this.target };
+    return {
+      ...serialized,
+      source: this.source,
+      target: this.target,
+      primaryLeft: (this.constraint as IterativeComplexEqualityConstraint).primaryLeft,
+    };
   }
 
   invert(take: number, give: number) {

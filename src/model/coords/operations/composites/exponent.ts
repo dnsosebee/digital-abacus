@@ -8,7 +8,6 @@ const EXPONENTIATOR_ID = "exponent";
 const LOG_ID = "log00000";
 const WIRE_LOG_TO_MULTIPLIER_ID = "wire0000";
 const WIRE_MULTIPLIER_TO_EXPONENTIATOR_ID = "wire1111";
-const DUMMY_POSITION = { x: 0, y: 0 };
 
 export const EXPONENT_CONFIG_JSON = {
   primitive: false as const,

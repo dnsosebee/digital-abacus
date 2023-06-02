@@ -18,12 +18,11 @@ const ComponentSidebar = () => {
   };
 
   return (
-    <div className={`w-40 overflow-y-scroll spotlight my-2 select-none`}>
+    <div className={`w-40 overflow-y-scroll spotlight my-2 select-none px-4 overflow-x-hidden`}>
       <div className="flex flex-col items-stretch">
         <p className="py-2 text-gray-300 text-xl text-center">Add Nodes</p>
         <p className="text-gray-550 text-lg text-center">Number</p>
         <div className={`flex flex-col items-center space-y-4 py-4`}>
-          {" "}
           <Draggable
             symbol="#"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
@@ -162,15 +161,17 @@ const ComponentSidebar = () => {
           }
         />
         <Draggable
-          symbol="avg(a,b)"
+          squeeze
+          symbol="1/a + 1/b"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
               type: "composite",
-              data: { opType: BUILTIN_COMPOSITES.AVERAGE },
+              data: { opType: BUILTIN_COMPOSITES.CIRCLE_PLUS },
               position: { x: 0, y: 0 },
             })
           }
         />
+
         <Draggable
           symbol="aᵇ"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
@@ -202,6 +203,51 @@ const ComponentSidebar = () => {
           }
         />
         <Draggable
+          squeeze
+          symbol="harmonic oscillator"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: {
+                opType: BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR,
+              },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+      </div>
+
+      <p className="text-gray-550 text-lg text-center">Means</p>
+      <div className={`flex flex-col items-center space-y-4 py-4`}>
+        <Draggable
+          squeeze
+          symbol="arithmetic mean"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.AVERAGE },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          squeeze
+          symbol="geometric mean"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: {
+                opType: BUILTIN_COMPOSITES.GEOMETRIC_MEAN,
+              },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+      </div>
+
+      <p className="text-gray-550 text-lg text-center">Trig</p>
+      <div className={`flex flex-col items-center space-y-4 py-4`}>
+        <Draggable
           symbol="sin(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
@@ -227,6 +273,36 @@ const ComponentSidebar = () => {
             onDragStart(event, {
               type: "composite",
               data: { opType: BUILTIN_COMPOSITES.TAN },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="sinh(a)"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.SINH },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="cosh(a)"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.COSH },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
+          symbol="tanh(a)"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.TANH },
               position: { x: 0, y: 0 },
             })
           }

@@ -59,7 +59,7 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
       e.id,
       e.source,
       e.target,
-      equalityConstraintBuilder(),
+      equalityConstraintBuilder(e.primaryLeft),
       e.selected ?? false
     );
   });

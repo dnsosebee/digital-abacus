@@ -93,12 +93,12 @@ export class EqualityConstraint<T> extends Constraint<T> {
   eq: Eq<T>; // :T -> T -> bool
   primaryLeft: boolean; // :bool
 
-  constructor(eq: Eq<T>, cp: Cp<T>) {
+  constructor(eq: Eq<T>, cp: Cp<T>, primaryLeft = true) {
     // :T -> T -> bool -> T -> T -> _
     super(2);
     this.cp = cp; // T -> T -> _
     this.eq = eq; // T -> T -> bool
-    this.primaryLeft = true; // bool
+    this.primaryLeft = primaryLeft; // bool
   }
 
   accepts(data: T[]) {
@@ -135,8 +135,8 @@ export function makeEqualityConstraintBuilder<T>(eq: Eq<T>, cp: Cp<T>) {
   // (T -> T -> bool) ->
   // (T -> T -> _) ->
   // (-> EqualityConstraint<T>)
-  return function () {
-    return new EqualityConstraint(eq, cp);
+  return function (primaryLeft = true) {
+    return new EqualityConstraint(eq, cp, primaryLeft);
   };
 }
 

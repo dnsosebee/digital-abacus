@@ -31,7 +31,7 @@ export const Topbar = () => {
 };
 
 const Title = () => (
-  <h1 className="text-2xl px-2 select-none text-gray-600">
+  <h1 className="text-2xl pl-2 pr-3 select-none text-gray-600">
     <AdjustmentsHorizontalIcon className="w-5 h-5 inline-block xl:hidden mr-2 mb-1" />
     <p className="hidden xl:inline">The Digital Abacus</p>
   </h1>

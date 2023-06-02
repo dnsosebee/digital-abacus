@@ -7,6 +7,7 @@ import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
 import { addAverage } from "../model/coords/operations/composites/average";
+import { addCirclePlus } from "../model/coords/operations/composites/circlePlus";
 import { addE } from "../model/coords/operations/composites/constants/e";
 import { addI } from "../model/coords/operations/composites/constants/i";
 import { addPhi } from "../model/coords/operations/composites/constants/phi";
@@ -14,6 +15,8 @@ import { addPi } from "../model/coords/operations/composites/constants/pi";
 import { addCos } from "../model/coords/operations/composites/cos";
 import { addDivider } from "../model/coords/operations/composites/divider";
 import { addExponent } from "../model/coords/operations/composites/exponent";
+import { addGeometricMean } from "../model/coords/operations/composites/geometricMean";
+import { addHarmonicOscillator } from "../model/coords/operations/composites/harmonicOscillator";
 import { addLinearSolver } from "../model/coords/operations/composites/linearSolver";
 import { addLog } from "../model/coords/operations/composites/log";
 import { addNthRoot } from "../model/coords/operations/composites/nthRoot";
@@ -30,6 +33,7 @@ import {
   BUILTIN_COMPOSITES,
   CompositeOperation,
 } from "./coords/operations/composites/compositeOperation";
+import { deserializeGraph } from "./deserializeGraph";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
@@ -137,6 +141,15 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.LINEAR_SOLVER:
           addLinearSolver(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.CIRCLE_PLUS:
+          addCirclePlus(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.GEOMETRIC_MEAN:
+          addGeometricMean(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR:
+          addHarmonicOscillator(addNode.position);
           break;
         default:
           throw new Error("unknown composite type");
@@ -284,26 +297,26 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
-  // useEffect(() => {
-  //   if (initial) {
-  //     // logger.debug({ initial }, "restoring from url");
-  //     mainGraph = proxy(deserializeGraph(initial.graph));
-  //     stickies.splice(0, stickies.length, ...initial.stickies);
-  //     // logger.debug({ mainGraph, stickies }, "restored from url");
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (initial) {
+      // logger.debug({ initial }, "restoring from url");
+      mainGraph = proxy(deserializeGraph(initial.graph));
+      stickies.splice(0, stickies.length, ...initial.stickies);
+      // logger.debug({ mainGraph, stickies }, "restored from url");
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const serial: SerialState = {
-  //       graph: mainGraph.serialize(),
-  //       stickies,
-  //     };
-  //     const str = encodeURIComponent(JSON.stringify(serial));
-  //     window.history.pushState({}, "", str);
-  //   }, 500);
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const serial: SerialState = {
+        graph: mainGraph.serialize(),
+        stickies,
+      };
+      const str = encodeURIComponent(JSON.stringify(serial));
+      window.history.pushState({}, "", str);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {}, [stickiesSnap]);
 

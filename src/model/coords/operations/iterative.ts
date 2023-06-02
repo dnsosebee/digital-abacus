@@ -217,11 +217,17 @@ export class IterativeComplexEqualityConstraint extends EqualityConstraint<Diffe
   tracked: boolean;
   delayCounter: number;
 
-  constructor(eq: Eq<DifferentialCoord>, cp: Cp<DifferentialCoord>, iters: number) {
+  constructor(
+    eq: Eq<DifferentialCoord>,
+    cp: Cp<DifferentialCoord>,
+    iters: number,
+    primaryLeft = true
+  ) {
     super(eq, cp);
     this.iters = iters;
     this.tracked = true;
     this.delayCounter = 0;
+    this.primaryLeft = primaryLeft;
   }
 
   update(data: DifferentialCoord[]) {
@@ -303,7 +309,7 @@ export function makeIterativeComplexEqualityConstraintBuilder(
   STEP_SIZE: number,
   ITERATIONS: number
 ) {
-  return function () {
-    return new IterativeComplexEqualityConstraint(eq, cp, ITERATIONS);
+  return function (primaryLeft = true) {
+    return new IterativeComplexEqualityConstraint(eq, cp, ITERATIONS, primaryLeft);
   };
 }

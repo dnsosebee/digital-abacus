@@ -17,11 +17,17 @@ export const BUILTIN_COMPOSITES = {
   SIN: "sin" as const,
   COS: "cos" as const,
   TAN: "tan" as const,
+  SINH: "sinh" as const,
+  COSH: "cosh" as const,
+  TANH: "tanh" as const,
   PI: "pi" as const,
   E: "e" as const,
   I: "i" as const,
   PHI: "phi" as const,
   LINEAR_SOLVER: "linearSolver" as const,
+  CIRCLE_PLUS: "circlePlus" as const,
+  GEOMETRIC_MEAN: "geometricMean" as const,
+  HARMONIC_OSCILLATOR: "harmonicOscillator" as const,
 } as const;
 
 export const builtinCompositeSchema = z.union([
@@ -35,11 +41,17 @@ export const builtinCompositeSchema = z.union([
   z.literal(BUILTIN_COMPOSITES.SIN),
   z.literal(BUILTIN_COMPOSITES.COS),
   z.literal(BUILTIN_COMPOSITES.TAN),
+  z.literal(BUILTIN_COMPOSITES.SINH),
+  z.literal(BUILTIN_COMPOSITES.COSH),
+  z.literal(BUILTIN_COMPOSITES.TANH),
   z.literal(BUILTIN_COMPOSITES.PI),
   z.literal(BUILTIN_COMPOSITES.E),
   z.literal(BUILTIN_COMPOSITES.I),
   z.literal(BUILTIN_COMPOSITES.PHI),
   z.literal(BUILTIN_COMPOSITES.LINEAR_SOLVER),
+  z.literal(BUILTIN_COMPOSITES.CIRCLE_PLUS),
+  z.literal(BUILTIN_COMPOSITES.GEOMETRIC_MEAN),
+  z.literal(BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR),
 ]);
 
 export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;

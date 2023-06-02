@@ -1,5 +1,6 @@
 import { logger as parentLogger } from "@/lib/logger";
 import { z } from "zod";
+import { Coord } from "../coords/coord/coord";
 import { Constraint } from "./constraint";
 import { Serializable } from "./serializable";
 import { Vertex, serialVertexSchema } from "./vertex";
@@ -118,6 +119,18 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
         changed = true;
       }
     }
+    console.debug(
+      {
+        edgeId: this.id,
+        old: JSON.stringify(
+          olddata.map((v) => (v as unknown as Coord).x + "," + (v as unknown as Coord).y)
+        ),
+        new: JSON.stringify(
+          newdata.map((v) => (v as unknown as Coord).x + "," + (v as unknown as Coord).y)
+        ),
+      },
+      "updating edge"
+    );
     return changed;
   }
 }
