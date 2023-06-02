@@ -31,9 +31,9 @@ export const Topbar = () => {
 };
 
 const Title = () => (
-  <h1 className="text-2xl pl-2 pr-10 lg:pr-4 select-none text-gray-600">
-    <AdjustmentsHorizontalIcon className="w-5 h-5 inline-block mr-2 mb-1" />
-    <p className="hidden lg:inline">The Digital Abacus</p>
+  <h1 className="text-2xl px-2 select-none text-gray-600">
+    <AdjustmentsHorizontalIcon className="w-5 h-5 inline-block xl:hidden mr-2 mb-1" />
+    <p className="hidden xl:inline">The Digital Abacus</p>
   </h1>
 );
 
@@ -101,7 +101,7 @@ const GeneralSettings = () => {
         <PureSingleNumericInput
           value={updateCycles}
           onChange={setUpdateCycles}
-          className="bg-neutral w-24 px-2"
+          className="bg-neutral w-12 px-2"
           dragFineness={1}
           fineness={1}
           min={0}
