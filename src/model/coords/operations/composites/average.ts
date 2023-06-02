@@ -130,7 +130,7 @@ export const addAverage = (position: CircuitPosition) => {
     position,
     false,
     false,
-    "arith. mean(a,b)"
+    "avg(a,b)"
   );
   mainGraph.edges.push(edge);
 };
