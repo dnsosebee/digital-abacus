@@ -1,7 +1,10 @@
+import { deserializeGraph } from "@/model/deserializeGraph";
 import { settings } from "@/model/settings";
-import { mainGraph } from "@/model/store";
+import { mainGraph, stickies } from "@/model/store";
 import {
   AdjustmentsHorizontalIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
   EyeIcon,
   EyeSlashIcon,
   TrashIcon,
@@ -38,6 +41,47 @@ const Title = () => (
 );
 
 const GeneralSettings = () => {
+  const saveHandler = async () => {
+    const json = { mainGraph: mainGraph.serialize(), stickies: stickies };
+    console.log(json);
+    try {
+      const newHandle = await (window as any).showSaveFilePicker({
+        suggestedName: "my_construction.json",
+      });
+      const writableStream = await newHandle.createWritable();
+      await writableStream.write(JSON.stringify(json));
+      await writableStream.close();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadHandler = async () => {
+    try {
+      const [fileHandle] = await (window as any).showOpenFilePicker({
+        types: [
+          {
+            description: "JSON",
+            accept: {
+              "application/*": [".json"],
+            },
+          },
+        ],
+        excludeAcceptAllOption: true,
+        multiple: false,
+      });
+
+      // get file contents
+      const fileData = await fileHandle.getFile();
+      const stringData = await fileData.text();
+      const json = JSON.parse(stringData);
+      mainGraph.mutateCopy(deserializeGraph(json["mainGraph"]));
+      stickies.splice(0, stickies.length, ...json["stickies"]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const { showComplex: showImaginary, stepSize, updateCycles } = useSnapshot(settings);
 
   const toggleShowImaginary = () => {
@@ -76,8 +120,13 @@ const GeneralSettings = () => {
           </>
         )}
       </button>
+      <button onClick={saveHandler} className="btn btn-sm">
+        <ArrowDownTrayIcon className="w-5 h-5 inline-block" />
+      </button>
+      <button onClick={loadHandler} className="btn btn-sm">
+        <ArrowUpTrayIcon className="w-5 h-5 inline-block" />
+      </button>
       <button onClick={eraseAll} className="btn btn-sm">
-        <p className="mr-2">reset</p>
         <TrashIcon className="w-5 h-5 inline-block" />
       </button>
       <div className="flex rounded-xl bg-gray-800">

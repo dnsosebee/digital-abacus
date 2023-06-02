@@ -1,8 +1,6 @@
-import { logger as parentLogger } from "@/lib/logger";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
 import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
-import { useEffect } from "react";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
 import { z } from "zod";
@@ -12,7 +10,6 @@ import { addE } from "../model/coords/operations/composites/constants/e";
 import { addI } from "../model/coords/operations/composites/constants/i";
 import { addPhi } from "../model/coords/operations/composites/constants/phi";
 import { addPi } from "../model/coords/operations/composites/constants/pi";
-import { addCos } from "../model/coords/operations/composites/cos";
 import { addDivider } from "../model/coords/operations/composites/divider";
 import { addExponent } from "../model/coords/operations/composites/exponent";
 import { addGeometricMean } from "../model/coords/operations/composites/geometricMean";
@@ -21,9 +18,7 @@ import { addLinearSolver } from "../model/coords/operations/composites/linearSol
 import { addLog } from "../model/coords/operations/composites/log";
 import { addNthRoot } from "../model/coords/operations/composites/nthRoot";
 import { addReciprocal } from "../model/coords/operations/composites/reciprocal";
-import { addSin } from "../model/coords/operations/composites/sin";
 import { addSubtractor } from "../model/coords/operations/composites/subtractor";
-import { addTan } from "../model/coords/operations/composites/tan";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
@@ -33,14 +28,17 @@ import {
   BUILTIN_COMPOSITES,
   CompositeOperation,
 } from "./coords/operations/composites/compositeOperation";
-import { deserializeGraph } from "./deserializeGraph";
+import { addCos } from "./coords/operations/composites/trig/cos";
+import { addCosh } from "./coords/operations/composites/trig/cosh";
+import { addSin } from "./coords/operations/composites/trig/sin";
+import { addSinh } from "./coords/operations/composites/trig/sinh";
+import { addTan } from "./coords/operations/composites/trig/tan";
+import { addTanh } from "./coords/operations/composites/trig/tanh";
 import { OperatorConstraint } from "./graph/constraint";
 import { VertexId } from "./graph/vertex";
 import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
 import { UPDATE_MODE, settings } from "./settings";
 import { p } from "./setup";
-
-const logger = parentLogger.child({ module: "store" });
 
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
 
@@ -57,7 +55,7 @@ setInterval(() => {
   mainGraph.update(settings.updateCycles);
 }, 1000 / 60);
 
-const stickies = proxy([] as Sticky[]);
+export const stickies = proxy([] as Sticky[]);
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
 
@@ -150,6 +148,15 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR:
           addHarmonicOscillator(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.SINH:
+          addSinh(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.COSH:
+          addCosh(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.TANH:
+          addTanh(addNode.position);
           break;
         default:
           throw new Error("unknown composite type");
@@ -297,28 +304,28 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
-  useEffect(() => {
-    if (initial) {
-      // logger.debug({ initial }, "restoring from url");
-      mainGraph = proxy(deserializeGraph(initial.graph));
-      stickies.splice(0, stickies.length, ...initial.stickies);
-      // logger.debug({ mainGraph, stickies }, "restored from url");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (initial) {
+  //     // logger.debug({ initial }, "restoring from url");
+  //     mainGraph = proxy(deserializeGraph(initial.graph));
+  //     stickies.splice(0, stickies.length, ...initial.stickies);
+  //     // logger.debug({ mainGraph, stickies }, "restored from url");
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const serial: SerialState = {
-        graph: mainGraph.serialize(),
-        stickies,
-      };
-      const str = encodeURIComponent(JSON.stringify(serial));
-      window.history.pushState({}, "", str);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const serial: SerialState = {
+  //       graph: mainGraph.serialize(),
+  //       stickies,
+  //     };
+  //     const str = encodeURIComponent(JSON.stringify(serial));
+  //     window.history.pushState({}, "", str);
+  //   }, 500);
+  //   return () => clearInterval(interval);
+  // }, []);
 
-  useEffect(() => {}, [stickiesSnap]);
+  // useEffect(() => {}, [stickiesSnap]);
 
   let nodes: CircuitNode[] = [];
   const wires: Wire[] = [];

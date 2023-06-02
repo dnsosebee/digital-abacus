@@ -1,7 +1,7 @@
-import { genNodeId } from "../../../../schema/node";
-import { UPDATE_MODE } from "../../../settings";
-import { mainGraph } from "../../../store";
-import { CircuitPosition, NodeEdge } from "../../edges/nodeEdge";
+import { genNodeId } from "../../../../../schema/node";
+import { UPDATE_MODE } from "../../../../settings";
+import { mainGraph } from "../../../../store";
+import { CircuitPosition, NodeEdge } from "../../../edges/nodeEdge";
 
 const INPUT_MULTIPLIER_ID = "inputmu";
 const INTERNAL_MULTIPLIER_ID = "internal";

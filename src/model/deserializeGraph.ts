@@ -27,7 +27,11 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
     const nodeEdge = new NodeEdge(
       e.vertices.map((v: SerialCoordVertex) => {
         const vertex = new CoordVertex(
-          new DifferentialCoord(v.value.x, v.value.y, new Coord(v.value.delta.x, v.value.delta.y)),
+          new DifferentialCoord(
+            v.value.x,
+            v.value.y,
+            v.value.delta ? new Coord(v.value.delta.x, v.value.delta.y) : null
+          ),
           v.id,
           v.dragging,
           v.hidden,
@@ -67,6 +71,8 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
   wireEdges.forEach((e) => {
     e.updateDependencies();
   });
+
+  console.log("focus", data.focus);
 
   return new CoordGraph(
     data.mode,

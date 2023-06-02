@@ -46,6 +46,15 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     // this.shouldUpdateNodeInternals = false;
   }
 
+  // adding this because we need to preserve identity of our maingraph when we load up a new file.
+  mutateCopy(other: CoordGraph) {
+    logger.debug(other.serialize());
+    this.vertices = other.vertices;
+    this.edges = other.edges;
+    this.mode = other.mode;
+    this.focus = other.focus;
+  }
+
   static getEqualityConstraintBuilder(mode: number) {
     let f_eq = function (z1: DifferentialCoord, z2: DifferentialCoord) {
       return z1.equals(z2);
