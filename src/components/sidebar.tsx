@@ -226,6 +226,19 @@ const ComponentSidebar = () => {
             })
           }
         />
+        <Draggable
+          squeeze
+          symbol="°F → °C"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: {
+                opType: BUILTIN_COMPOSITES.TEMPERATURE,
+              },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
       </div>
 
       <p className="text-gray-550 text-lg text-center">Means</p>

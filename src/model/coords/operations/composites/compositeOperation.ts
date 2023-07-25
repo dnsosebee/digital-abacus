@@ -28,6 +28,7 @@ export const BUILTIN_COMPOSITES = {
   CIRCLE_PLUS: "circlePlus" as const,
   GEOMETRIC_MEAN: "geometricMean" as const,
   HARMONIC_OSCILLATOR: "harmonicOscillator" as const,
+  TEMPERATURE: "temperature" as const,
 } as const;
 
 export const builtinCompositeSchema = z.union([
@@ -52,6 +53,7 @@ export const builtinCompositeSchema = z.union([
   z.literal(BUILTIN_COMPOSITES.CIRCLE_PLUS),
   z.literal(BUILTIN_COMPOSITES.GEOMETRIC_MEAN),
   z.literal(BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR),
+  z.literal(BUILTIN_COMPOSITES.TEMPERATURE),
 ]);
 
 export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;

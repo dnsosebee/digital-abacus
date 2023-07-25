@@ -19,6 +19,7 @@ import { addLog } from "../model/coords/operations/composites/log";
 import { addNthRoot } from "../model/coords/operations/composites/nthRoot";
 import { addReciprocal } from "../model/coords/operations/composites/reciprocal";
 import { addSubtractor } from "../model/coords/operations/composites/subtractor";
+import { addTemperature } from "../model/coords/operations/composites/temperature";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
@@ -157,6 +158,9 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.TANH:
           addTanh(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.TEMPERATURE:
+          addTemperature(addNode.position);
           break;
         default:
           throw new Error("unknown composite type");
