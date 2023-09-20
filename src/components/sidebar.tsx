@@ -272,6 +272,17 @@ const ComponentSidebar = () => {
       <p className="text-gray-550 text-lg text-center">Trig</p>
       <div className={`flex flex-col items-center space-y-4 py-4`}>
         <Draggable
+          squeeze
+          symbol="degrees → radians"
+          onDragStart={(event: React.DragEvent<HTMLElement>) =>
+            onDragStart(event, {
+              type: "composite",
+              data: { opType: BUILTIN_COMPOSITES.DEGREES_TO_RADIANS },
+              position: { x: 0, y: 0 },
+            })
+          }
+        />
+        <Draggable
           symbol="sin(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {

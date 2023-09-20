@@ -31,6 +31,7 @@ import {
 } from "./coords/operations/composites/compositeOperation";
 import { addCos } from "./coords/operations/composites/trig/cos";
 import { addCosh } from "./coords/operations/composites/trig/cosh";
+import { addDegreesToRadians } from "./coords/operations/composites/trig/degreeToRadian";
 import { addSin } from "./coords/operations/composites/trig/sin";
 import { addSinh } from "./coords/operations/composites/trig/sinh";
 import { addTan } from "./coords/operations/composites/trig/tan";
@@ -43,8 +44,9 @@ import { p } from "./setup";
 
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
 
+let locked = false;
 setInterval(() => {
-  if (!p) {
+  if (!p || locked) {
     return;
   }
   if (!settings.centered) {
@@ -53,7 +55,9 @@ setInterval(() => {
     settings.CENTER_Y = p!.height / 2;
   }
 
+  locked = true;
   mainGraph.update(settings.updateCycles);
+  locked = false;
 }, 1000 / 60);
 
 export const stickies = proxy([] as Sticky[]);
@@ -161,6 +165,9 @@ export const addNode = (addNode: AddNode) => {
           break;
         case BUILTIN_COMPOSITES.TEMPERATURE:
           addTemperature(addNode.position);
+          break;
+        case BUILTIN_COMPOSITES.DEGREES_TO_RADIANS:
+          addDegreesToRadians(addNode.position);
           break;
         default:
           throw new Error("unknown composite type");

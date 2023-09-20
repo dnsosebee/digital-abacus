@@ -14,7 +14,7 @@ export const UPDATE_MODE = UPDATE_ITERATIVE;
 export const indicator = 30;
 
 //how far to look in each direction
-export const searchSize = 0.02;
+export const searchSize = 0.1;
 
 //how many iterations to run before updating
 export const iterations = 3;
@@ -79,5 +79,5 @@ export const settings = proxy({
   showSidebar: true,
 
   //extra number of loops for updating positions, helps with rigidity
-  updateCycles: 5,
+  updateCycles: 100,
 });

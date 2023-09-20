@@ -97,7 +97,10 @@ const GeneralSettings = () => {
   };
 
   const eraseAll = () => {
-    confirm("Erase all and start over?") && mainGraph.reset();
+    if (confirm("Erase all and start over?")) {
+      mainGraph.reset();
+      stickies.splice(0, stickies.length);
+    }
   };
 
   return (
@@ -154,7 +157,7 @@ const GeneralSettings = () => {
           dragFineness={1}
           fineness={1}
           min={0}
-          max={100}
+          max={1000} //TODO lower this number
         />
       </div>
     </div>
