@@ -32,7 +32,7 @@ export const CIRCLE_PLUS_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "multiply", handle: 1 },
             { node: "multiply", handle: 0 },
@@ -100,7 +100,7 @@ export const CIRCLE_PLUS_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "multiply", handle: 1 },
             { node: "multiply", handle: 0 },
@@ -226,7 +226,7 @@ export const CIRCLE_PLUS_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 2,
+  boundArray: [2],
   interfaceVertexIds: [
     {
       node: RECIP_1_ID,

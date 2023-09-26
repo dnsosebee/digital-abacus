@@ -55,7 +55,7 @@ export const DEGREE_RADIAN_CONFIG_JSON = {
         selected: true,
         operator: {
           primitive: false,
-          bound: 0,
+          boundArray: [0],
           interfaceVertexIds: [{ node: "standalo", handle: 0 }],
           subgraph: {
             edges: [
@@ -166,7 +166,7 @@ export const DEGREE_RADIAN_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 1,
+  boundArray: [1],
   interfaceVertexIds: [
     {
       node: INPUT_MULTIPLIER_ID,

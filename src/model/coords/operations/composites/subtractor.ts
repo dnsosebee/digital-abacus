@@ -88,7 +88,7 @@ export const addSubtractor = (position: CircuitPosition) => {
         mode: UPDATE_MODE,
         focus: null,
       },
-      bound: 2,
+      boundArray: [2],
       interfaceVertexIds: [
         {
           node: ADDER_ID,

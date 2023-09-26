@@ -87,7 +87,7 @@ export const addReciprocal = (position: CircuitPosition) => {
         mode: UPDATE_MODE,
         focus: null,
       },
-      bound: 1,
+      boundArray: [1],
       interfaceVertexIds: [
         {
           node: MULTIPLIER_ID,

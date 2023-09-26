@@ -31,7 +31,7 @@ export const SIN_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "inputmu", handle: 0 },
             { node: "outputmu", handle: 0 },
@@ -372,7 +372,7 @@ export const SIN_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "inputmu", handle: 0 },
             { node: "outputmu", handle: 0 },
@@ -720,7 +720,7 @@ export const SIN_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 2,
+          boundArray: [2],
           interfaceVertexIds: [
             { node: "multiply", handle: 2 },
             { node: "multiply", handle: 1 },
@@ -838,7 +838,7 @@ export const SIN_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 1,
+  boundArray: [1],
   interfaceVertexIds: [
     {
       node: SIN_ID,

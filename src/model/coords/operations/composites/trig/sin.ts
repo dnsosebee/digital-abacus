@@ -319,7 +319,7 @@ export const SIN_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 1,
+  boundArray: [1],
   interfaceVertexIds: [
     {
       node: INPUT_MULTIPLIER_ID,

@@ -88,7 +88,7 @@ export const addDivider = (position: CircuitPosition) => {
         mode: UPDATE_MODE,
         focus: null,
       },
-      bound: 2,
+      boundArray: [2],
       interfaceVertexIds: [
         {
           node: MULTIPLIER_ID,

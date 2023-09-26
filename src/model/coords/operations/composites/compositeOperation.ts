@@ -1,6 +1,5 @@
-import { logger } from "@/lib/logger";
 import { z } from "zod";
-import { OperatorConstraint } from "../../../graph/constraint";
+import { Constraint, Eq } from "../../../graph/constraint";
 import { VertexId, serialVertexIdSchema } from "../../../graph/vertex";
 import { Coord } from "../../coord/coord";
 import { DifferentialCoord } from "../../coord/differentialCoord";
@@ -63,27 +62,30 @@ export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;
 export const serialCompositeOperationSchema = z.object({
   primitive: z.literal(false),
   subgraph: z.any(),
-  bound: z.number(),
+  boundArray: z.array(z.number()),
   interfaceVertexIds: z.array(serialVertexIdSchema),
 });
 
 export type SerialCompositeOperation = z.infer<typeof serialCompositeOperationSchema>;
 
-export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
+export class CompositeOperation extends Constraint<DifferentialCoord> {
   graph: CoordGraph;
   interfaceVertexIds: VertexId[];
-  constructor(graph: CoordGraph, interfaceVertexIds: VertexId[]) {
-    const eq = function (z1: Coord, z2: Coord) {
+  boundArray: number[];
+  eq: Eq<DifferentialCoord>;
+  constructor(graph: CoordGraph, interfaceVertexIds: VertexId[], boundArray: number[]) {
+    // const cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
+    //   return zOld.copy().mut_sendTo(zNew);
+    // };
+    // const check = (d: Coord[]) => true; // WARNING: MAYBE WRONG
+    const arity = interfaceVertexIds.length;
+    super(arity);
+    this.eq = function (z1: Coord, z2: Coord) {
       return z1.equals(z2);
     };
-    const cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
-      return zOld.copy().mut_sendTo(zNew);
-    };
-    const check = (d: Coord[]) => true; // WARNING: MAYBE WRONG
-    const dummyUpdaters = interfaceVertexIds.map((i) => (data: any) => new Coord(0, 0));
-    super(dummyUpdaters, eq, cp, check);
     this.graph = graph;
     this.interfaceVertexIds = interfaceVertexIds;
+    this.boundArray = boundArray;
   }
 
   update(data: DifferentialCoord[]): DifferentialCoord[] {
@@ -101,7 +103,7 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
   serialize(): SerialCompositeOperation {
     return {
       primitive: false,
-      bound: this.bound,
+      boundArray: this.boundArray,
       interfaceVertexIds: this.interfaceVertexIds,
       subgraph: this.graph.serialize(),
     };
@@ -117,8 +119,14 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
     }
     if (this.graph.invert(innerTakeVertex, innerGiveVertex)) {
       // logger.debug({ graph: JSON.parse(JSON.stringify(this.graph.edges[0])) }, "inverted");
-      if (super.invert(take, give)) {
-        logger.debug({ graph: JSON.parse(JSON.stringify(this.graph.edges[0])) }, "inverted");
+      if (
+        super.invert(take, give) &&
+        this.boundArray.includes(take) &&
+        !this.boundArray.includes(give)
+      ) {
+        this.boundArray = this.boundArray.map((i) => (i == take ? give : i));
+
+        // logger.debug({ graph: JSON.parse(JSON.stringify(this.graph.edges[0])) }, "inverted");
 
         return true;
       }
@@ -128,5 +136,11 @@ export class CompositeOperation extends OperatorConstraint<DifferentialCoord> {
       throw new Error("Failed to abort inversion");
     }
     return false;
+  }
+
+  getDependencies() {
+    console.log(this.interfaceVertexIds, this.boundArray);
+
+    return this.interfaceVertexIds.map((_, i) => this.boundArray.includes(i));
   }
 }

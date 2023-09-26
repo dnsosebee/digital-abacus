@@ -28,6 +28,7 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
 
   vertices: V[]; // :[Vertex<T>]
   edges: Edge<T, V>[]; // :[Edge<T>]
+  // instances: RelGraph<T, V>[] = []; // :[RelGraph<T>]
   buildWireConstraint: () => EqualityConstraint<T>; // :-> EqualityConstraint<T>
 
   constructor(
@@ -111,12 +112,12 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
     // :Vertex<T> -> Vertex<T> -> bool
     // if vertex to take is already free, nothing to do
     if (take.isFree()) {
-      logger.debug("invert: vertex to take is already free");
+      logger.debug(`invert: vertex to take is already free ${JSON.stringify(take.id)}`);
       return true;
     }
     // can't give up control of an already-bound vertex
     if (give.isBound()) {
-      logger.debug("invert: vertex to give is already bound");
+      logger.debug(`invert: vertex to give is already bound ${JSON.stringify(give.id)}`);
       return false;
     }
 

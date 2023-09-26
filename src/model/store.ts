@@ -23,7 +23,7 @@ import { addTemperature } from "../model/coords/operations/composites/temperatur
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
-import { NodeEdge, OP_TYPE } from "./coords/edges/nodeEdge";
+import { NodeEdge, OP_TYPE, SerialNodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
 import {
   BUILTIN_COMPOSITES,
@@ -42,6 +42,8 @@ import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
 import { UPDATE_MODE, settings } from "./settings";
 import { p } from "./setup";
 
+export const userDefinedComposites = proxy([] as SerialNodeEdge[]);
+
 export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
 
 let locked = false;
@@ -57,6 +59,7 @@ setInterval(() => {
 
   locked = true;
   mainGraph.update(settings.updateCycles);
+  // console.log(mainGraph);
   locked = false;
 }, 1000 / 60);
 

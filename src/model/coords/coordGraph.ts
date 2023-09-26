@@ -134,6 +134,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
 
   // wires
   addWire(source: VertexId, target: VertexId) {
+    // this.instances.forEach((i) => (i as CoordGraph).addWire(source, target));
     const id = genWireId();
     const c = this.buildWireConstraint();
     const vSource = this.edges.find((e) => e.id === source.node)!.vertices[source.handle];

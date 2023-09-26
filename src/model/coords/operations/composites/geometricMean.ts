@@ -238,7 +238,7 @@ export const GEOMETRIC_MEAN_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 2,
+  boundArray: [2],
   interfaceVertexIds: [
     {
       node: MULTIPLIER_ID,

@@ -99,16 +99,21 @@ export class NodeEdge extends CircuitEdge {
     let constraint: Constraint<DifferentialCoord>;
     if (operationData.primitive) {
       constraint = getBaseConstraintByType(mode, operationData.type);
+      if (operationData.bound != undefined) {
+        if (constraint instanceof OperatorConstraint) {
+          console.log("setting bound");
+          constraint.bound = operationData.bound;
+        } else {
+          throw new Error("Bound vertex specified for non-operator constraint");
+        }
+      }
     } else {
       const subgraph = deserializeGraph(operationData.subgraph);
-      constraint = new CompositeOperation(subgraph, operationData.interfaceVertexIds);
-    }
-    if (operationData.bound != undefined) {
-      if (constraint instanceof OperatorConstraint) {
-        constraint.bound = operationData.bound;
-      } else {
-        throw new Error("Bound vertex specified for non-operator constraint");
-      }
+      constraint = new CompositeOperation(
+        subgraph,
+        operationData.interfaceVertexIds,
+        operationData.boundArray
+      );
     }
 
     const type = operationData.primitive ? operationData.type : OP_TYPE.COMPOSITE;

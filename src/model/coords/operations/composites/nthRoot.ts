@@ -56,7 +56,7 @@ export const addNthRoot = (position: CircuitPosition) => {
         mode: 1,
         focus: null,
       },
-      bound: 2,
+      boundArray: [2],
       interfaceVertexIds: [
         {
           node: EXPONENT_ID,

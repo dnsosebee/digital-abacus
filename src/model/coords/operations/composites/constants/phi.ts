@@ -33,7 +33,7 @@ export const addPhi = (position: CircuitPosition) => {
       mode: 1,
       focus: null,
     },
-    bound: 0,
+    boundArray: [0],
     interfaceVertexIds: [
       {
         node: STANDALONE_ID,

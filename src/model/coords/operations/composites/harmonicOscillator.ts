@@ -532,7 +532,7 @@ export const HARMONIC_OSCILLATOR_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 4,
+  boundArray: [4],
   interfaceVertexIds: [
     {
       node: MULTIPLIER_ID,

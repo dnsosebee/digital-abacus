@@ -109,7 +109,7 @@ export const addAverage = (position: CircuitPosition) => {
         mode: 1,
         focus: null,
       },
-      bound: 2,
+      boundArray: [2],
       interfaceVertexIds: [
         {
           node: ADDER_ID,

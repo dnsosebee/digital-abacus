@@ -31,7 +31,7 @@ export const TANH_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "multiply", handle: 0 },
             { node: "divide00", handle: 2 },
@@ -145,7 +145,7 @@ export const TANH_CONFIG_JSON = {
                 selected: false,
                 operator: {
                   primitive: false,
-                  bound: 2,
+                  boundArray: [2],
                   interfaceVertexIds: [
                     { node: "adder000", handle: 2 },
                     { node: "adder000", handle: 1 },
@@ -221,7 +221,7 @@ export const TANH_CONFIG_JSON = {
                 selected: false,
                 operator: {
                   primitive: false,
-                  bound: 2,
+                  boundArray: [2],
                   interfaceVertexIds: [
                     { node: "multiply", handle: 2 },
                     { node: "multiply", handle: 1 },
@@ -414,7 +414,7 @@ export const TANH_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "multiply", handle: 0 },
             { node: "divide00", handle: 2 },
@@ -559,7 +559,7 @@ export const TANH_CONFIG_JSON = {
                 selected: false,
                 operator: {
                   primitive: false,
-                  bound: 2,
+                  boundArray: [2],
                   interfaceVertexIds: [
                     { node: "multiply", handle: 2 },
                     { node: "multiply", handle: 1 },
@@ -759,7 +759,7 @@ export const TANH_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 2,
+          boundArray: [2],
           interfaceVertexIds: [
             { node: "multiply", handle: 2 },
             { node: "multiply", handle: 1 },
@@ -880,7 +880,7 @@ export const TANH_CONFIG_JSON = {
     mode: 1,
     focus: null,
   },
-  bound: 1,
+  boundArray: [1],
   interfaceVertexIds: [
     {
       node: SINH_ID,

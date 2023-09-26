@@ -54,6 +54,7 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
 
   getBoundVertices() {
     // :-> [Vertex<T>]
+    console.log("here");
     let deps = this.constraint.getDependencies();
     let bound = [];
     for (let i = 0; i < this.vertices.length; i++) {

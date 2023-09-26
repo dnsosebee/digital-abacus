@@ -43,6 +43,7 @@ export class Vertex<T extends Serializable> {
   }
 
   isFree() {
+    // console.log({ deps: this.deps, id: this.id });
     return this.deps.length == 0;
   }
   isBound() {
