@@ -1,9 +1,11 @@
 import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { CompositeOperation } from "@/model/coords/operations/composites/compositeOperation";
 import { Math } from "@/schema/node";
 import { Node, NodeProps } from "reactflow";
 import { BigNode } from "./big";
 import { ConstantNode } from "./constant";
 import { StandaloneNode } from "./standalone";
+import { TopAndBottomNode } from "./topAndBottom";
 import { UnopNode } from "./unop";
 
 export type MathData = Math["data"];
@@ -23,6 +25,15 @@ export const MathNode = (props: MathProps) => {
     case OP_TYPE.STANDALONE:
       return <StandaloneNode {...props} />;
     case OP_TYPE.COMPOSITE:
+      const layout = (props.data.edge.constraint as unknown as CompositeOperation).layout;
+      if (layout) {
+        switch (layout.type) {
+          case "topAndBottom":
+            return <TopAndBottomNode selected={props.selected} edge={props.data.edge} />;
+          default:
+            throw new Error(`Unknown composite node layout: ${layout}`);
+        }
+      }
       const arity = props.data.vertices.length - 1;
       switch (arity) {
         case 0:

@@ -2,9 +2,14 @@ import { canvasHeight, canvasWidth } from "@/lib/canvas";
 import { NodeEdge } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { p } from "@/model/setup";
-import { mainGraph } from "@/model/store";
+import { encapsulateSelected, mainGraph } from "@/model/store";
 import { Math as MathNode } from "@/schema/node";
-import { EyeIcon, EyeSlashIcon, ViewfinderCircleIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowsPointingInIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ViewfinderCircleIcon,
+} from "@heroicons/react/20/solid";
 import { NodeToolbar } from "reactflow";
 
 export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNode[] }) => {
@@ -61,25 +66,37 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
     }
   };
 
+  const encapsulate = () => {
+    const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
+    if (!label) return;
+    encapsulateSelected(label);
+  };
+
   return (
-    <NodeToolbar nodeId={selectedNodeIds} isVisible={isVisible} className="select-none">
-      <div className="btn-group">
-        <button onClick={toggleHidden} className="btn">
-          {hidden ? (
-            <>
-              {/* <p className="mr-2">linkages</p> */}
-              <EyeSlashIcon className="w-5 h-5" />
-            </>
-          ) : (
-            <>
-              {/* <p className="mr-2">linkages</p> */}
-              <EyeIcon className="w-5 h-5" />
-            </>
-          )}
-        </button>
-        <div className="border-l-2 border-slate-500" />
-        <button onClick={centerLinkages} className="btn">
-          <ViewfinderCircleIcon className="w-5 h-5" />
+    <NodeToolbar nodeId={selectedNodeIds} isVisible={isVisible} offset={20} className="select-none">
+      <div className="space-x-2 flex">
+        <div className="btn-group">
+          <button onClick={toggleHidden} className="btn">
+            {hidden ? (
+              <>
+                {/* <p className="mr-2">linkages</p> */}
+                <EyeSlashIcon className="w-5 h-5" />
+              </>
+            ) : (
+              <>
+                {/* <p className="mr-2">linkages</p> */}
+                <EyeIcon className="w-5 h-5" />
+              </>
+            )}
+          </button>
+          <div className="border-l-2 border-slate-500" />
+          <button onClick={centerLinkages} className="btn">
+            <ViewfinderCircleIcon className="w-5 h-5" />
+          </button>
+          {/* <div className="border-l-2 border-slate-500" /> */}
+        </div>
+        <button onClick={encapsulate} className="btn">
+          <ArrowsPointingInIcon className="w-5 h-5" />
         </button>
       </div>
     </NodeToolbar>

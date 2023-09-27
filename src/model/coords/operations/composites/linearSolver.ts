@@ -8,7 +8,7 @@ const MULTIPLIER_2_ID = "multipl2";
 const ADDER_1_ID = "adder000";
 const ADDER_2_ID = "adder111";
 
-export const SIN_CONFIG_JSON = {
+export const LINEAR_EQUATION_CONFIG_JSON = {
   primitive: false as const,
   subgraph: {
     edges: [
@@ -264,7 +264,7 @@ export const addLinearSolver = (position: CircuitPosition) => {
   ];
   const edge = new NodeEdge(
     vertices,
-    SIN_CONFIG_JSON,
+    LINEAR_EQUATION_CONFIG_JSON,
     UPDATE_MODE,
     id,
     position,

@@ -31,6 +31,18 @@ export const BUILTIN_COMPOSITES = {
   DEGREES_TO_RADIANS: "degreesToRadians" as const,
 } as const;
 
+const topAndBottomLayoutSchema = z.object({
+  type: z.literal("topAndBottom"),
+  data: z.object({
+    top: z.array(z.number()), // indices into edge.vertices
+    bottom: z.array(z.number()), // indices into edge.vertices
+  }),
+});
+
+const layoutSchema = topAndBottomLayoutSchema; //z.union([topAndBottomLayoutSchema]);
+
+export type Layout = z.infer<typeof layoutSchema>;
+
 export const builtinCompositeSchema = z.union([
   z.literal(BUILTIN_COMPOSITES.SUBTRACTOR),
   z.literal(BUILTIN_COMPOSITES.DIVIDER),
@@ -59,12 +71,25 @@ export const builtinCompositeSchema = z.union([
 
 export type BuiltinComposite = z.infer<typeof builtinCompositeSchema>;
 
-export const serialCompositeOperationSchema = z.object({
+const hasBoundArraySchema = z.object({
+  boundArray: z.array(z.number()), // indices into edge.vertices
+});
+
+const hasBoundSchema = z.object({
+  bound: z.number(),
+});
+
+const baseSerialCompositeOperationSchema = z.object({
   primitive: z.literal(false),
   subgraph: z.any(),
-  boundArray: z.array(z.number()),
   interfaceVertexIds: z.array(serialVertexIdSchema),
+  layout: layoutSchema.optional(),
 });
+
+export const serialCompositeOperationSchema = z.union([
+  baseSerialCompositeOperationSchema.merge(hasBoundArraySchema),
+  baseSerialCompositeOperationSchema.merge(hasBoundSchema),
+]);
 
 export type SerialCompositeOperation = z.infer<typeof serialCompositeOperationSchema>;
 
@@ -73,7 +98,14 @@ export class CompositeOperation extends Constraint<DifferentialCoord> {
   interfaceVertexIds: VertexId[];
   boundArray: number[];
   eq: Eq<DifferentialCoord>;
-  constructor(graph: CoordGraph, interfaceVertexIds: VertexId[], boundArray: number[]) {
+  layout?: Layout;
+
+  constructor(
+    graph: CoordGraph,
+    interfaceVertexIds: VertexId[],
+    boundArray: number[],
+    layout?: Layout
+  ) {
     // const cp = function (zOld: DifferentialCoord, zNew: DifferentialCoord) {
     //   return zOld.copy().mut_sendTo(zNew);
     // };
@@ -86,6 +118,7 @@ export class CompositeOperation extends Constraint<DifferentialCoord> {
     this.graph = graph;
     this.interfaceVertexIds = interfaceVertexIds;
     this.boundArray = boundArray;
+    this.layout = layout;
   }
 
   update(data: DifferentialCoord[]): DifferentialCoord[] {

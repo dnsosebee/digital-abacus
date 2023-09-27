@@ -92,6 +92,27 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     };
   }
 
+  addCompositeOperation(serialNodeEdge: SerialNodeEdge) {
+    const nodeId = genNodeId();
+    const vs: CoordVertex[] = [];
+    serialNodeEdge.vertices.forEach((v) => {
+      vs.push(this.addFree(v.value.x, v.value.y, { node: nodeId, handle: v.id.handle }));
+    });
+    this.edges.push(
+      new NodeEdge(
+        vs,
+        serialNodeEdge.operator,
+        this.mode,
+        nodeId,
+        serialNodeEdge.position,
+        false,
+        false,
+        serialNodeEdge.label
+      )
+    );
+    return nodeId;
+  }
+
   // use this instead of addRelated
   addOperation(type: PrimitiveOpType, position = { x: 0, y: 0 }): string {
     const nodeId = genNodeId();

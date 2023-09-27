@@ -22,12 +22,15 @@ import { addSubtractor } from "../model/coords/operations/composites/subtractor"
 import { addTemperature } from "../model/coords/operations/composites/temperature";
 import { Coord } from "./coords/coord/coord";
 import { CoordGraph } from "./coords/coordGraph";
+import { SerialCoordVertex } from "./coords/coordVertex";
 import { CircuitEdge } from "./coords/edges/circuitEdge";
 import { NodeEdge, OP_TYPE, SerialNodeEdge } from "./coords/edges/nodeEdge";
 import { WireEdge } from "./coords/edges/wireEdge";
 import {
   BUILTIN_COMPOSITES,
   CompositeOperation,
+  Layout,
+  SerialCompositeOperation,
 } from "./coords/operations/composites/compositeOperation";
 import { addCos } from "./coords/operations/composites/trig/cos";
 import { addCosh } from "./coords/operations/composites/trig/cosh";
@@ -37,8 +40,8 @@ import { addSinh } from "./coords/operations/composites/trig/sinh";
 import { addTan } from "./coords/operations/composites/trig/tan";
 import { addTanh } from "./coords/operations/composites/trig/tanh";
 import { OperatorConstraint } from "./graph/constraint";
-import { VertexId } from "./graph/vertex";
-import { serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
+import { VertexId, vertexIdEq } from "./graph/vertex";
+import { SerialCoordGraph, serialCoordGraphSchema } from "./serialSchemas/serialCoordGraph";
 import { UPDATE_MODE, settings } from "./settings";
 import { p } from "./setup";
 
@@ -101,7 +104,7 @@ export const addNode = (addNode: AddNode) => {
     case "math":
       mainGraph.addOperation(addNode.data.opType, addNode.position);
       break;
-    case "composite":
+    case "built in composite":
       switch (addNode.data.opType) {
         case BUILTIN_COMPOSITES.SUBTRACTOR:
           addSubtractor(addNode.position);
@@ -176,6 +179,11 @@ export const addNode = (addNode: AddNode) => {
           throw new Error("unknown composite type");
       }
       break;
+    case "user defined composite":
+      const serialEdge = addNode.data.serialEdge;
+      serialEdge.position = addNode.position;
+      mainGraph.addCompositeOperation(serialEdge);
+      break;
     default:
       throw new Error("unknown node type");
   }
@@ -221,35 +229,142 @@ export const updateLabel = (id: string, label: string) => {
   }
 };
 
+export const encapsulateSelected = (label: string) => {
+  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
+  const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
+  const selectedWires = (mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
+    (e) => {
+      return (
+        internalNodes.find((n) => n.id === e.source.node) ||
+        internalNodes.find((n) => n.id === e.target.node)
+      );
+    }
+  );
+  const internalWires = selectedWires.filter((w) => {
+    return (
+      internalNodes.find((n) => n.id === w.source.node) &&
+      internalNodes.find((n) => n.id === w.target.node)
+    );
+  });
+  const externalWires = selectedWires.filter((w) => !internalWires.includes(w));
+  const externalVertices = internalNodes
+    .map((n) => n.vertices)
+    .flat()
+    .filter((v) =>
+      externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
+    );
+
+  const boundExternalVertices = externalVertices.filter((v) =>
+    v.deps.find(
+      (d) =>
+        internalWires.find((w) => w.id === d.edge) || internalNodes.find((n) => n.id === d.edge)
+    )
+  );
+  const freeExternalVertices = externalVertices.filter((v) => !boundExternalVertices.includes(v));
+
+  console.log({
+    internalNodes,
+    selectedWires,
+    internalWires,
+    externalWires,
+    externalVertices,
+    boundExternalVertices,
+    freeExternalVertices,
+  });
+
+  // const incomingWires = externalWires.filter((w) =>
+  //   internalNodes.find((n) => n.id === w.target.node)
+  // );
+  // const outgoingWires = externalWires.filter((w) =>
+  //   internalNodes.find((n) => n.id === w.source.node)
+  // );
+
+  // const verticesWithOutgoingWires = outgoingWires.map((w) =>
+  //   w.vertices.find((v) => vertexIdEq(v.id, w.source))
+  // );
+  // const verticesWithOnlyIncomingWires = incomingWires
+  //   .map((w) => w.vertices.find((v) => vertexIdEq(v.id, w.target)))
+  //   .filter((v) => !verticesWithOutgoingWires.includes(v));
+
+  const serialVertices: SerialCoordVertex[] = [
+    ...freeExternalVertices.map((v) => v!.serialize()),
+    ...boundExternalVertices.map((v) => v!.serialize()),
+  ];
+  const boundArray: number[] = boundExternalVertices.map((_, i) => i + freeExternalVertices.length);
+
+  const serialSubgraph: SerialCoordGraph = {
+    edges: [...internalNodes.map((n) => n.serialize()), ...internalWires.map((w) => w.serialize())],
+    mode: UPDATE_MODE,
+    focus: null,
+  };
+  const interfaceVertexIds = [
+    ...freeExternalVertices.map((v) => v.id),
+    ...boundExternalVertices.map((v) => v.id),
+  ];
+
+  const layout: Layout = {
+    type: "topAndBottom",
+    data: {
+      top: freeExternalVertices.map((_, i) => i),
+      bottom: boundArray,
+    },
+  };
+
+  const serialCompositeOperation: SerialCompositeOperation = {
+    primitive: false,
+    boundArray,
+    interfaceVertexIds,
+    subgraph: serialSubgraph,
+    layout,
+  };
+
+  const serialNodeEdge: SerialNodeEdge = {
+    id: "REPLACE_ME",
+    position: { x: 0, y: 0 },
+    selected: false,
+    vertices: serialVertices,
+    hidden: false,
+    operator: serialCompositeOperation,
+    label,
+  };
+
+  userDefinedComposites.push(serialNodeEdge);
+};
+
+const cloneNodeEdge = (e: NodeEdge) => {
+  const id = genNodeId();
+  const verticesClone = e.vertices.map((v) =>
+    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle })
+  );
+  const newEdge = new NodeEdge(
+    verticesClone,
+    e.type === OP_TYPE.COMPOSITE
+      ? (e.constraint as CompositeOperation).serialize()
+      : {
+          primitive: true as const,
+          type: e.type,
+          bound: e.constraint.hasOwnProperty("bound")
+            ? (e.constraint as OperatorConstraint<any>).bound
+            : undefined,
+        },
+    UPDATE_MODE,
+    id,
+    { ...e.position },
+    e.hidden,
+    e.selected,
+    e.label
+  );
+  mainGraph.edges.push(newEdge);
+  return id;
+};
+
 export const cloneSelected = () => {
   const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
   const unselected = mainGraph.edges.filter((e) => !(e as CircuitEdge).selected);
   const idMap = new Map<string, string>();
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
-      const id = genNodeId();
-      const verticesClone = e.vertices.map((v) =>
-        mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle })
-      );
-      const newEdge = new NodeEdge(
-        verticesClone,
-        e.type === OP_TYPE.COMPOSITE
-          ? (e.constraint as CompositeOperation).serialize()
-          : {
-              primitive: true as const,
-              type: e.type,
-              bound: e.constraint.hasOwnProperty("bound")
-                ? (e.constraint as OperatorConstraint<any>).bound
-                : undefined,
-            },
-        UPDATE_MODE,
-        id,
-        { ...e.position },
-        e.hidden,
-        e.selected,
-        e.label
-      );
-      mainGraph.edges.push(newEdge);
+      const id = cloneNodeEdge(e);
       idMap.set(e.id, id);
     }
   });

@@ -3,6 +3,7 @@ import {
   NodeEdge,
   OpType,
   PrimitiveOpType,
+  SerialNodeEdge,
   primitiveOpTypeSchema,
 } from "@/model/coords/edges/nodeEdge";
 import { BuiltinComposite } from "@/model/coords/operations/composites/compositeOperation";
@@ -69,5 +70,6 @@ export type CircuitNode = Math | Sticky;
 export type AddNode = { position: { x: number; y: number } } & (
   | { type: "sticky" }
   | { type: "math"; data: { opType: PrimitiveOpType } }
-  | { type: "composite"; data: { opType: BuiltinComposite } }
+  | { type: "built in composite"; data: { opType: BuiltinComposite } }
+  | { type: "user defined composite"; data: { serialEdge: SerialNodeEdge } }
 );

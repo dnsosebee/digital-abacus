@@ -112,7 +112,9 @@ export class NodeEdge extends CircuitEdge {
       constraint = new CompositeOperation(
         subgraph,
         operationData.interfaceVertexIds,
-        operationData.boundArray
+        // @ts-ignore
+        operationData.boundArray || [operationData.bound],
+        operationData.layout
       );
     }
 

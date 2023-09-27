@@ -1,6 +1,8 @@
-import { OP_TYPE } from "@/model/coords/edges/nodeEdge";
+import { OP_TYPE, SerialNodeEdge } from "@/model/coords/edges/nodeEdge";
 import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
+import { userDefinedComposites } from "@/model/store";
 import { AddNode } from "@/schema/node";
+import { useSnapshot } from "valtio";
 import { Draggable } from "./draggable";
 
 export const Sidebar = () => {
@@ -12,6 +14,8 @@ export const Sidebar = () => {
 };
 
 const ComponentSidebar = () => {
+  const userDefinedSnapshot = useSnapshot(userDefinedComposites);
+
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
     event.dataTransfer.setData("application/reactflow", JSON.stringify(addNode));
     event.dataTransfer.effectAllowed = "move";
@@ -43,7 +47,7 @@ const ComponentSidebar = () => {
             symbol="π"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
               onDragStart(event, {
-                type: "composite",
+                type: "built in composite",
                 data: { opType: BUILTIN_COMPOSITES.PI },
                 position: { x: 0, y: 0 },
               })
@@ -53,7 +57,7 @@ const ComponentSidebar = () => {
             symbol="e"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
               onDragStart(event, {
-                type: "composite",
+                type: "built in composite",
                 data: { opType: BUILTIN_COMPOSITES.E },
                 position: { x: 0, y: 0 },
               })
@@ -65,7 +69,7 @@ const ComponentSidebar = () => {
             symbol="i"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
               onDragStart(event, {
-                type: "composite",
+                type: "built in composite",
                 data: { opType: BUILTIN_COMPOSITES.I },
                 position: { x: 0, y: 0 },
               })
@@ -75,7 +79,7 @@ const ComponentSidebar = () => {
             symbol="φ"
             onDragStart={(event: React.DragEvent<HTMLElement>) =>
               onDragStart(event, {
-                type: "composite",
+                type: "built in composite",
                 data: { opType: BUILTIN_COMPOSITES.PHI },
                 position: { x: 0, y: 0 },
               })
@@ -134,7 +138,7 @@ const ComponentSidebar = () => {
           symbol="a - b"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.SUBTRACTOR },
               position: { x: 0, y: 0 },
             })
@@ -144,7 +148,7 @@ const ComponentSidebar = () => {
           symbol="a ÷ b"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.DIVIDER },
               position: { x: 0, y: 0 },
             })
@@ -154,7 +158,7 @@ const ComponentSidebar = () => {
           symbol="¹⁄ₐ"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.RECIPROCAL },
               position: { x: 0, y: 0 },
             })
@@ -165,7 +169,7 @@ const ComponentSidebar = () => {
           symbol="1/a + 1/b"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.CIRCLE_PLUS },
               position: { x: 0, y: 0 },
             })
@@ -176,7 +180,7 @@ const ComponentSidebar = () => {
           symbol="aᵇ"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.EXPONENT },
               position: { x: 0, y: 0 },
             })
@@ -186,7 +190,7 @@ const ComponentSidebar = () => {
           symbol="ᵃ√b"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.NTH_ROOT },
               position: { x: 0, y: 0 },
             })
@@ -196,7 +200,7 @@ const ComponentSidebar = () => {
           symbol="㏒ₐb"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.LOG },
               position: { x: 0, y: 0 },
             })
@@ -207,7 +211,7 @@ const ComponentSidebar = () => {
           symbol="linear equation solver"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.LINEAR_SOLVER },
               position: { x: 0, y: 0 },
             })
@@ -218,7 +222,7 @@ const ComponentSidebar = () => {
           symbol="harmonic oscillator"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: {
                 opType: BUILTIN_COMPOSITES.HARMONIC_OSCILLATOR,
               },
@@ -231,7 +235,7 @@ const ComponentSidebar = () => {
           symbol="°F → °C"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: {
                 opType: BUILTIN_COMPOSITES.TEMPERATURE,
               },
@@ -248,7 +252,7 @@ const ComponentSidebar = () => {
           symbol="arithmetic mean"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.AVERAGE },
               position: { x: 0, y: 0 },
             })
@@ -259,7 +263,7 @@ const ComponentSidebar = () => {
           symbol="geometric mean"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: {
                 opType: BUILTIN_COMPOSITES.GEOMETRIC_MEAN,
               },
@@ -276,7 +280,7 @@ const ComponentSidebar = () => {
           symbol="degrees → radians"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.DEGREES_TO_RADIANS },
               position: { x: 0, y: 0 },
             })
@@ -286,7 +290,7 @@ const ComponentSidebar = () => {
           symbol="sin(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.SIN },
               position: { x: 0, y: 0 },
             })
@@ -296,7 +300,7 @@ const ComponentSidebar = () => {
           symbol="cos(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.COS },
               position: { x: 0, y: 0 },
             })
@@ -306,7 +310,7 @@ const ComponentSidebar = () => {
           symbol="tan(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.TAN },
               position: { x: 0, y: 0 },
             })
@@ -316,7 +320,7 @@ const ComponentSidebar = () => {
           symbol="sinh(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.SINH },
               position: { x: 0, y: 0 },
             })
@@ -326,7 +330,7 @@ const ComponentSidebar = () => {
           symbol="cosh(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.COSH },
               position: { x: 0, y: 0 },
             })
@@ -336,7 +340,7 @@ const ComponentSidebar = () => {
           symbol="tanh(a)"
           onDragStart={(event: React.DragEvent<HTMLElement>) =>
             onDragStart(event, {
-              type: "composite",
+              type: "built in composite",
               data: { opType: BUILTIN_COMPOSITES.TANH },
               position: { x: 0, y: 0 },
             })
@@ -355,6 +359,23 @@ const ComponentSidebar = () => {
             })
           }
         />
+      </div>
+
+      <p className="text-gray-550 text-lg text-center">User Defined</p>
+      <div className={`flex flex-col items-center space-y-4 py-4`}>
+        {userDefinedSnapshot.map((composite) => (
+          <Draggable
+            key={composite.label}
+            symbol={composite.label}
+            onDragStart={(event: React.DragEvent<HTMLElement>) =>
+              onDragStart(event, {
+                type: "user defined composite",
+                data: { serialEdge: composite as SerialNodeEdge },
+                position: { x: 0, y: 0 },
+              })
+            }
+          />
+        ))}
       </div>
     </div>
   );

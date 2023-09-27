@@ -64,7 +64,7 @@ export const HARMONIC_OSCILLATOR_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 1,
+          boundArray: [1],
           interfaceVertexIds: [
             { node: "inputmu", handle: 0 },
             { node: "outputmu", handle: 0 },

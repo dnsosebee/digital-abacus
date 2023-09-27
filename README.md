@@ -7,8 +7,8 @@ The digital abacus is an interactive algebra-solving environment.
 ## TODO
 
 - [IN PROGRESS] Enable user-defined composite operations
-  - [IN PROGRESS] Create data structure
-  - [ ] Enabling multi-output operations
+  - [DONE] Create data structure
+  - [DONE?] Enabling multi-output operations
   - [ ] Selection-based UI for creating new operation
   - [ ] Sidebar UI for adding copies of existing operations
 - [ ] Enable editing of instances

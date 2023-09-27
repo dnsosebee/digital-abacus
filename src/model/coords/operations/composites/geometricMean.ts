@@ -69,7 +69,7 @@ export const GEOMETRIC_MEAN_CONFIG_JSON = {
         selected: false,
         operator: {
           primitive: false,
-          bound: 2,
+          boundArray: [2],
           interfaceVertexIds: [
             { node: "log00000", handle: 1 },
             { node: "multiply", handle: 1 },
