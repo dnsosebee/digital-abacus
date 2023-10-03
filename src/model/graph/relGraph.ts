@@ -103,7 +103,9 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
   // returns a list of vertices that should be able to invert with the given bound vertex
   getDepends(v: V) {
     // :Vertex<T> -> [Vertex<T>]
-    return this._leafDeps(v).map((p) => this._getVertex(p.vertex));
+    const deps = this._leafDeps(v).map((p) => this._getVertex(p.vertex));
+    console.log(`deps:\n${JSON.stringify(deps, null, 2)}`);
+    return deps;
   }
 
   // attempt to gain control of a vertex by giving up control of another vertex

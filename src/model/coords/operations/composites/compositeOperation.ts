@@ -173,7 +173,11 @@ export class CompositeOperation extends Constraint<DifferentialCoord> {
 
   getDependencies() {
     console.log(this.interfaceVertexIds, this.boundArray);
+    const deps = super.getDependencies();
+    this.boundArray.forEach((bound: number) => {
+      deps[bound] = true;
+    });
 
-    return this.interfaceVertexIds.map((_, i) => this.boundArray.includes(i));
+    return deps;
   }
 }

@@ -96,6 +96,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     const nodeId = genNodeId();
     const vs: CoordVertex[] = [];
     serialNodeEdge.vertices.forEach((v) => {
+      // todo add iterator
       vs.push(this.addFree(v.value.x, v.value.y, { node: nodeId, handle: v.id.handle }));
     });
     this.edges.push(

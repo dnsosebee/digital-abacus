@@ -15,7 +15,6 @@ export const TopAndBottomNode = ({ edge, selected }: TopAndBottomProps) => {
   const compositeOperation = edge.constraint as CompositeOperation;
   const vertices = edge.vertices;
   const { top, bottom } = compositeOperation.layout!.data;
-  console.log({ label: edge.label });
 
   return (
     <div>

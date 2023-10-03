@@ -197,6 +197,7 @@ export const removeNode = (id: string) => {
   }
 };
 
+const DEBUG_SELECTED = true;
 export const changeSelection = (id: string, selected: boolean) => {
   if (isSticky(id)) {
     const sticky = findSticky(id);
@@ -207,6 +208,9 @@ export const changeSelection = (id: string, selected: boolean) => {
       throw new Error("edge for selection change not found");
     }
     edge.selected = selected;
+    if (DEBUG_SELECTED && selected) {
+      console.log({ selectedEdge: JSON.parse(JSON.stringify(edge, null, 2)) });
+    }
   }
 };
 
@@ -232,21 +236,21 @@ export const updateLabel = (id: string, label: string) => {
 export const encapsulateSelected = (label: string) => {
   const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
   const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
-  const selectedWires = (mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
-    (e) => {
-      return (
-        internalNodes.find((n) => n.id === e.source.node) ||
-        internalNodes.find((n) => n.id === e.target.node)
-      );
-    }
-  );
-  const internalWires = selectedWires.filter((w) => {
+  const connectedWires = (
+    mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]
+  ).filter((e) => {
+    return (
+      internalNodes.find((n) => n.id === e.source.node) ||
+      internalNodes.find((n) => n.id === e.target.node)
+    );
+  });
+  const internalWires = connectedWires.filter((w) => {
     return (
       internalNodes.find((n) => n.id === w.source.node) &&
       internalNodes.find((n) => n.id === w.target.node)
     );
   });
-  const externalWires = selectedWires.filter((w) => !internalWires.includes(w));
+  const externalWires = connectedWires.filter((w) => !internalWires.includes(w));
   const externalVertices = internalNodes
     .map((n) => n.vertices)
     .flat()
@@ -264,7 +268,7 @@ export const encapsulateSelected = (label: string) => {
 
   console.log({
     internalNodes,
-    selectedWires,
+    connectedWires,
     internalWires,
     externalWires,
     externalVertices,
@@ -286,10 +290,18 @@ export const encapsulateSelected = (label: string) => {
   //   .map((w) => w.vertices.find((v) => vertexIdEq(v.id, w.target)))
   //   .filter((v) => !verticesWithOutgoingWires.includes(v));
 
-  const serialVertices: SerialCoordVertex[] = [
+  const fakeId = "REPLACE_ME";
+
+  const serialVerticesWithOldIds: SerialCoordVertex[] = [
     ...freeExternalVertices.map((v) => v!.serialize()),
     ...boundExternalVertices.map((v) => v!.serialize()),
   ];
+
+  const serialVertices = serialVerticesWithOldIds.map((v, i) => ({
+    ...v,
+    id: { node: fakeId, handle: i },
+  }));
+
   const boundArray: number[] = boundExternalVertices.map((_, i) => i + freeExternalVertices.length);
 
   const serialSubgraph: SerialCoordGraph = {
@@ -306,7 +318,7 @@ export const encapsulateSelected = (label: string) => {
     type: "topAndBottom",
     data: {
       top: freeExternalVertices.map((_, i) => i),
-      bottom: boundArray,
+      bottom: boundArray.map((i) => i),
     },
   };
 
@@ -319,7 +331,7 @@ export const encapsulateSelected = (label: string) => {
   };
 
   const serialNodeEdge: SerialNodeEdge = {
-    id: "REPLACE_ME",
+    id: fakeId,
     position: { x: 0, y: 0 },
     selected: false,
     vertices: serialVertices,
