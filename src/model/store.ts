@@ -395,6 +395,35 @@ export const commitEncapsulation = (label: string) => {
   };
 
   userDefinedComposites.push(serialNodeEdge);
+
+  connectedWires.forEach((w) => {
+    mainGraph.removeWire(w.id);
+  });
+  internalNodes.forEach((n) => {
+    mainGraph.removeNode(n.id);
+  });
+
+  const sumPosition = internalNodes.reduce(
+    (acc, n) => ({ x: acc.x + n.position.x, y: acc.y + n.position.y }),
+    { x: 0, y: 0 }
+  );
+  const averagePosition = {
+    x: sumPosition.x / internalNodes.length,
+    y: sumPosition.y / internalNodes.length,
+  };
+  serialNodeEdge.position = averagePosition;
+  const newNodeId = mainGraph.addCompositeOperation(serialNodeEdge);
+
+  externalWires.forEach((w) => {
+    if (internalNodes.find((n) => n.id === w.source.node)) {
+      const sourceHandle = serialVerticesWithOldIds.findIndex((v) => vertexIdEq(v.id, w.source));
+      mainGraph.addWire({ node: newNodeId, handle: sourceHandle }, w.target);
+    } else {
+      const targetHandle = serialVerticesWithOldIds.findIndex((v) => vertexIdEq(v.id, w.target));
+      mainGraph.addWire(w.source, { node: newNodeId, handle: targetHandle });
+    }
+  });
+
   cancelEncapsulation();
 };
 
