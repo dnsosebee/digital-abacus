@@ -207,7 +207,10 @@ export const changeSelection = (id: string, selected: boolean) => {
     if (!edge) {
       throw new Error("edge for selection change not found");
     }
+    // if (!mainGraph.isEncapsulating()) {
+    // if we are encapsulating, then we keep selection constant
     edge.selected = selected;
+    // }
     if (DEBUG_SELECTED && selected) {
       console.log({ selectedEdge: JSON.parse(JSON.stringify(edge, null, 2)) });
     }
@@ -233,9 +236,59 @@ export const updateLabel = (id: string, label: string) => {
   }
 };
 
-export const encapsulateSelected = (label: string) => {
+export const startEncapsulation = () => {
   const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
   const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
+  const externalWires = (mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
+    (e) => {
+      const isSourceInternal = internalNodes.find((n) => n.id === e.source.node);
+      const isTargetInternal = internalNodes.find((n) => n.id === e.target.node);
+      return (isSourceInternal && !isTargetInternal) || (!isSourceInternal && isTargetInternal);
+    }
+  );
+
+  const externalVertices = internalNodes
+    .map((n) => n.vertices)
+    .flat()
+    .filter((v) =>
+      externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
+    );
+
+  mainGraph.encapsulatedNodes = internalNodes.map((n) => n.id);
+  mainGraph.encapsulationInterface = [...externalVertices.map((v) => v.id)];
+  mainGraph.requiredInterfaceVertices = [...externalVertices.map((v) => v.id)];
+};
+
+export const toggleEncapsulationInterfaceVertex = (id: VertexId) => {
+  if (!mainGraph.isEncapsulating()) {
+    throw new Error("tried to toggle encapsulation interface while not encapsulating");
+  }
+  if (mainGraph.requiredInterfaceVertices?.find((v) => vertexIdEq(v, id))) {
+    throw new Error("tried to toggle encapsulation interface vertex that is required");
+  }
+  if (!mainGraph.encapsulatedNodes!.find((n) => n === id.node)) {
+    throw new Error("tried to toggle encapsulation interface vertex that is not encapsulated");
+  }
+  if (mainGraph.encapsulationInterface!.find((v) => vertexIdEq(v, id))) {
+    mainGraph.encapsulationInterface = mainGraph.encapsulationInterface!.filter(
+      (v) => !vertexIdEq(v, id)
+    );
+  } else {
+    mainGraph.encapsulationInterface!.push(id);
+  }
+};
+
+export const cancelEncapsulation = () => {
+  mainGraph.encapsulationInterface = null;
+  mainGraph.requiredInterfaceVertices = null;
+  mainGraph.encapsulatedNodes = null;
+};
+
+// TODO
+export const commitEncapsulation = (label: string) => {
+  const internalNodes = mainGraph.edges.filter((e) =>
+    mainGraph.encapsulatedNodes?.includes(e.id)
+  ) as NodeEdge[];
   const connectedWires = (
     mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]
   ).filter((e) => {
@@ -251,12 +304,13 @@ export const encapsulateSelected = (label: string) => {
     );
   });
   const externalWires = connectedWires.filter((w) => !internalWires.includes(w));
-  const externalVertices = internalNodes
-    .map((n) => n.vertices)
-    .flat()
-    .filter((v) =>
-      externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
-    );
+  // const externalVertices = internalNodes
+  //   .map((n) => n.vertices)
+  //   .flat()
+  //   .filter((v) =>
+  //     externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
+  //   );
+  const externalVertices = mainGraph.encapsulationInterface!.map((id) => mainGraph._getVertex(id)!);
 
   const boundExternalVertices = externalVertices.filter((v) =>
     v.deps.find(
@@ -266,15 +320,15 @@ export const encapsulateSelected = (label: string) => {
   );
   const freeExternalVertices = externalVertices.filter((v) => !boundExternalVertices.includes(v));
 
-  console.log({
-    internalNodes,
-    connectedWires,
-    internalWires,
-    externalWires,
-    externalVertices,
-    boundExternalVertices,
-    freeExternalVertices,
-  });
+  // console.log({
+  //   internalNodes,
+  //   connectedWires,
+  //   internalWires,
+  //   externalWires,
+  //   externalVertices,
+  //   boundExternalVertices,
+  //   freeExternalVertices,
+  // });
 
   // const incomingWires = externalWires.filter((w) =>
   //   internalNodes.find((n) => n.id === w.target.node)
@@ -341,6 +395,7 @@ export const encapsulateSelected = (label: string) => {
   };
 
   userDefinedComposites.push(serialNodeEdge);
+  cancelEncapsulation();
 };
 
 const cloneNodeEdge = (e: NodeEdge) => {
@@ -484,6 +539,9 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
     nodes,
     wires,
     focus: graphSnap.focus,
+    encapsulationInterface: graphSnap.encapsulationInterface,
+    requiredInterfaceVertices: graphSnap.requiredInterfaceVertices,
+    encapsulatedNodes: graphSnap.encapsulatedNodes,
   };
 };
 

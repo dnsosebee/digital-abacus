@@ -28,6 +28,9 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
 
   focus: CoordVertex | null;
   mode: number;
+  encapsulationInterface: VertexId[] | null; // null if not encapsulating anything
+  requiredInterfaceVertices: VertexId[] | null = null; // null if not encapsulating anything
+  encapsulatedNodes: string[] | null = null;
 
   // shouldUpdateNodeInternals: boolean;
 
@@ -35,7 +38,8 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     mode = UPDATE_IDEAL,
     focus: CoordVertex | null = null,
     edges: CircuitEdge[] = [],
-    vertices: CoordVertex[] = []
+    vertices: CoordVertex[] = [],
+    encapsulationInterface: VertexId[] | null = null
   ) {
     let eq = CoordGraph.getEqualityConstraintBuilder(mode);
 
@@ -43,7 +47,12 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
 
     this.focus = focus;
     this.mode = mode;
+    this.encapsulationInterface = encapsulationInterface;
     // this.shouldUpdateNodeInternals = false;
+  }
+
+  isEncapsulating() {
+    return this.encapsulationInterface != null;
   }
 
   // adding this because we need to preserve identity of our maingraph when we load up a new file.

@@ -1,7 +1,8 @@
 import { Coord } from "@/model/coords/coord/coord";
 import { CoordVertex } from "@/model/coords/coordVertex";
+import { vertexIdEq } from "@/model/graph/vertex";
 import { settings } from "@/model/settings";
-import { mainGraph, updateCoord } from "@/model/store";
+import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
 import { useEffect, useState } from "react";
 import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
@@ -17,6 +18,7 @@ export const NumericInput = ({
   alwaysBound?: boolean;
 }) => {
   const { showComplex, stepSize } = useSnapshot(settings);
+  const { encapsulationInterface } = useMainGraph();
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     mainGraph.setVertexSelectedness(vertex.id, true);
@@ -28,9 +30,14 @@ export const NumericInput = ({
 
   const readonly = alwaysBound || vertex.isBound();
 
+  const encapsulating = encapsulationInterface !== null;
+  const showAsSelected = encapsulating
+    ? encapsulationInterface!.find((v) => vertexIdEq(v, vertex.id)) !== undefined
+    : vertex.selected;
+
   return (
     <div
-      className={`p-1 flex items-center nodrag rounded-2xl ${vertex.selected ? "bg-blue-400" : ""}`}
+      className={`p-1 flex items-center nodrag rounded-2xl ${showAsSelected ? "bg-blue-400" : ""}`}
     >
       {/* center the contents of the following div */}
       <div className="flex flex-col justify-center">

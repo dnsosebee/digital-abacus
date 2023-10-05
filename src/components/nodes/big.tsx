@@ -24,7 +24,7 @@ export const BigNode = ({ data, selected }: MathProps) => {
           style={{ left: `${(100 / numFirstVertices) * (0.5 + idx)}%`, top: "-15px" }}
         />
       ))}
-      <NodeShell selected={selected} className="round-binop">
+      <NodeShell selected={selected} className="round-binop" id={data.edge.id}>
         <div className="flex flex-row space-x-5">
           {firstIdxs.map((idx) => (
             <NumericInput key={idx} vertex={data.vertices[idx]} />

@@ -16,7 +16,7 @@ export const UnopNode = ({ data, selected }: MathProps) => {
         position={Position.Top}
         style={{ top: "-15px" }}
       />
-      <NodeShell selected={selected} className="round-unop">
+      <NodeShell selected={selected} className="round-unop" id={data.edge.id}>
         <NumericInput vertex={data.vertices[0]} />
         <Symbol text={symbol} selected={selected} />
         <NumericInput vertex={data.vertices[1]} />

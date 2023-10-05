@@ -27,7 +27,11 @@ export const TopAndBottomNode = ({ edge, selected }: TopAndBottomProps) => {
           style={{ left: `${(100 / top.length) * (0.5 + layoutIdx)}%`, top: "-15px" }}
         />
       ))}
-      <NodeShell selected={selected} className={bottom.length === 1 ? "round-binop" : "round-unop"}>
+      <NodeShell
+        selected={selected}
+        className={bottom.length === 1 ? "round-binop" : "round-unop"}
+        id={edge.id}
+      >
         <div className="flex flex-row space-x-5">
           {top.map((idx) => (
             <NumericInput key={idx} vertex={vertices[idx]} />

@@ -2,19 +2,30 @@ import { canvasHeight, canvasWidth } from "@/lib/canvas";
 import { NodeEdge } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { p } from "@/model/setup";
-import { encapsulateSelected, mainGraph } from "@/model/store";
+import {
+  cancelEncapsulation,
+  commitEncapsulation,
+  mainGraph,
+  startEncapsulation,
+  useMainGraph,
+} from "@/model/store";
 import { Math as MathNode } from "@/schema/node";
 import {
   ArrowsPointingInIcon,
+  CheckCircleIcon,
   EyeIcon,
   EyeSlashIcon,
   ViewfinderCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/20/solid";
 import { NodeToolbar } from "reactflow";
 
 export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNode[] }) => {
+  const { encapsulationInterface, encapsulatedNodes } = useMainGraph();
+
+  const encapsulating = encapsulationInterface !== null;
   const selectedNodeIds = selectedNodes.map((node) => node.id);
-  const isVisible = selectedNodeIds.length > 0;
+  const isVisible = encapsulating ? true : selectedNodeIds.length > 0;
 
   const hidden = selectedNodes.every((node) => node.data.edge.hidden);
   const toggleHidden = () => {
@@ -66,39 +77,75 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
     }
   };
 
-  const encapsulate = () => {
-    const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
-    if (!label) return;
-    encapsulateSelected(label);
-  };
+  const nodeId = encapsulating ? (encapsulatedNodes! as string[]) : selectedNodeIds;
 
   return (
-    <NodeToolbar nodeId={selectedNodeIds} isVisible={isVisible} offset={20} className="select-none">
+    <NodeToolbar nodeId={nodeId} isVisible={isVisible} offset={20} className="select-none">
       <div className="space-x-2 flex">
-        <div className="btn-group">
-          <button onClick={toggleHidden} className="btn">
-            {hidden ? (
-              <>
-                {/* <p className="mr-2">linkages</p> */}
-                <EyeSlashIcon className="w-5 h-5" />
-              </>
-            ) : (
-              <>
-                {/* <p className="mr-2">linkages</p> */}
-                <EyeIcon className="w-5 h-5" />
-              </>
-            )}
-          </button>
-          <div className="border-l-2 border-slate-500" />
-          <button onClick={centerLinkages} className="btn">
-            <ViewfinderCircleIcon className="w-5 h-5" />
-          </button>
-          {/* <div className="border-l-2 border-slate-500" /> */}
-        </div>
-        <button onClick={encapsulate} className="btn">
-          <ArrowsPointingInIcon className="w-5 h-5" />
-        </button>
+        {!encapsulating && (
+          <div className="btn-group">
+            <button onClick={toggleHidden} className="btn">
+              {hidden ? (
+                <>
+                  {/* <p className="mr-2">linkages</p> */}
+                  <EyeSlashIcon className="w-5 h-5" />
+                </>
+              ) : (
+                <>
+                  {/* <p className="mr-2">linkages</p> */}
+                  <EyeIcon className="w-5 h-5" />
+                </>
+              )}
+            </button>
+            <div className="border-l-2 border-slate-500" />
+            <button onClick={centerLinkages} className="btn">
+              <ViewfinderCircleIcon className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+        <EncapsulationControls encapsulationInterface={encapsulationInterface} />
       </div>
     </NodeToolbar>
+  );
+};
+
+const EncapsulationControls = ({
+  encapsulationInterface,
+}: {
+  encapsulationInterface:
+    | readonly {
+        readonly node: string;
+        readonly handle: number;
+      }[]
+    | null;
+}) => {
+  const encapsulating = encapsulationInterface !== null;
+
+  const endEncapsulation = () => {
+    const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
+    if (!label) return;
+    commitEncapsulation(label);
+  };
+
+  return encapsulating ? (
+    <div className="btn-group">
+      <button onClick={cancelEncapsulation} className="btn btn-error">
+        <XCircleIcon className="w-5 h-5" />
+      </button>
+      <div className="border-l-2 border-slate-500" />
+      {encapsulationInterface.length > 0 ? (
+        <button onClick={endEncapsulation} className="btn btn-success">
+          <CheckCircleIcon className="w-5 h-5" />
+        </button>
+      ) : (
+        <button className="btn btn-default btn-active" disabled>
+          <CheckCircleIcon className="w-5 h-5" />
+        </button>
+      )}
+    </div>
+  ) : (
+    <button onClick={startEncapsulation} className="btn">
+      <ArrowsPointingInIcon className="w-5 h-5" />
+    </button>
   );
 };

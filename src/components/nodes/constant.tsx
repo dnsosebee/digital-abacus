@@ -14,7 +14,7 @@ export const ConstantNode = ({ data, selected, id }: MathProps) => {
   return (
     <div>
       <DualHandle idx={0} bound={true} position={Position.Bottom} style={{ bottom: "-15px" }} />
-      <NodeShell row={false} selected={selected} className="round-constant px-4">
+      <NodeShell row={false} selected={selected} className="round-constant px-4" id={data.edge.id}>
         <Symbol text={data.label} selected={selected} />
         <NumericInput vertex={data.vertices[0]} wide alwaysBound />
       </NodeShell>

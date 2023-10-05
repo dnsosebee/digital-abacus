@@ -18,7 +18,12 @@ export const StandaloneNode = ({ data, selected, id }: MathProps) => {
         position={Position.Bottom}
         style={{ bottom: "-15px" }}
       />
-      <NodeShell row={false} selected={selected} className="round-standalone px-4">
+      <NodeShell
+        row={false}
+        selected={selected}
+        className="round-standalone px-4"
+        id={data.edge.id}
+      >
         <input
           type="text"
           name="label"
