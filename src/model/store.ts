@@ -1,5 +1,6 @@
+import { BUFFER } from "@/components/nodes/interfaceNode";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
+import { AddNode, CircuitNode, PARENT_NODE_ID, Sticky, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
@@ -45,9 +46,40 @@ import { SerialCoordGraph, serialCoordGraphSchema } from "./serialSchemas/serial
 import { UPDATE_MODE, settings } from "./settings";
 import { p } from "./setup";
 
-export const userDefinedComposites = proxy([] as SerialNodeEdge[]);
+const initialGraph = new CoordGraph(UPDATE_MODE);
+const initialNodeEdge = new NodeEdge(
+  [],
+  {
+    primitive: false,
+    subgraph: initialGraph.serialize(),
+    boundArray: [],
+interfaceVertexIds: [
+   ],
+  },
+  UPDATE_MODE,
+  "REPLACE ME",
+  {x:0,y:0},
+  false,
+  false,
+  "REPLACE ME"
+);
+const initialSerialNodeEdge = initialNodeEdge.serialize();
 
-export let mainGraph = proxy(new CoordGraph(UPDATE_MODE)); // would be better if const
+
+const store = proxy({
+  activeCompositeEdge: initialNodeEdge,
+  activeGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
+  mainGraphSerialEdge: initialSerialNodeEdge,
+  components: [] as SerialNodeEdge[],
+  stickies:[] as Sticky[],
+  interfaceNodeDimensions: {width: 0, height: 0, x: 0, y: 0},
+});
+
+export const activeCompositeEdge = store.activeCompositeEdge;
+export const interfaceNodeDimensions = store.interfaceNodeDimensions;
+export let mainGraph = store.activeGraph; // would be better if const
+export const userDefinedComposites = store.components;
+export const stickies = store.stickies;
 
 let locked = false;
 setInterval(() => {
@@ -66,11 +98,14 @@ setInterval(() => {
   locked = false;
 }, 1000 / 60);
 
-export const stickies = proxy([] as Sticky[]);
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
 
 export const updateNodePosition = (e: NodePositionChange) => {
+  if (e.id === PARENT_NODE_ID) {
+    // we don't process position changes on the parent node
+    return;
+  }
   if (isSticky(e.id)) {
     const sticky = findSticky(e.id);
     sticky.position = e.position ?? sticky.position;
@@ -199,6 +234,10 @@ export const removeNode = (id: string) => {
 
 const DEBUG_SELECTED = true;
 export const changeSelection = (id: string, selected: boolean) => {
+  if (id === PARENT_NODE_ID) {
+    // we don't process selections on the parent node
+    return;
+  }
   if (isSticky(id)) {
     const sticky = findSticky(id);
     sticky.selected = selected;
@@ -436,7 +475,7 @@ export const commitEncapsulation = (label: string) => {
 const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) => {
   const id = genNodeId();
   const verticesClone = e.vertices.map((v) =>
-    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle })
+    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle },v.label)
   );
   const newEdge = new NodeEdge(
     verticesClone,
@@ -558,7 +597,15 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
 
   // useEffect(() => {}, [stickiesSnap]);
 
-  let nodes: CircuitNode[] = [];
+  let nodes: CircuitNode[] = [
+    {
+      id: "interface",
+      position: { x: store.interfaceNodeDimensions.x - BUFFER, y: store.interfaceNodeDimensions.y - BUFFER },
+      type: "interface",
+      selected: false,
+      data:{}
+    }
+  ];
   const wires: Wire[] = [];
   (graphSnap.edges as CircuitEdge[]).forEach((edge) => {
     if (edge instanceof WireEdge) {
@@ -603,4 +650,5 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
     edge: edge,
   },
   selected: edge.selected,
+  parent: "interface",
 });

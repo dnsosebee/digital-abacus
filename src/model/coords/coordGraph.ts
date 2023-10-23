@@ -106,7 +106,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     const vs: CoordVertex[] = [];
     serialNodeEdge.vertices.forEach((v) => {
       // todo add iterator
-      vs.push(this.addFree(v.value.x, v.value.y, { node: nodeId, handle: v.id.handle }));
+      vs.push(this.addFree(v.value.x, v.value.y, { node: nodeId, handle: v.id.handle }, v.label));
     });
     this.edges.push(
       new NodeEdge(
@@ -158,8 +158,8 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     return nodeId;
   }
 
-  addFree(x: number, y: number, id: VertexId) {
-    let v = new CoordVertex(new DifferentialCoord(x, y), id);
+  addFree(x: number, y: number, id: VertexId, label: string = "") {
+    let v = new CoordVertex(new DifferentialCoord(x, y), id, false, false, false, label);
     return this.vertices[this.vertices.push(v) - 1]; // WARNING THIS IS REQUIRED BECAUSE PUSHING CREATES A PROXY OBJECT
   }
 

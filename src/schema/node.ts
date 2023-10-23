@@ -50,11 +50,22 @@ export const nodeSchema = z.union([mathSchema, stickySchema]);
 
 // export type VertexInfo = z.infer<typeof vertexSchema>;
 
+export const PARENT_NODE_ID = "interface";
+
+export type ParentNode = {
+  id: typeof PARENT_NODE_ID,
+  position: { x: number; y: number };
+  type: "interface";
+  selected: false,
+  data: {};
+}
+
 export type Math = {
   id: string;
   position: { x: number; y: number };
   type: "math";
   selected: boolean;
+  parent: typeof PARENT_NODE_ID,
   data: {
     cartesian: boolean;
     vertices: CoordVertex[];
@@ -65,7 +76,7 @@ export type Math = {
 };
 export type Sticky = z.infer<typeof stickySchema>;
 
-export type CircuitNode = Math | Sticky;
+export type CircuitNode = Math | Sticky | ParentNode;
 
 export type AddNode = { position: { x: number; y: number } } & (
   | { type: "sticky" }

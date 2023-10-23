@@ -35,7 +35,8 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
           v.id,
           v.dragging,
           v.hidden,
-          v.selected
+          v.selected,
+          v.label
         );
         vertices.push(vertex);
         return vertex;

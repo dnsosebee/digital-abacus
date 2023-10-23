@@ -12,6 +12,7 @@ export const serialCoordVertexSchema = serialVertexSchema.extend({
   dragging: z.boolean(),
   hidden: z.boolean(),
   selected: z.boolean(),
+  label: z.string(),
 });
 
 export type SerialCoordVertex = z.infer<typeof serialCoordVertexSchema>;
@@ -20,13 +21,15 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
   dragging: boolean;
   hidden: boolean;
   selected: boolean;
+  label: string;
 
   constructor(
     value: DifferentialCoord,
     id: VertexId,
     dragging = false,
     hidden = false,
-    selected = false
+    selected = false,
+    label: string,
   ) {
     // position of point
     super(value, id);
@@ -34,11 +37,12 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
     this.dragging = dragging;
     this.hidden = hidden;
     this.selected = selected;
+    this.label = label;
   }
 
   serialize(): SerialCoordVertex {
     const serialized = super.serialize();
-    return { ...serialized, dragging: this.dragging, hidden: this.hidden, selected: this.selected };
+    return { ...serialized, dragging: this.dragging, hidden: this.hidden, selected: this.selected, label: this.label };
   }
 
   checkMouseover() {

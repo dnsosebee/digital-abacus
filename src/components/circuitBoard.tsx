@@ -5,12 +5,13 @@ import {
   addWire,
   changeSelection,
   cloneSelected,
+  interfaceNodeDimensions,
   removeNode,
   removeWire,
   updateNodePosition,
   useMainGraph,
 } from "@/model/store";
-import { AddNode, Math } from "@/schema/node";
+import { AddNode, Math as MathSchema } from "@/schema/node";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
@@ -27,6 +28,7 @@ import ReactFlow, {
   SelectionMode
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { InterfaceNode } from "./nodes/interfaceNode";
 import { MathNode } from "./nodes/mathNode";
 import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
 import { StickyNode } from "./nodes/sticky";
@@ -37,6 +39,7 @@ const logger = parentLogger.child({ component: "CircuitBoard" });
 const NODE_COMPONENTS = {
   math: MathNode,
   sticky: StickyNode,
+  interface: InterfaceNode,
 };
 
 const EDGE_TYPES = {
@@ -77,6 +80,30 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
       setCopied(true);
     }
   }, [altPressed, copyRequested]);
+
+  useEffect(() => {
+    if (reactFlowInstance && reactFlowInstance) {
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect() as DOMRect;
+
+      const boundingRect = getBoundingRectangleForClassName("nodeshell");
+      if (!boundingRect) return;
+      const rFTopLeft = reactFlowInstance.project({
+        x: boundingRect.left - reactFlowBounds.left,
+        y: boundingRect.top - reactFlowBounds.top,
+      });
+      const rFBottomRight = reactFlowInstance.project({
+        x: boundingRect.right - reactFlowBounds.left,
+        y: boundingRect.bottom - reactFlowBounds.top,
+      });
+      const rFWidth = rFBottomRight.x - rFTopLeft.x;
+      const rFHeight = rFBottomRight.y - rFTopLeft.y;
+
+      interfaceNodeDimensions.x = rFTopLeft.x
+      interfaceNodeDimensions.y = rFTopLeft.y
+      interfaceNodeDimensions.width = rFWidth
+      interfaceNodeDimensions.height = rFHeight
+    }
+  }, [reactFlowInstance, nodes, reactFlowInstance]);
 
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
@@ -162,7 +189,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
 
   const selectedNodes = nodes
     .filter((node) => node.selected)
-    .filter((node) => node.type === "math") as Math[];
+    .filter((node) => node.type === "math") as MathSchema[];
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
@@ -235,4 +262,29 @@ function useKeyPress(targetKey: string) {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
   return keyPressed;
+}
+
+
+function getBoundingRectangleForClassName(className: string) {
+  const elements = document.querySelectorAll(`.${className}`);
+  if (!elements.length) return null;
+
+  let combinedRect: any = elements[0].getBoundingClientRect();
+
+  elements.forEach(el => {
+      const rect = el.getBoundingClientRect();
+
+      combinedRect = {
+          top: Math.min(combinedRect.top, rect.top),
+          left: Math.min(combinedRect.left, rect.left),
+          right: Math.max(combinedRect.right, rect.right),
+          bottom: Math.max(combinedRect.bottom, rect.bottom),
+      };
+  });
+
+
+  // combinedRect.width = combinedRect.right - combinedRect.left;
+  // combinedRect.height = combinedRect.bottom - combinedRect.top;
+
+  return combinedRect;
 }
