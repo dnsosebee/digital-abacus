@@ -24,7 +24,7 @@ import ReactFlow, {
   OnEdgesChange,
   OnNodesChange,
   ReactFlowInstance,
-  SelectionMode,
+  SelectionMode
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { MathNode } from "./nodes/mathNode";
@@ -45,7 +45,7 @@ const EDGE_TYPES = {
 };
 
 const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
-  const { nodes, wires } = useMainGraph(serialState);
+  const { nodes, wires, encapsulatedNodes } = useMainGraph(serialState);
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
@@ -166,7 +166,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
-    <div className="flex-grow flex flex-col">
+    <div className={`flex-grow flex flex-col ${encapsulatedNodes && 'encapsulating'}`}>
       <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}

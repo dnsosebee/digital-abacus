@@ -64,7 +64,7 @@ export const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
         <button
           className={` mr-2 btn btn-sm btn-circle ${
             isInterfaceVertex ? "btn-warning" : "btn-outline"
-          } ${isRequiredInterfaceVertex && "bg-yellow-600"}`}
+          } ${isRequiredInterfaceVertex && " bg-yellow-400"}`}
           disabled={!isEncapsulated}
           onClick={() => toggle(vertex.id)}
         >

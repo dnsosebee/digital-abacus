@@ -237,7 +237,13 @@ export const updateLabel = (id: string, label: string) => {
 };
 
 export const startEncapsulation = () => {
-  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
+  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected) as CircuitEdge[];
+  selected.forEach((e) => {
+    e.selected = false;
+  });
+  selected.forEach((e) => {
+    e.selected = true;
+  });
   const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
   const externalWires = (mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
     (e) => {
@@ -427,7 +433,7 @@ export const commitEncapsulation = (label: string) => {
   cancelEncapsulation();
 };
 
-const cloneNodeEdge = (e: NodeEdge) => {
+const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) => {
   const id = genNodeId();
   const verticesClone = e.vertices.map((v) =>
     mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle })
@@ -447,7 +453,7 @@ const cloneNodeEdge = (e: NodeEdge) => {
     id,
     { ...e.position },
     e.hidden,
-    e.selected,
+    selected === undefined ? e.selected : selected,
     e.label
   );
   mainGraph.edges.push(newEdge);
@@ -460,7 +466,7 @@ export const cloneSelected = () => {
   const idMap = new Map<string, string>();
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
-      const id = cloneNodeEdge(e);
+      const id = cloneNodeEdge(e, false);
       idMap.set(e.id, id);
     }
   });

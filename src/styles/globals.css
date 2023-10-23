@@ -114,3 +114,7 @@ input::-webkit-inner-spin-button {
 ::-webkit-scrollbar-track {
   @apply bg-gray-900 rounded-full;
 }
+
+.encapsulating .react-flow__nodesselection {
+  display: none;
+}
