@@ -1,6 +1,13 @@
 import { BUFFER } from "@/components/nodes/interfaceNode";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { AddNode, CircuitNode, PARENT_NODE_ID, Sticky, genNodeId, stickySchema } from "@/schema/node";
+import {
+  AddNode,
+  CircuitNode,
+  PARENT_NODE_ID,
+  Sticky,
+  genNodeId,
+  stickySchema,
+} from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
@@ -47,39 +54,75 @@ import { UPDATE_MODE, settings } from "./settings";
 import { p } from "./setup";
 
 const initialGraph = new CoordGraph(UPDATE_MODE);
-const initialNodeEdge = new NodeEdge(
-  [],
-  {
-    primitive: false,
-    subgraph: initialGraph.serialize(),
-    boundArray: [],
-interfaceVertexIds: [
-   ],
-  },
-  UPDATE_MODE,
-  "REPLACE ME",
-  {x:0,y:0},
-  false,
-  false,
-  "REPLACE ME"
-);
-const initialSerialNodeEdge = initialNodeEdge.serialize();
-
+// const initialNodeEdge = new NodeEdge(
+//   [],
+//   {
+//     primitive: false,
+//     subgraph: initialGraph.serialize(),
+//     boundArray: [],
+// interfaceVertexIds: [
+//    ],
+//   },
+//   UPDATE_MODE,
+//   "REPLACE ME",
+//   {x:0,y:0},
+//   false,
+//   false,
+//   "REPLACE ME"
+// );
+// const initialSerialNodeEdge = initialNodeEdge.serialize();
 
 const store = proxy({
-  activeCompositeEdge: initialNodeEdge,
-  activeGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
-  mainGraphSerialEdge: initialSerialNodeEdge,
+  updatingGraph: initialGraph,
+  visibleGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
+  // mainGraphSerialEdge: initialSerialNodeEdge,
   components: [] as SerialNodeEdge[],
-  stickies:[] as Sticky[],
-  interfaceNodeDimensions: {width: 0, height: 0, x: 0, y: 0},
+  stickies: [] as Sticky[],
+  editingCompositeData: {
+    isEditing: false,
+  } as
+    | {
+        isEditing: false;
+      }
+    | {
+        isEditing: true;
+        visibleCompositeEdge: NodeEdge;
+        interfaceNodeDimensions: { width: number; height: number; x: number; y: number };
+      },
 });
 
-export const activeCompositeEdge = store.activeCompositeEdge;
-export const interfaceNodeDimensions = store.interfaceNodeDimensions;
-export let mainGraph = store.activeGraph; // would be better if const
+export const beginEditingComposite = (nodeId: string) => {
+  const edge = store.visibleGraph._getEdge(nodeId) as NodeEdge;
+  if (!edge) {
+    throw new Error("edge not found");
+  }
+  if (edge.type !== OP_TYPE.COMPOSITE) {
+    throw new Error("edge is not a composite");
+  }
+  store.editingCompositeData = {
+    isEditing: true,
+    visibleCompositeEdge: edge,
+    interfaceNodeDimensions: {
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+    },
+  };
+  const compositeConstraint = edge.constraint as CompositeOperation;
+  store.visibleGraph = compositeConstraint.graph;
+};
+
+export const endEditingComposite = () => {
+  store.editingCompositeData = {
+    isEditing: false,
+  };
+};
+
+export let mainGraph = store.visibleGraph; // would be better if const
 export const userDefinedComposites = store.components;
 export const stickies = store.stickies;
+export const editingCompositeData = store.editingCompositeData;
 
 let locked = false;
 setInterval(() => {
@@ -93,7 +136,7 @@ setInterval(() => {
   }
 
   locked = true;
-  mainGraph.update(settings.updateCycles);
+  store.updatingGraph.update(settings.updateCycles);
   // console.log(mainGraph);
   locked = false;
 }, 1000 / 60);
@@ -475,7 +518,7 @@ export const commitEncapsulation = (label: string) => {
 const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) => {
   const id = genNodeId();
   const verticesClone = e.vertices.map((v) =>
-    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle },v.label)
+    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle }, v.label)
   );
   const newEdge = new NodeEdge(
     verticesClone,
@@ -597,15 +640,21 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
 
   // useEffect(() => {}, [stickiesSnap]);
 
-  let nodes: CircuitNode[] = [
+  let nodes: CircuitNode[] = [];
+  if (editingCompositeData.isEditing) {
+    nodes.push(
     {
       id: "interface",
-      position: { x: store.interfaceNodeDimensions.x - BUFFER, y: store.interfaceNodeDimensions.y - BUFFER },
+      position: {
+        x: editingCompositeData.interfaceNodeDimensions.x - BUFFER,
+        y: editingCompositeData.interfaceNodeDimensions.y - BUFFER,
+      },
       type: "interface",
       selected: false,
-      data:{}
-    }
-  ];
+      data: {},
+    },
+    );
+  }
   const wires: Wire[] = [];
   (graphSnap.edges as CircuitEdge[]).forEach((edge) => {
     if (edge instanceof WireEdge) {

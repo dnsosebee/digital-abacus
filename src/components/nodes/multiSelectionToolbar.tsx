@@ -3,6 +3,7 @@ import { NodeEdge } from "@/model/coords/edges/nodeEdge";
 import { settings } from "@/model/settings";
 import { p } from "@/model/setup";
 import {
+  beginEditingComposite,
   cancelEncapsulation,
   commitEncapsulation,
   mainGraph,
@@ -15,6 +16,7 @@ import {
   CheckCircleIcon,
   EyeIcon,
   EyeSlashIcon,
+  PencilSquareIcon,
   ViewfinderCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/20/solid";
@@ -103,7 +105,10 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
             </button>
           </div>
         )}
-        <EncapsulationControls encapsulationInterface={encapsulationInterface} />
+        <EncapsulationControls
+          encapsulationInterface={encapsulationInterface}
+          selectedNodes={selectedNodes}
+        />
       </div>
     </NodeToolbar>
   );
@@ -111,6 +116,7 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
 
 const EncapsulationControls = ({
   encapsulationInterface,
+  selectedNodes,
 }: {
   encapsulationInterface:
     | readonly {
@@ -118,8 +124,11 @@ const EncapsulationControls = ({
         readonly handle: number;
       }[]
     | null;
+  selectedNodes: MathNode[];
 }) => {
   const encapsulating = encapsulationInterface !== null;
+
+  const editable = selectedNodes.length === 1 && selectedNodes[0].data.opType === "composite";
 
   const endEncapsulation = () => {
     const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
@@ -127,25 +136,44 @@ const EncapsulationControls = ({
     commitEncapsulation(label);
   };
 
-  return encapsulating ? (
+  const edit = () => {
+    beginEditingComposite(selectedNodes[0].id);
+  };
+
+  return (
     <div className="btn-group">
-      <button onClick={cancelEncapsulation} className="btn btn-error">
-        <XCircleIcon className="w-5 h-5" />
-      </button>
-      <div className="border-l-2 border-slate-500" />
-      {encapsulationInterface.length > 0 ? (
-        <button onClick={endEncapsulation} className="btn btn-success">
-          <CheckCircleIcon className="w-5 h-5" />
-        </button>
+      {encapsulating ? (
+        <>
+          <button onClick={cancelEncapsulation} className="btn btn-error">
+            <XCircleIcon className="w-5 h-5" />
+          </button>
+          <div className="border-l-2 border-slate-500" />
+          {encapsulationInterface.length > 0 ? (
+            <button onClick={endEncapsulation} className="btn btn-success">
+              <CheckCircleIcon className="w-5 h-5" />
+            </button>
+          ) : (
+            <button className="btn btn-default btn-active" disabled>
+              <CheckCircleIcon className="w-5 h-5" />
+            </button>
+          )}
+        </>
       ) : (
-        <button className="btn btn-default btn-active" disabled>
-          <CheckCircleIcon className="w-5 h-5" />
-        </button>
+        <>
+          <button onClick={startEncapsulation} className="btn">
+            <ArrowsPointingInIcon className="w-5 h-5" />
+          </button>
+          {editable && (
+            <>
+              <div className="border-l-2 border-slate-500" />
+
+              <button className="btn" onClick={edit}>
+                <PencilSquareIcon className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </>
       )}
     </div>
-  ) : (
-    <button onClick={startEncapsulation} className="btn">
-      <ArrowsPointingInIcon className="w-5 h-5" />
-    </button>
   );
 };

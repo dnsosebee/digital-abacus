@@ -5,7 +5,7 @@ import {
   addWire,
   changeSelection,
   cloneSelected,
-  interfaceNodeDimensions,
+  editingCompositeData,
   removeNode,
   removeWire,
   updateNodePosition,
@@ -28,6 +28,7 @@ import ReactFlow, {
   SelectionMode
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { useSnapshot } from "valtio";
 import { InterfaceNode } from "./nodes/interfaceNode";
 import { MathNode } from "./nodes/mathNode";
 import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
@@ -49,6 +50,7 @@ const EDGE_TYPES = {
 
 const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   const { nodes, wires, encapsulatedNodes } = useMainGraph(serialState);
+  const editingData = useSnapshot(editingCompositeData);
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
@@ -82,10 +84,12 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   }, [altPressed, copyRequested]);
 
   useEffect(() => {
+    if (!editingCompositeData.isEditing) return;
     if (reactFlowInstance && reactFlowInstance) {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect() as DOMRect;
 
       const boundingRect = getBoundingRectangleForClassName("nodeshell");
+      console.log("boundingRect", boundingRect)
       if (!boundingRect) return;
       const rFTopLeft = reactFlowInstance.project({
         x: boundingRect.left - reactFlowBounds.left,
@@ -98,12 +102,14 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
       const rFWidth = rFBottomRight.x - rFTopLeft.x;
       const rFHeight = rFBottomRight.y - rFTopLeft.y;
 
+      const { interfaceNodeDimensions } = editingCompositeData;
+
       interfaceNodeDimensions.x = rFTopLeft.x
       interfaceNodeDimensions.y = rFTopLeft.y
       interfaceNodeDimensions.width = rFWidth
       interfaceNodeDimensions.height = rFHeight
     }
-  }, [reactFlowInstance, nodes, reactFlowInstance]);
+  }, [nodes, reactFlowInstance, editingData.isEditing]);
 
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
