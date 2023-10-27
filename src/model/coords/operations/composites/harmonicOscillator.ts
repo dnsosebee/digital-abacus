@@ -560,11 +560,11 @@ export const HARMONIC_OSCILLATOR_JSON = {
 export const addHarmonicOscillator = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(1, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 1 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 2 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 3 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 4 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 2 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 3 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 4 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -576,5 +576,5 @@ export const addHarmonicOscillator = (position: CircuitPosition) => {
     false,
     "a × sin(bc + d)"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

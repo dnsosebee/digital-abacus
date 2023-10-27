@@ -43,7 +43,7 @@ export const addPhi = (position: CircuitPosition) => {
   };
 
   const id = genNodeId();
-  const vertices = [mainGraph.addFree(PHI, 0, { node: id, handle: 0 })];
+  const vertices = [mainGraph().addFree(PHI, 0, { node: id, handle: 0 })];
   const edge = new NodeEdge(
     vertices,
     PHI_CONFIG_JSON,
@@ -54,5 +54,5 @@ export const addPhi = (position: CircuitPosition) => {
     false,
     "φ"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

@@ -163,12 +163,12 @@ export function printToPlot() {
   p!.textSize(30);
 
   let h = p!.height - 40;
-  for (let i = 0; i < mainGraph!.edges.length; i++) {
-    if (mainGraph!.edges[i] instanceof NodeEdge) {
+  for (let i = 0; i < mainGraph!().edges.length; i++) {
+    if (mainGraph!().edges[i] instanceof NodeEdge) {
       p!.fill(150);
       p!.noStroke();
       h = h - 40;
-      p!.text(mainGraph!.edges[i].toString(), 200, h);
+      p!.text(mainGraph().edges[i].toString(), 200, h);
     }
   }
 }

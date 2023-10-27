@@ -182,8 +182,8 @@ export const DEGREE_RADIAN_CONFIG_JSON = {
 export const addDegreesToRadians = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(0, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(0, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(0, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(0, 0, { node: id, handle: 1 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -195,5 +195,5 @@ export const addDegreesToRadians = (position: CircuitPosition) => {
     false,
     "degrees → radians"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

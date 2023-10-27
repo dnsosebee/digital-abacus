@@ -17,20 +17,20 @@ export const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   const isReversalFocus = reversing && vertexIdEq(focus.id, vertex.id);
   const isReversalTarget =
     reversing &&
-    mainGraph.getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
+    mainGraph().getDepends(focus as CoordVertex).find((v) => vertexIdEq(v.id, vertex.id));
 
   const Icon = isBound ? LockClosedIcon : LockOpenIcon;
 
   const handleStartReversal = () => {
-    mainGraph.startReversal(vertex.id);
+    mainGraph().startReversal(vertex.id);
   };
 
   const handleCompleteReversal = () => {
-    mainGraph.completeReversal(vertex.id);
+    mainGraph().completeReversal(vertex.id);
   };
 
   const handleCancelReversal = () => {
-    mainGraph.cancelReversal();
+    mainGraph().cancelReversal();
   };
 
   const handleClick = () => {

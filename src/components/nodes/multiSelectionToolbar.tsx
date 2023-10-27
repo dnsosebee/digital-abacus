@@ -32,7 +32,7 @@ export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNo
   const hidden = selectedNodes.every((node) => node.data.edge.hidden);
   const toggleHidden = () => {
     selectedNodes.forEach((node) => {
-      const edge = mainGraph._getEdge(node.id) as NodeEdge;
+      const edge = mainGraph()._getEdge(node.id) as NodeEdge;
       edge.setHidden(!hidden);
     });
   };

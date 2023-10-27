@@ -896,8 +896,8 @@ export const TANH_CONFIG_JSON = {
 export const addTanh = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(0, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(0, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(0, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(0, 0, { node: id, handle: 1 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -909,5 +909,5 @@ export const addTanh = (position: CircuitPosition) => {
     false,
     "tanh(a)"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

@@ -1,6 +1,6 @@
 import { deserializeGraph } from "@/model/deserializeGraph";
 import { settings } from "@/model/settings";
-import { mainGraph, stickies } from "@/model/store";
+import { endEditingComposite, mainGraph, stickies, store } from "@/model/store";
 import {
   AdjustmentsHorizontalIcon,
   ArrowDownTrayIcon,
@@ -8,6 +8,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
   TrashIcon,
+  XCircleIcon,
 } from "@heroicons/react/20/solid";
 import { Source_Code_Pro } from "next/font/google";
 import { useSnapshot } from "valtio";
@@ -20,6 +21,8 @@ const headingFont = Source_Code_Pro({
 });
 
 export const Topbar = () => {
+  const {editingCompositeData} = useSnapshot(store);
+  console.log(editingCompositeData)
   return (
     <div
       className={`font-bold ${headingFont.className} justify-between flex items-stretch text-gray-200 px-2 pt-2 pb-1`}
@@ -27,6 +30,11 @@ export const Topbar = () => {
       <div className="flex items-stretch">
         <Title />
         <GeneralSettings />
+        {editingCompositeData.isEditing && (
+          <button onClick={endEditingComposite} className="btn btn-sm">
+            <XCircleIcon className="w-5 h-5 inline-block" />
+          </button>
+        )}
       </div>
       <LinkagesSettings />
     </div>
@@ -41,8 +49,9 @@ const Title = () => (
 );
 
 const GeneralSettings = () => {
+
   const saveHandler = async () => {
-    const json = { mainGraph: mainGraph.serialize(), stickies: stickies };
+    const json = { mainGraph: mainGraph().serialize(), stickies: stickies };
     console.log(json);
     try {
       const newHandle = await (window as any).showSaveFilePicker({
@@ -75,7 +84,7 @@ const GeneralSettings = () => {
       const fileData = await fileHandle.getFile();
       const stringData = await fileData.text();
       const json = JSON.parse(stringData);
-      mainGraph.mutateCopy(deserializeGraph(json["mainGraph"]));
+      mainGraph().mutateCopy(deserializeGraph(json["mainGraph"]));
       stickies.splice(0, stickies.length, ...json["stickies"]);
     } catch (e) {
       console.error(e);
@@ -98,7 +107,7 @@ const GeneralSettings = () => {
 
   const eraseAll = () => {
     if (confirm("Erase all and start over?")) {
-      mainGraph.reset();
+      mainGraph().reset();
       stickies.splice(0, stickies.length);
     }
   };

@@ -42,7 +42,7 @@ export const addPi = (position: CircuitPosition) => {
   };
 
   const id = genNodeId();
-  const vertices = [mainGraph.addFree(p!.PI, 0, { node: id, handle: 0 })];
+  const vertices = [mainGraph().addFree(p!.PI, 0, { node: id, handle: 0 })];
   const edge = new NodeEdge(vertices, PI_CONFIG_JSON, UPDATE_MODE, id, position, false, false, "π");
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

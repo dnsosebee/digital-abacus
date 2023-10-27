@@ -9,8 +9,8 @@ const MULTIPLIER_ID = "multiply";
 export const addTemperature = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(212, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(100, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(212, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(100, 0, { node: id, handle: 1 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -225,5 +225,5 @@ export const addTemperature = (position: CircuitPosition) => {
     false,
     "°F → °C"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

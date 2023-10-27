@@ -256,11 +256,11 @@ export const LINEAR_EQUATION_CONFIG_JSON = {
 export const addLinearSolver = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(1, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 1 }),
-    mainGraph.addFree(2, 0, { node: id, handle: 2 }),
-    mainGraph.addFree(0, 0, { node: id, handle: 3 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 4 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(2, 0, { node: id, handle: 2 }),
+    mainGraph().addFree(0, 0, { node: id, handle: 3 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 4 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -272,5 +272,5 @@ export const addLinearSolver = (position: CircuitPosition) => {
     false,
     "ax + b = cx + d"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

@@ -42,7 +42,7 @@ export const addE = (position: CircuitPosition) => {
   };
 
   const id = genNodeId();
-  const vertices = [mainGraph.addFree(p!.exp(1), 0, { node: id, handle: 0 })];
+  const vertices = [mainGraph().addFree(p!.exp(1), 0, { node: id, handle: 0 })];
   const edge = new NodeEdge(vertices, E_CONFIG_JSON, UPDATE_MODE, id, position, false, false, "e");
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

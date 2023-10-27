@@ -9,7 +9,7 @@ import { p } from "./setup";
 import { mainGraph } from "./store";
 
 export function touchStarted() {
-  const vertex = mainGraph.findMouseover();
+  const vertex = mainGraph().findMouseover();
   if (vertex && vertex.value instanceof DifferentialCoord) {
     settings.dragData = {
       dragging: true,
@@ -79,7 +79,7 @@ export function draw(p: p5) {
   //   p!.background(0, 150);
   // }
 
-  mainGraph.display();
+  mainGraph().display();
 
   //digital readout for existing operators
   // printToPlot();

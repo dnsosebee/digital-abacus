@@ -9,8 +9,8 @@ const DUMMY_POSITION = { x: 0, y: 0 };
 export const addReciprocal = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(1, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 1 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -106,5 +106,5 @@ export const addReciprocal = (position: CircuitPosition) => {
     false,
     "¹⁄ₐ"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

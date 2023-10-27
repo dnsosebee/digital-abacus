@@ -21,11 +21,11 @@ export const NumericInput = ({
   const { encapsulationInterface } = useMainGraph();
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    mainGraph.setVertexSelectedness(vertex.id, true);
+    mainGraph().setVertexSelectedness(vertex.id, true);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    mainGraph.setVertexSelectedness(vertex.id, false);
+    mainGraph().setVertexSelectedness(vertex.id, false);
   };
 
   const readonly = alwaysBound || vertex.isBound();

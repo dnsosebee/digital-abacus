@@ -160,9 +160,9 @@ export const EXPONENT_CONFIG_JSON = {
 export const addExponent = (position: CircuitPosition) => {
   const id = genNodeId();
   const vertices = [
-    mainGraph.addFree(1, 0, { node: id, handle: 0 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 1 }),
-    mainGraph.addFree(1, 0, { node: id, handle: 2 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 0 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 1 }),
+    mainGraph().addFree(1, 0, { node: id, handle: 2 }),
   ];
   const edge = new NodeEdge(
     vertices,
@@ -174,5 +174,5 @@ export const addExponent = (position: CircuitPosition) => {
     false,
     "aᵇ"
   );
-  mainGraph.edges.push(edge);
+  mainGraph().edges.push(edge);
 };

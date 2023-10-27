@@ -72,7 +72,7 @@ const initialGraph = new CoordGraph(UPDATE_MODE);
 // );
 // const initialSerialNodeEdge = initialNodeEdge.serialize();
 
-const store = proxy({
+export const store = proxy({
   updatingGraph: initialGraph,
   visibleGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
   // mainGraphSerialEdge: initialSerialNodeEdge,
@@ -109,6 +109,8 @@ export const beginEditingComposite = (nodeId: string) => {
       y: 0,
     },
   };
+  console.log("set editing composite data to")
+  console.log(store.editingCompositeData)
   const compositeConstraint = edge.constraint as CompositeOperation;
   store.visibleGraph = compositeConstraint.graph;
 };
@@ -117,9 +119,10 @@ export const endEditingComposite = () => {
   store.editingCompositeData = {
     isEditing: false,
   };
+  store.visibleGraph = store.updatingGraph;
 };
 
-export let mainGraph = store.visibleGraph; // would be better if const
+export let mainGraph = () => store.visibleGraph; // would be better if const
 export const userDefinedComposites = store.components;
 export const stickies = store.stickies;
 export const editingCompositeData = store.editingCompositeData;
@@ -154,19 +157,19 @@ export const updateNodePosition = (e: NodePositionChange) => {
     sticky.position = e.position ?? sticky.position;
   } else {
     // is math
-    const node = mainGraph._getEdge(e.id) as NodeEdge;
+    const node = mainGraph()._getEdge(e.id) as NodeEdge;
     node.position = e.position ?? node.position;
   }
 };
 
 export const addWire = (conn: Connection) => {
-  mainGraph.addWire(
+  mainGraph().addWire(
     { node: conn.source!, handle: handleIdToNum(conn.sourceHandle!) },
     { node: conn.target!, handle: handleIdToNum(conn.targetHandle!) }
   );
 };
 
-export const removeWire = (id: string) => mainGraph.removeWire(id);
+export const removeWire = (id: string) => mainGraph().removeWire(id);
 
 export const addNode = (addNode: AddNode) => {
   switch (addNode.type) {
@@ -180,7 +183,7 @@ export const addNode = (addNode: AddNode) => {
       });
       break;
     case "math":
-      mainGraph.addOperation(addNode.data.opType, addNode.position);
+      mainGraph().addOperation(addNode.data.opType, addNode.position);
       break;
     case "built in composite":
       switch (addNode.data.opType) {
@@ -260,7 +263,7 @@ export const addNode = (addNode: AddNode) => {
     case "user defined composite":
       const serialEdge = addNode.data.serialEdge;
       serialEdge.position = addNode.position;
-      mainGraph.addCompositeOperation(serialEdge);
+      mainGraph().addCompositeOperation(serialEdge);
       break;
     default:
       throw new Error("unknown node type");
@@ -271,7 +274,7 @@ export const removeNode = (id: string) => {
   if (isSticky(id)) {
     stickies.splice(stickies.indexOf(findSticky(id)), 1);
   } else {
-    mainGraph.removeNode(id);
+    mainGraph().removeNode(id);
   }
 };
 
@@ -285,11 +288,11 @@ export const changeSelection = (id: string, selected: boolean) => {
     const sticky = findSticky(id);
     sticky.selected = selected;
   } else {
-    const edge = mainGraph._getEdge(id) as CircuitEdge | undefined;
+    const edge = mainGraph()._getEdge(id) as CircuitEdge | undefined;
     if (!edge) {
       throw new Error("edge for selection change not found");
     }
-    // if (!mainGraph.isEncapsulating()) {
+    // if (!mainGraph().isEncapsulating()) {
     // if we are encapsulating, then we keep selection constant
     edge.selected = selected;
     // }
@@ -300,7 +303,7 @@ export const changeSelection = (id: string, selected: boolean) => {
 };
 
 export const updateCoord = (vertexId: VertexId, coord: Coord) => {
-  const vertex = mainGraph._getVertex(vertexId);
+  const vertex = mainGraph()._getVertex(vertexId);
   vertex.value.mut_sendTo(coord);
 };
 
@@ -310,7 +313,7 @@ export const updateStickyText = (id: string, text: string) => {
 };
 
 export const updateLabel = (id: string, label: string) => {
-  const edge = mainGraph._getEdge(id);
+  const edge = mainGraph()._getEdge(id);
   if (edge && edge instanceof NodeEdge) {
     edge.label = label;
   } else {
@@ -319,7 +322,7 @@ export const updateLabel = (id: string, label: string) => {
 };
 
 export const startEncapsulation = () => {
-  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected) as CircuitEdge[];
+  const selected = mainGraph().edges.filter((e) => (e as CircuitEdge).selected) as CircuitEdge[];
   selected.forEach((e) => {
     e.selected = false;
   });
@@ -327,7 +330,7 @@ export const startEncapsulation = () => {
     e.selected = true;
   });
   const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
-  const externalWires = (mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
+  const externalWires = (mainGraph().edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
     (e) => {
       const isSourceInternal = internalNodes.find((n) => n.id === e.source.node);
       const isTargetInternal = internalNodes.find((n) => n.id === e.target.node);
@@ -342,43 +345,43 @@ export const startEncapsulation = () => {
       externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
     );
 
-  mainGraph.encapsulatedNodes = internalNodes.map((n) => n.id);
-  mainGraph.encapsulationInterface = [...externalVertices.map((v) => v.id)];
-  mainGraph.requiredInterfaceVertices = [...externalVertices.map((v) => v.id)];
+  mainGraph().encapsulatedNodes = internalNodes.map((n) => n.id);
+  mainGraph().encapsulationInterface = [...externalVertices.map((v) => v.id)];
+  mainGraph().requiredInterfaceVertices = [...externalVertices.map((v) => v.id)];
 };
 
 export const toggleEncapsulationInterfaceVertex = (id: VertexId) => {
-  if (!mainGraph.isEncapsulating()) {
+  if (!mainGraph().isEncapsulating()) {
     throw new Error("tried to toggle encapsulation interface while not encapsulating");
   }
-  if (mainGraph.requiredInterfaceVertices?.find((v) => vertexIdEq(v, id))) {
+  if (mainGraph().requiredInterfaceVertices?.find((v) => vertexIdEq(v, id))) {
     throw new Error("tried to toggle encapsulation interface vertex that is required");
   }
-  if (!mainGraph.encapsulatedNodes!.find((n) => n === id.node)) {
+  if (!mainGraph().encapsulatedNodes!.find((n) => n === id.node)) {
     throw new Error("tried to toggle encapsulation interface vertex that is not encapsulated");
   }
-  if (mainGraph.encapsulationInterface!.find((v) => vertexIdEq(v, id))) {
-    mainGraph.encapsulationInterface = mainGraph.encapsulationInterface!.filter(
+  if (mainGraph().encapsulationInterface!.find((v) => vertexIdEq(v, id))) {
+    mainGraph().encapsulationInterface = mainGraph().encapsulationInterface!.filter(
       (v) => !vertexIdEq(v, id)
     );
   } else {
-    mainGraph.encapsulationInterface!.push(id);
+    mainGraph().encapsulationInterface!.push(id);
   }
 };
 
 export const cancelEncapsulation = () => {
-  mainGraph.encapsulationInterface = null;
-  mainGraph.requiredInterfaceVertices = null;
-  mainGraph.encapsulatedNodes = null;
+  mainGraph().encapsulationInterface = null;
+  mainGraph().requiredInterfaceVertices = null;
+  mainGraph().encapsulatedNodes = null;
 };
 
 // TODO
 export const commitEncapsulation = (label: string) => {
-  const internalNodes = mainGraph.edges.filter((e) =>
-    mainGraph.encapsulatedNodes?.includes(e.id)
+  const internalNodes = mainGraph().edges.filter((e) =>
+    mainGraph().encapsulatedNodes?.includes(e.id)
   ) as NodeEdge[];
   const connectedWires = (
-    mainGraph.edges.filter((e) => e instanceof WireEdge) as WireEdge[]
+    mainGraph().edges.filter((e) => e instanceof WireEdge) as WireEdge[]
   ).filter((e) => {
     return (
       internalNodes.find((n) => n.id === e.source.node) ||
@@ -398,7 +401,7 @@ export const commitEncapsulation = (label: string) => {
   //   .filter((v) =>
   //     externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
   //   );
-  const externalVertices = mainGraph.encapsulationInterface!.map((id) => mainGraph._getVertex(id)!);
+  const externalVertices = mainGraph().encapsulationInterface!.map((id) => mainGraph()._getVertex(id)!);
 
   const boundExternalVertices = externalVertices.filter((v) =>
     v.deps.find(
@@ -485,10 +488,10 @@ export const commitEncapsulation = (label: string) => {
   userDefinedComposites.push(serialNodeEdge);
 
   connectedWires.forEach((w) => {
-    mainGraph.removeWire(w.id);
+    mainGraph().removeWire(w.id);
   });
   internalNodes.forEach((n) => {
-    mainGraph.removeNode(n.id);
+    mainGraph().removeNode(n.id);
   });
 
   const sumPosition = internalNodes.reduce(
@@ -500,15 +503,15 @@ export const commitEncapsulation = (label: string) => {
     y: sumPosition.y / internalNodes.length,
   };
   serialNodeEdge.position = averagePosition;
-  const newNodeId = mainGraph.addCompositeOperation(serialNodeEdge);
+  const newNodeId = mainGraph().addCompositeOperation(serialNodeEdge);
 
   externalWires.forEach((w) => {
     if (internalNodes.find((n) => n.id === w.source.node)) {
       const sourceHandle = serialVerticesWithOldIds.findIndex((v) => vertexIdEq(v.id, w.source));
-      mainGraph.addWire({ node: newNodeId, handle: sourceHandle }, w.target);
+      mainGraph().addWire({ node: newNodeId, handle: sourceHandle }, w.target);
     } else {
       const targetHandle = serialVerticesWithOldIds.findIndex((v) => vertexIdEq(v.id, w.target));
-      mainGraph.addWire(w.source, { node: newNodeId, handle: targetHandle });
+      mainGraph().addWire(w.source, { node: newNodeId, handle: targetHandle });
     }
   });
 
@@ -518,7 +521,7 @@ export const commitEncapsulation = (label: string) => {
 const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) => {
   const id = genNodeId();
   const verticesClone = e.vertices.map((v) =>
-    mainGraph.addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle }, v.label)
+    mainGraph().addFree(v.value.x, v.value.y, { node: id, handle: v.id.handle }, v.label)
   );
   const newEdge = new NodeEdge(
     verticesClone,
@@ -538,13 +541,13 @@ const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) =
     selected === undefined ? e.selected : selected,
     e.label
   );
-  mainGraph.edges.push(newEdge);
+  mainGraph().edges.push(newEdge);
   return id;
 };
 
 export const cloneSelected = () => {
-  const selected = mainGraph.edges.filter((e) => (e as CircuitEdge).selected);
-  const unselected = mainGraph.edges.filter((e) => !(e as CircuitEdge).selected);
+  const selected = mainGraph().edges.filter((e) => (e as CircuitEdge).selected);
+  const unselected = mainGraph().edges.filter((e) => !(e as CircuitEdge).selected);
   const idMap = new Map<string, string>();
   selected.forEach((e) => {
     if (e instanceof NodeEdge) {
@@ -558,7 +561,7 @@ export const cloneSelected = () => {
     if (e instanceof WireEdge) {
       // transfer unselected wires to the clone
       removeWire(e.id);
-      mainGraph.addWire(
+      mainGraph().addWire(
         { node: idMap.get(e.source.node) ?? e.source.node, handle: e.source.handle },
         { node: idMap.get(e.target.node) ?? e.target.node, handle: e.target.handle }
       );
@@ -566,14 +569,14 @@ export const cloneSelected = () => {
   });
   selected.forEach((e) => {
     if (e instanceof WireEdge) {
-      const addedWire = mainGraph.addWire(
+      const addedWire = mainGraph().addWire(
         { node: idMap.get(e.source.node) ?? e.source.node, handle: e.source.handle },
         { node: idMap.get(e.target.node) ?? e.target.node, handle: e.target.handle }
       );
       if (!addedWire) {
         // if we are unable to clone a wire, it should not be stolen from the original
         removeWire(e.id);
-        mainGraph.addWire(
+        mainGraph().addWire(
           { node: idMap.get(e.source.node) ?? e.source.node, handle: e.source.handle },
           { node: idMap.get(e.target.node) ?? e.target.node, handle: e.target.handle }
         );
@@ -597,7 +600,7 @@ export const cloneSelected = () => {
 
 // deprecated
 // export const registerNodeInternalsUpdated = () => {
-//   mainGraph.registerNodeInternalsUpdated();
+//   mainGraph().registerNodeInternalsUpdated();
 // };
 
 // const logGraph = () => {
@@ -613,7 +616,7 @@ export type SerialState = z.infer<typeof serialStateSchema>;
 
 export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   // logger.debug({ initial }, "useMainGraph called");
-  const graphSnap = useSnapshot(mainGraph);
+  const {visibleGraph: graphSnap} = useSnapshot(store);
   const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
@@ -629,7 +632,7 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   // useEffect(() => {
   //   const interval = setInterval(() => {
   //     const serial: SerialState = {
-  //       graph: mainGraph.serialize(),
+  //       graph: mainGraph().serialize(),
   //       stickies,
   //     };
   //     const str = encodeURIComponent(JSON.stringify(serial));
