@@ -44,7 +44,7 @@ export const NumericInput = ({
         {!alwaysBound && <LockButton vertex={vertex} />}
       </div>
       <div className="flex flex-col space-y-0.5 items-center">
-        <div>
+        <div className="flex">
           <PureSingleNumericInput
             value={vertex.value.x}
             onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y))}
@@ -63,7 +63,7 @@ export const NumericInput = ({
           )}
         </div>
         {showComplex && (
-          <div>
+          <div className="flex">
             <PureSingleNumericInput
               value={vertex.value.y}
               onChange={(value) => updateCoord(vertex.id, new Coord(vertex.value.x, value))}

@@ -29,16 +29,16 @@ export const TopAndBottomNode = ({ edge, selected }: TopAndBottomProps) => {
       ))}
       <NodeShell
         selected={selected}
-        className={bottom.length === 1 ? "round-binop" : "round-unop"}
+        className={`${bottom.length === 1 ? "round-binop" : "round-unop"}`}
         id={edge.id}
       >
-        <div className="flex flex-row space-x-5">
+        <div className="flex flex-row space-x-5 self-stretch justify-evenly">
           {top.map((idx) => (
             <NumericInput key={idx} vertex={vertices[idx]} />
           ))}
         </div>
         <Symbol text={edge.label} selected={selected} />
-        <div className=" flex flex-row space-x-5 items-stretch">
+        <div className="flex flex-row space-x-5 self-stretch justify-evenly">
           {bottom.map((idx) => (
             <NumericInput key={idx} vertex={vertices[idx]} />
           ))}
