@@ -45,6 +45,7 @@ export const MathNode = (props: MathProps) => {
         case 4:
           return <BigNode {...props} />;
         default:
+          console.warn(props.data.edge.constraint);
           throw new Error(`Unsupported composite node arity: ${arity}`);
       }
     default:

@@ -5,11 +5,10 @@ import {
   addWire,
   changeSelection,
   cloneSelected,
-  editingCompositeData,
   removeNode,
   removeWire,
   updateNodePosition,
-  useMainGraph,
+  useMainGraph
 } from "@/model/store";
 import { AddNode, Math as MathSchema } from "@/schema/node";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -28,7 +27,6 @@ import ReactFlow, {
   SelectionMode
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { useSnapshot } from "valtio";
 import { InterfaceNode } from "./nodes/interfaceNode";
 import { MathNode } from "./nodes/mathNode";
 import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
@@ -49,8 +47,7 @@ const EDGE_TYPES = {
 };
 
 const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
-  const { nodes, wires, encapsulatedNodes } = useMainGraph(serialState);
-  const editingData = useSnapshot(editingCompositeData);
+  const { nodes, wires, encapsulatedNodes, editingCompositeData: editingCompositeDataSnap } = useMainGraph(serialState);
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
@@ -83,33 +80,36 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
     }
   }, [altPressed, copyRequested]);
 
-  useEffect(() => {
-    if (!editingCompositeData.isEditing) return;
-    if (reactFlowInstance && reactFlowInstance) {
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect() as DOMRect;
+  // useEffect(() => {
+  //   if (!editingCompositeDataSnap.isEditing) return;
+  //   if (reactFlowInstance && reactFlowInstance) {
+  //     const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect() as DOMRect;
 
-      const boundingRect = getBoundingRectangleForClassName("nodeshell");
-      console.log("boundingRect", boundingRect)
-      if (!boundingRect) return;
-      const rFTopLeft = reactFlowInstance.project({
-        x: boundingRect.left - reactFlowBounds.left,
-        y: boundingRect.top - reactFlowBounds.top,
-      });
-      const rFBottomRight = reactFlowInstance.project({
-        x: boundingRect.right - reactFlowBounds.left,
-        y: boundingRect.bottom - reactFlowBounds.top,
-      });
-      const rFWidth = rFBottomRight.x - rFTopLeft.x;
-      const rFHeight = rFBottomRight.y - rFTopLeft.y;
+  //     const boundingRect = getBoundingRectangleForClassName("nodeshell");
+  //     console.log("boundingRect", boundingRect)
+  //     if (!boundingRect) return;
+  //     const rFTopLeft = reactFlowInstance.project({
+  //       x: boundingRect.left - reactFlowBounds.left,
+  //       y: boundingRect.top - reactFlowBounds.top,
+  //     });
+  //     const rFBottomRight = reactFlowInstance.project({
+  //       x: boundingRect.right - reactFlowBounds.left,
+  //       y: boundingRect.bottom - reactFlowBounds.top,
+  //     });
+  //     const rFWidth = rFBottomRight.x - rFTopLeft.x;
+  //     const rFHeight = rFBottomRight.y - rFTopLeft.y;
 
-      const { interfaceNodeDimensions } = editingCompositeData;
+  //     if (!editingCompositeData.isEditing) {
+  //       throw new Error("editingCompositeData.isEditing should be true");
+  //     }
+  //     const { interfaceNodeDimensions } = editingCompositeData;
 
-      interfaceNodeDimensions.x = rFTopLeft.x
-      interfaceNodeDimensions.y = rFTopLeft.y
-      interfaceNodeDimensions.width = rFWidth
-      interfaceNodeDimensions.height = rFHeight
-    }
-  }, [nodes, reactFlowInstance, editingData.isEditing]);
+  //     interfaceNodeDimensions.x = rFTopLeft.x
+  //     interfaceNodeDimensions.y = rFTopLeft.y
+  //     interfaceNodeDimensions.width = rFWidth
+  //     interfaceNodeDimensions.height = rFHeight
+  //   }
+  // }, [nodes, reactFlowInstance, editingCompositeDataSnap.isEditing]);
 
   const onNodesChange: OnNodesChange = useCallback(
     // @ts-ignore
@@ -270,27 +270,3 @@ function useKeyPress(targetKey: string) {
   return keyPressed;
 }
 
-
-function getBoundingRectangleForClassName(className: string) {
-  const elements = document.querySelectorAll(`.${className}`);
-  if (!elements.length) return null;
-
-  let combinedRect: any = elements[0].getBoundingClientRect();
-
-  elements.forEach(el => {
-      const rect = el.getBoundingClientRect();
-
-      combinedRect = {
-          top: Math.min(combinedRect.top, rect.top),
-          left: Math.min(combinedRect.left, rect.left),
-          right: Math.max(combinedRect.right, rect.right),
-          bottom: Math.max(combinedRect.bottom, rect.bottom),
-      };
-  });
-
-
-  // combinedRect.width = combinedRect.right - combinedRect.left;
-  // combinedRect.height = combinedRect.bottom - combinedRect.top;
-
-  return combinedRect;
-}

@@ -57,7 +57,10 @@ export type ParentNode = {
   position: { x: number; y: number };
   type: "interface";
   selected: false,
-  data: {};
+  data: {
+    width: number;
+    height: number;
+  };
 }
 
 export type Math = {

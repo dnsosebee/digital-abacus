@@ -109,8 +109,8 @@ export const beginEditingComposite = (nodeId: string) => {
       y: 0,
     },
   };
-  console.log("set editing composite data to")
-  console.log(store.editingCompositeData)
+  console.log("set editing composite data to");
+  console.log(store.editingCompositeData);
   const compositeConstraint = edge.constraint as CompositeOperation;
   store.visibleGraph = compositeConstraint.graph;
 };
@@ -330,13 +330,13 @@ export const startEncapsulation = () => {
     e.selected = true;
   });
   const internalNodes = selected.filter((e) => e instanceof NodeEdge) as NodeEdge[];
-  const externalWires = (mainGraph().edges.filter((e) => e instanceof WireEdge) as WireEdge[]).filter(
-    (e) => {
-      const isSourceInternal = internalNodes.find((n) => n.id === e.source.node);
-      const isTargetInternal = internalNodes.find((n) => n.id === e.target.node);
-      return (isSourceInternal && !isTargetInternal) || (!isSourceInternal && isTargetInternal);
-    }
-  );
+  const externalWires = (
+    mainGraph().edges.filter((e) => e instanceof WireEdge) as WireEdge[]
+  ).filter((e) => {
+    const isSourceInternal = internalNodes.find((n) => n.id === e.source.node);
+    const isTargetInternal = internalNodes.find((n) => n.id === e.target.node);
+    return (isSourceInternal && !isTargetInternal) || (!isSourceInternal && isTargetInternal);
+  });
 
   const externalVertices = internalNodes
     .map((n) => n.vertices)
@@ -401,7 +401,9 @@ export const commitEncapsulation = (label: string) => {
   //   .filter((v) =>
   //     externalWires.find((w) => vertexIdEq(v.id, w.source) || vertexIdEq(v.id, w.target))
   //   );
-  const externalVertices = mainGraph().encapsulationInterface!.map((id) => mainGraph()._getVertex(id)!);
+  const externalVertices = mainGraph().encapsulationInterface!.map(
+    (id) => mainGraph()._getVertex(id)!
+  );
 
   const boundExternalVertices = externalVertices.filter((v) =>
     v.deps.find(
@@ -616,7 +618,8 @@ export type SerialState = z.infer<typeof serialStateSchema>;
 
 export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   // logger.debug({ initial }, "useMainGraph called");
-  const {visibleGraph: graphSnap} = useSnapshot(store);
+  const { visibleGraph: graphSnap, editingCompositeData: editingCompositeDataSnap } =
+    useSnapshot(store);
   const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
@@ -644,19 +647,21 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   // useEffect(() => {}, [stickiesSnap]);
 
   let nodes: CircuitNode[] = [];
-  if (editingCompositeData.isEditing) {
-    nodes.push(
-    {
+  if (editingCompositeDataSnap.isEditing) {
+    const boundingRect = getBoundingRectangleForGraph(graphSnap as CoordGraph);
+    nodes.push({
       id: "interface",
       position: {
-        x: editingCompositeData.interfaceNodeDimensions.x - BUFFER,
-        y: editingCompositeData.interfaceNodeDimensions.y - BUFFER,
+        x: boundingRect.minX - BUFFER,
+        y: boundingRect.minY - BUFFER,
       },
       type: "interface",
       selected: false,
-      data: {},
-    },
-    );
+      data: {
+        width: boundingRect.maxX - boundingRect.minX + 2 * BUFFER,
+        height: boundingRect.maxY - boundingRect.minY + 2 * BUFFER,
+      },
+    });
   }
   const wires: Wire[] = [];
   (graphSnap.edges as CircuitEdge[]).forEach((edge) => {
@@ -676,6 +681,7 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
     encapsulationInterface: graphSnap.encapsulationInterface,
     requiredInterfaceVertices: graphSnap.requiredInterfaceVertices,
     encapsulatedNodes: graphSnap.encapsulatedNodes,
+    editingCompositeData: editingCompositeDataSnap,
   };
 };
 
@@ -704,3 +710,49 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
   selected: edge.selected,
   parent: "interface",
 });
+
+
+const VERTEX_WIDTH = 140;
+// const NODE_BUFFER = 50;
+const STANDALONE_WIDTH = 220;
+const NODE_HEIGHT = 150;
+
+// gets a bounding box around every Node in a graph
+function getBoundingRectangleForGraph(graph: CoordGraph) {
+  const nodes = graph.edges.filter((e) => e instanceof NodeEdge) as NodeEdge[];
+  const minX = Math.min(...nodes.map((n) => n.position.x));
+  const maxX = Math.max(...nodes.map((n) => n.position.x + getNodeWidth(n)));
+  const minY = Math.min(...nodes.map((n) => n.position.y));
+  const maxY = Math.max(...nodes.map((n) => n.position.y + NODE_HEIGHT));
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+  };
+}
+
+
+// returns the max number of vertices across either the top or bottom row on a node
+function getNodeWidth(node: NodeEdge) {
+  if (node.constraint instanceof CompositeOperation) {
+    const { layout } = node.constraint;
+    if (!layout) {
+      return (node.vertices.length - 1) * VERTEX_WIDTH;
+    }
+    return Math.max(layout.data.top.length, layout.data.bottom.length) * VERTEX_WIDTH;
+  }
+  switch (node.type) {
+    case OP_TYPE.ADDER:
+    case OP_TYPE.MULTIPLIER:
+      return 2 * VERTEX_WIDTH;
+    case OP_TYPE.CONJUGATOR:
+    case OP_TYPE.EXPONENTIAL:
+      return VERTEX_WIDTH;
+    case OP_TYPE.STANDALONE:
+      return STANDALONE_WIDTH;
+
+    default:
+      throw new Error("unknown node type");
+  }
+}

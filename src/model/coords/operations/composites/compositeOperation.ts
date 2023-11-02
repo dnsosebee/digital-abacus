@@ -139,6 +139,7 @@ export class CompositeOperation extends Constraint<DifferentialCoord> {
       boundArray: this.boundArray,
       interfaceVertexIds: this.interfaceVertexIds,
       subgraph: this.graph.serialize(),
+      layout: this.layout,
     };
   }
 
