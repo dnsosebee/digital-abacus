@@ -21,8 +21,8 @@ const headingFont = Source_Code_Pro({
 });
 
 export const Topbar = () => {
-  const {editingCompositeData} = useSnapshot(store);
-  console.log(editingCompositeData)
+  const {ancestors} = useSnapshot(store);
+  const isEditingComposite = ancestors.length > 0;
   return (
     <div
       className={`font-bold ${headingFont.className} justify-between flex items-stretch text-gray-200 px-2 pt-2 pb-1`}
@@ -30,7 +30,7 @@ export const Topbar = () => {
       <div className="flex items-stretch">
         <Title />
         <GeneralSettings />
-        {editingCompositeData.isEditing && (
+        {isEditingComposite && (
           <button onClick={endEditingComposite} className="btn btn-sm">
             <XCircleIcon className="w-5 h-5 inline-block" />
           </button>

@@ -1,4 +1,4 @@
-import { useMainGraph } from "@/model/store";
+import { useStore } from "@/model/store";
 
 export const NodeShell = ({
   children,
@@ -15,7 +15,7 @@ export const NodeShell = ({
 }) => {
   // nice looking shell for our nodes, tailwind classes
 
-  const { encapsulatedNodes } = useMainGraph();
+  const { encapsulatedNodes } = useStore();
 
   const displaySelected = encapsulatedNodes
     ? encapsulatedNodes.includes(id)

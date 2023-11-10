@@ -1,6 +1,6 @@
 import { CoordVertex } from "@/model/coords/coordVertex";
 import { VertexId, vertexIdEq } from "@/model/graph/vertex";
-import { mainGraph, toggleEncapsulationInterfaceVertex, useMainGraph } from "@/model/store";
+import { mainGraph, toggleEncapsulationInterfaceVertex, useStore } from "@/model/store";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
 
 /**
@@ -8,7 +8,7 @@ import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/20/solid";
  */
 export const LockButton = ({ vertex }: { vertex: CoordVertex }) => {
   const { focus, encapsulationInterface, requiredInterfaceVertices, encapsulatedNodes } =
-    useMainGraph();
+    useStore();
   const reversing = !!focus;
   const encapsulating = encapsulationInterface !== null;
 

@@ -50,10 +50,10 @@ export const nodeSchema = z.union([mathSchema, stickySchema]);
 
 // export type VertexInfo = z.infer<typeof vertexSchema>;
 
-export const PARENT_NODE_ID = "interface";
+// export const PARENT_NODE_ID = "interface";
 
 export type ParentNode = {
-  id: typeof PARENT_NODE_ID,
+  id: "left" | "right" | "top" | "bottom"
   position: { x: number; y: number };
   type: "interface";
   selected: false,
@@ -68,7 +68,7 @@ export type Math = {
   position: { x: number; y: number };
   type: "math";
   selected: boolean;
-  parent: typeof PARENT_NODE_ID,
+  // parent: typeof PARENT_NODE_ID,
   data: {
     cartesian: boolean;
     vertices: CoordVertex[];

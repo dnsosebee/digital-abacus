@@ -45,11 +45,12 @@ export class CircuitEdge extends Edge<DifferentialCoord, CoordVertex> {
         const internalVertexId = interfaceVertexIds[boundVertex.id.handle];
         const internalVertex = graph._getVertex(internalVertexId);
         const internalDependentVertices = graph.getDepends(internalVertex);
-        const externalDependencies = internalDependentVertices
+        const internalInterfaceDependentVertices = internalDependentVertices
           .filter((v) => interfaceVertexIds.some((id) => vertexIdEq(id, v.id)))
+        const externalDependencies = internalInterfaceDependentVertices
           .map((v) => ({
             edge: eid,
-            vertex: { node: eid, handle: interfaceVertexIds.indexOf(v.id) },
+            vertex: { node: eid, handle: interfaceVertexIds.indexOf(interfaceVertexIds.find((id) => vertexIdEq(id, v.id))!) },
           }));
         boundVertex.deps = boundVertex.deps.concat(externalDependencies.slice());
       }

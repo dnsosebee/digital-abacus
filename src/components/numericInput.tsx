@@ -1,8 +1,9 @@
 import { Coord } from "@/model/coords/coord/coord";
+import { CoordGraph } from "@/model/coords/coordGraph";
 import { CoordVertex } from "@/model/coords/coordVertex";
 import { vertexIdEq } from "@/model/graph/vertex";
 import { settings } from "@/model/settings";
-import { mainGraph, updateCoord, useMainGraph } from "@/model/store";
+import { mainGraph, updateCoord, useStore } from "@/model/store";
 import { useEffect, useState } from "react";
 import { useSnapshot } from "valtio";
 import { useDrag } from "./dragProvider";
@@ -12,20 +13,22 @@ export const NumericInput = ({
   vertex,
   wide = false,
   alwaysBound = false,
+  graph = mainGraph(),
 }: {
   vertex: CoordVertex;
   wide?: boolean;
   alwaysBound?: boolean;
+  graph?: CoordGraph;
 }) => {
   const { showComplex, stepSize } = useSnapshot(settings);
-  const { encapsulationInterface } = useMainGraph();
+  const { encapsulationInterface } = useStore();
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    mainGraph().setVertexSelectedness(vertex.id, true);
+    graph.setVertexSelectedness(vertex.id, true);
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    mainGraph().setVertexSelectedness(vertex.id, false);
+    graph.setVertexSelectedness(vertex.id, false);
   };
 
   const readonly = alwaysBound || vertex.isBound();
@@ -47,7 +50,7 @@ export const NumericInput = ({
         <div className="flex">
           <PureSingleNumericInput
             value={vertex.value.x}
-            onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y))}
+            onChange={(value) => updateCoord(vertex.id, new Coord(value, vertex.value.y), graph)}
             wide={wide}
             readonly={readonly}
             onBlur={handleBlur}

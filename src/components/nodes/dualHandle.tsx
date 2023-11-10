@@ -13,7 +13,7 @@ export const DualHandle = (
       type="source"
       style={props.style}
       position={props.position}
-      className={`${props.bound ? "bound" : ""}`}
+      className={`${props.bound ? "bound" : ""} visible`}
       isConnectableEnd={!props.bound}
     />
   );

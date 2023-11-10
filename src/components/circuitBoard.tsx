@@ -8,7 +8,7 @@ import {
   removeNode,
   removeWire,
   updateNodePosition,
-  useMainGraph
+  useStore
 } from "@/model/store";
 import { AddNode, Math as MathSchema } from "@/schema/node";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -47,7 +47,7 @@ const EDGE_TYPES = {
 };
 
 const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
-  const { nodes, wires, encapsulatedNodes, editingCompositeData: editingCompositeDataSnap } = useMainGraph(serialState);
+  const { nodes, wires, encapsulatedNodes} = useStore(serialState);
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);

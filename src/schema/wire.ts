@@ -24,7 +24,7 @@ export const wireSchema = z.object({
   target: z.string().length(NODE_ID_LENGTH),
   targetHandle: handleSchema,
   animated: z.literal(true),
-  selected: z.boolean(),
+  selected: z.boolean().optional(),
 });
 
 export type Wire = z.infer<typeof wireSchema>;

@@ -8,7 +8,7 @@ import {
   commitEncapsulation,
   mainGraph,
   startEncapsulation,
-  useMainGraph,
+  useStore,
 } from "@/model/store";
 import { Math as MathNode } from "@/schema/node";
 import {
@@ -23,7 +23,7 @@ import {
 import { NodeToolbar } from "reactflow";
 
 export const MultiSelectionToolbar = ({ selectedNodes }: { selectedNodes: MathNode[] }) => {
-  const { encapsulationInterface, encapsulatedNodes } = useMainGraph();
+  const { encapsulationInterface, encapsulatedNodes } = useStore();
 
   const encapsulating = encapsulationInterface !== null;
   const selectedNodeIds = selectedNodes.map((node) => node.id);

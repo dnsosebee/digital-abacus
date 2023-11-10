@@ -1,13 +1,6 @@
 import { BUFFER } from "@/components/nodes/interfaceNode";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import {
-  AddNode,
-  CircuitNode,
-  PARENT_NODE_ID,
-  Sticky,
-  genNodeId,
-  stickySchema,
-} from "@/schema/node";
+import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
@@ -72,23 +65,17 @@ const initialGraph = new CoordGraph(UPDATE_MODE);
 // );
 // const initialSerialNodeEdge = initialNodeEdge.serialize();
 
+export type Ancestor = {
+  graph: CoordGraph;
+  node: NodeEdge;
+};
+
 export const store = proxy({
-  updatingGraph: initialGraph,
+  ancestors: [] as Ancestor[],
   visibleGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
   // mainGraphSerialEdge: initialSerialNodeEdge,
   components: [] as SerialNodeEdge[],
   stickies: [] as Sticky[],
-  editingCompositeData: {
-    isEditing: false,
-  } as
-    | {
-        isEditing: false;
-      }
-    | {
-        isEditing: true;
-        visibleCompositeEdge: NodeEdge;
-        interfaceNodeDimensions: { width: number; height: number; x: number; y: number };
-      },
 });
 
 export const beginEditingComposite = (nodeId: string) => {
@@ -99,33 +86,25 @@ export const beginEditingComposite = (nodeId: string) => {
   if (edge.type !== OP_TYPE.COMPOSITE) {
     throw new Error("edge is not a composite");
   }
-  store.editingCompositeData = {
-    isEditing: true,
-    visibleCompositeEdge: edge,
-    interfaceNodeDimensions: {
-      width: 0,
-      height: 0,
-      x: 0,
-      y: 0,
-    },
-  };
-  console.log("set editing composite data to");
-  console.log(store.editingCompositeData);
+  if (!(edge.constraint instanceof CompositeOperation && edge.constraint.layout)) {
+    alert("This cannot be edited.");
+    return;
+  }
   const compositeConstraint = edge.constraint as CompositeOperation;
+  store.ancestors.push({ graph: store.visibleGraph, node: edge });
   store.visibleGraph = compositeConstraint.graph;
 };
 
 export const endEditingComposite = () => {
-  store.editingCompositeData = {
-    isEditing: false,
-  };
-  store.visibleGraph = store.updatingGraph;
+  const { graph, node } = store.ancestors.pop()!;
+  store.visibleGraph = graph;
 };
+
+export const isEditingComposite = () => store.ancestors.length > 0;
 
 export let mainGraph = () => store.visibleGraph; // would be better if const
 export const userDefinedComposites = store.components;
 export const stickies = store.stickies;
-export const editingCompositeData = store.editingCompositeData;
 
 let locked = false;
 setInterval(() => {
@@ -139,7 +118,8 @@ setInterval(() => {
   }
 
   locked = true;
-  store.updatingGraph.update(settings.updateCycles);
+  const outermostGraph = store.ancestors.length === 0 ? mainGraph() : store.ancestors[0].graph;
+  outermostGraph.update(settings.updateCycles);
   // console.log(mainGraph);
   locked = false;
 }, 1000 / 60);
@@ -148,7 +128,7 @@ const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
 
 export const updateNodePosition = (e: NodePositionChange) => {
-  if (e.id === PARENT_NODE_ID) {
+  if (e.id === "left" || e.id === "right" || e.id === "top" || e.id === "bottom") {
     // we don't process position changes on the parent node
     return;
   }
@@ -280,7 +260,7 @@ export const removeNode = (id: string) => {
 
 const DEBUG_SELECTED = true;
 export const changeSelection = (id: string, selected: boolean) => {
-  if (id === PARENT_NODE_ID) {
+  if (id === "left" || id === "right" || id === "top" || id === "bottom") {
     // we don't process selections on the parent node
     return;
   }
@@ -302,8 +282,8 @@ export const changeSelection = (id: string, selected: boolean) => {
   }
 };
 
-export const updateCoord = (vertexId: VertexId, coord: Coord) => {
-  const vertex = mainGraph()._getVertex(vertexId);
+export const updateCoord = (vertexId: VertexId, coord: Coord, graph = mainGraph()) => {
+  const vertex = graph._getVertex(vertexId);
   vertex.value.mut_sendTo(coord);
 };
 
@@ -616,10 +596,9 @@ export const serialStateSchema = z.object({
 
 export type SerialState = z.infer<typeof serialStateSchema>;
 
-export const useMainGraph = (initial?: SerialState, cartesian = false) => {
+export const useStore = (initial?: SerialState, cartesian = false) => {
   // logger.debug({ initial }, "useMainGraph called");
-  const { visibleGraph: graphSnap, editingCompositeData: editingCompositeDataSnap } =
-    useSnapshot(store);
+  const { visibleGraph: graphSnap, ancestors } = useSnapshot(store);
   const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
@@ -647,23 +626,79 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
   // useEffect(() => {}, [stickiesSnap]);
 
   let nodes: CircuitNode[] = [];
-  if (editingCompositeDataSnap.isEditing) {
+  const wires: Wire[] = [];
+  if (isEditingComposite()) {
+    const { node } = ancestors[ancestors.length - 1];
+    if (!(node.constraint instanceof CompositeOperation)) {
+      throw new Error("node constraint is not composite");
+    }
+    const layout = node.constraint.layout;
+    if (!layout) {
+      throw new Error("layout is undefined");
+    }
+    ["top" as const, "bottom" as const].forEach((side) =>
+      layout.data[side].forEach((interfaceVertexIdsIdx, layoutSideIdx) => {
+        if (!(node.constraint instanceof CompositeOperation)) {
+          throw new Error("node constraint is not composite");
+        }
+        // const v = node.vertices[i];
+        const interfaceVertexId = node.constraint.interfaceVertexIds[interfaceVertexIdsIdx];
+        const internalVertex = node.constraint.graph._getVertex(interfaceVertexId);
+        // const internalVertex = internalNode.vertices[interfaceVertexId.handle];
+        const internallyBound = internalVertex.isBound();
+
+        const interfaceHandleId = handleNumToId(layoutSideIdx);
+        console.log({ interfaceHandleId, interfaceVertexId, internallyBound, side, layoutSideIdx, interfaceVertexIdsIdx, layout });
+        wires.push({
+          id: `interface-${side}-${layoutSideIdx}`,
+          source: internallyBound ? interfaceVertexId.node : side,
+          sourceHandle: internallyBound
+            ? handleNumToId(interfaceVertexId.handle)
+            : interfaceHandleId,
+          target: internallyBound ? side : interfaceVertexId.node,
+          targetHandle: internallyBound
+            ? interfaceHandleId
+            : handleNumToId(interfaceVertexId.handle),
+          type: "coord",
+          animated: true,
+          // selected: edge.selected,
+        });
+      })
+    );
+    const sides = ["left" as const, "right" as const, "top" as const, "bottom" as const];
     const boundingRect = getBoundingRectangleForGraph(graphSnap as CoordGraph);
-    nodes.push({
-      id: "interface",
-      position: {
-        x: boundingRect.minX - BUFFER,
-        y: boundingRect.minY - BUFFER,
-      },
-      type: "interface",
-      selected: false,
-      data: {
-        width: boundingRect.maxX - boundingRect.minX + 2 * BUFFER,
-        height: boundingRect.maxY - boundingRect.minY + 2 * BUFFER,
-      },
+    sides.forEach((side) => {
+      nodes.push({
+        id: side,
+        position:
+          side === "left"
+            ? {
+                x: boundingRect.minX - BUFFER,
+                y: boundingRect.minY - BUFFER,
+              }
+            : side === "top"
+            ? {
+                x: boundingRect.minX - BUFFER,
+                y: boundingRect.minY - BUFFER,
+              }
+            : side === "right"
+            ? {
+                x: boundingRect.maxX + BUFFER,
+                y: boundingRect.minY - BUFFER,
+              }
+            : {
+                x: boundingRect.minX - BUFFER,
+                y: boundingRect.maxY + BUFFER,
+              },
+        type: "interface",
+        selected: false,
+        data: {
+          width: boundingRect.maxX - boundingRect.minX + 2 * BUFFER,
+          height: boundingRect.maxY - boundingRect.minY + 2 * BUFFER,
+        },
+      });
     });
   }
-  const wires: Wire[] = [];
   (graphSnap.edges as CircuitEdge[]).forEach((edge) => {
     if (edge instanceof WireEdge) {
       wires.push(edgeToWire(edge));
@@ -681,7 +716,7 @@ export const useMainGraph = (initial?: SerialState, cartesian = false) => {
     encapsulationInterface: graphSnap.encapsulationInterface,
     requiredInterfaceVertices: graphSnap.requiredInterfaceVertices,
     encapsulatedNodes: graphSnap.encapsulatedNodes,
-    editingCompositeData: editingCompositeDataSnap,
+    ancestors,
   };
 };
 
@@ -708,21 +743,21 @@ const edgeToNode = (edge: NodeEdge, cartesian: boolean): CircuitNode => ({
     edge: edge,
   },
   selected: edge.selected,
-  parent: "interface",
+  // parent: "interface",
 });
-
 
 const VERTEX_WIDTH = 140;
 // const NODE_BUFFER = 50;
 const STANDALONE_WIDTH = 220;
 const NODE_HEIGHT = 150;
+const EXTRA_TOP_BUFFER = 65;
 
 // gets a bounding box around every Node in a graph
 function getBoundingRectangleForGraph(graph: CoordGraph) {
   const nodes = graph.edges.filter((e) => e instanceof NodeEdge) as NodeEdge[];
   const minX = Math.min(...nodes.map((n) => n.position.x));
   const maxX = Math.max(...nodes.map((n) => n.position.x + getNodeWidth(n)));
-  const minY = Math.min(...nodes.map((n) => n.position.y));
+  const minY = Math.min(...nodes.map((n) => n.position.y)) - EXTRA_TOP_BUFFER;
   const maxY = Math.max(...nodes.map((n) => n.position.y + NODE_HEIGHT));
   return {
     minX,
@@ -731,7 +766,6 @@ function getBoundingRectangleForGraph(graph: CoordGraph) {
     maxY,
   };
 }
-
 
 // returns the max number of vertices across either the top or bottom row on a node
 function getNodeWidth(node: NodeEdge) {

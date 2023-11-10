@@ -166,6 +166,11 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
 
   // find free nodes in the given vertex's dependency tree
   _leafDeps(v: V, seen: VertexId[] = []) {
+    console.log({
+      graph: this,
+      v,
+      seen,
+    })
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {

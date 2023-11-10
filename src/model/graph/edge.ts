@@ -76,6 +76,7 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
         edge: eid,
       };
     });
+
     // logger.debug({ free }, "free vertices");
     for (let v of this.getBoundVertices()) {
       v.deps = v.deps.concat(free.slice());
