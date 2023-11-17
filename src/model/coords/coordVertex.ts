@@ -26,10 +26,10 @@ export class CoordVertex extends Vertex<DifferentialCoord> {
   constructor(
     value: DifferentialCoord,
     id: VertexId,
-    dragging = false,
-    hidden = false,
-    selected = false,
-    label: string,
+    dragging: boolean,
+    hidden: boolean,
+    selected: boolean,
+    label: string
   ) {
     // position of point
     super(value, id);

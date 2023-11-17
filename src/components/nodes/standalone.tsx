@@ -24,17 +24,31 @@ export const StandaloneNode = ({ data, selected, id }: MathProps) => {
         className="round-standalone px-4"
         id={data.edge.id}
       >
-        <input
-          type="text"
-          name="label"
-          id="label"
-          className="block w-full rounded-lg border-0 py-1.5 bg-slate-900 shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 px-2"
-          placeholder="number label"
-          value={data.label}
-          onChange={handleLabelChange}
-        />
+       <PureTextInput value={data.label} onChange={handleLabelChange} />
         <NumericInput vertex={data.vertices[0]} wide />
       </NodeShell>
     </div>
   );
 };
+
+export const PureTextInput = ({
+  value,
+  onChange,
+  className = "",
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+}) => {
+  return (
+    <input
+    type="text"
+    name="label"
+    id="label"
+    className="block w-full rounded-lg border-0 py-1.5 bg-slate-900 shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 px-2"
+    placeholder="label"
+    value={value}
+    onChange={onChange}
+  />
+  );
+}

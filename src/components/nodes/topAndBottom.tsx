@@ -34,13 +34,19 @@ export const TopAndBottomNode = ({ edge, selected }: TopAndBottomProps) => {
       >
         <div className="flex flex-row space-x-5 self-stretch justify-evenly">
           {top.map((idx) => (
-            <NumericInput key={idx} vertex={vertices[idx]} />
+            <div key={idx}>
+              {vertices[idx].label !== "" && (<div className="absolute visible text-white" style={{ left: `${(100 / top.length) * (0.57 + idx)}%`, top: "-25px" }}>{vertices[idx].label}</div>)}
+              <NumericInput key={idx} vertex={vertices[idx]} />
+            </div>
           ))}
         </div>
         <Symbol text={edge.label} selected={selected} />
         <div className="flex flex-row space-x-5 self-stretch justify-evenly">
-          {bottom.map((idx) => (
+          {bottom.map((idx, layoutIdx) => (
+            <div key={idx}>
+            {vertices[idx].label !== "" && (<div className="absolute visible text-white" style={{ left: `${(100 / bottom.length) * (0.57 + layoutIdx)}%`, bottom: "-25px" }}>{vertices[idx].label}</div>)}
             <NumericInput key={idx} vertex={vertices[idx]} />
+          </div>
           ))}
         </div>
       </NodeShell>

@@ -199,4 +199,8 @@ export class OperatorConstraint<T> extends Constraint<T> {
     newdata[this.bound] = this.cp(data[this.bound], this.ops[this.bound](data));
     return newdata;
   }
+
+  updateDifferentials(data: T[]) {
+    throw new Error("updateDifferentials not implemented");
+  }
 }
