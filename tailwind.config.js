@@ -51,6 +51,7 @@ module.exports = {
           ...require("daisyui/src/colors/themes")["[data-theme=pastel]"],
           neutral: "black",
           "neutral-focus": "gray",
+          
         },
       },
     ],

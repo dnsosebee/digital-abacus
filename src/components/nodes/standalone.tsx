@@ -1,4 +1,5 @@
 import { updateLabel } from "@/model/store";
+import { useState } from "react";
 import { Position } from "reactflow";
 import { NumericInput } from "../numericInput";
 import { DualHandle } from "./dualHandle";
@@ -40,15 +41,21 @@ export const PureTextInput = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 }) => {
+  const [val, setVal] = useState(value);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVal(e.target.value);
+    onChange(e);
+  };
   return (
     <input
     type="text"
     name="label"
     id="label"
-    className="block w-full rounded-lg border-0 py-1.5 bg-slate-900 shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 px-2"
+    className={`block w-full rounded-lg border-0 py-1.5 bg-slate-900 shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 px-2 resize-none ${className}`}
     placeholder="label"
-    value={value}
-    onChange={onChange}
+    value={val}
+    onChange={handleChange}
   />
   );
 }

@@ -27,6 +27,7 @@ import ReactFlow, {
   SelectionMode
 } from "reactflow";
 import "reactflow/dist/style.css";
+import { Navbar } from "./navbar";
 import { InterfaceNode } from "./nodes/interfaceNode";
 import { MathNode } from "./nodes/mathNode";
 import { MultiSelectionToolbar } from "./nodes/multiSelectionToolbar";
@@ -204,6 +205,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
         {/* <p>{store.edges.length}</p> */}
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
         <div className="reactflow-wrapper flex-grow" ref={reactFlowWrapper}>
+          <Navbar />
           <ReactFlow
             className="spotlight"
             nodes={nodes}

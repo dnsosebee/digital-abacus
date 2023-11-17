@@ -131,9 +131,9 @@ const EncapsulationControls = ({
   const editable = selectedNodes.length === 1 && selectedNodes[0].data.opType === "composite";
 
   const endEncapsulation = () => {
-    const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
-    if (!label) return;
-    commitEncapsulation(label);
+    // const label = prompt("Enter a label for the encapsulated node", "Encapsulated Node");
+    // if (!label) return;
+    commitEncapsulation("Untitled Node");
   };
 
   const edit = () => {

@@ -55,7 +55,7 @@ const GeneralSettings = () => {
     console.log(json);
     try {
       const newHandle = await (window as any).showSaveFilePicker({
-        suggestedName: "my_construction.json",
+        suggestedName: "my_construction.graph.json",
       });
       const writableStream = await newHandle.createWritable();
       await writableStream.write(JSON.stringify(json));

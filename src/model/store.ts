@@ -100,6 +100,12 @@ export const endEditingComposite = () => {
   store.visibleGraph = graph;
 };
 
+export const popToAncestor = (ancestorIdx: number) => {
+  while (store.ancestors.length > ancestorIdx) {
+    endEditingComposite();
+  }
+}
+
 export const isEditingComposite = () => store.ancestors.length > 0;
 
 export let mainGraph = () => store.visibleGraph; // would be better if const
@@ -467,7 +473,7 @@ export const commitEncapsulation = (label: string) => {
     label,
   };
 
-  userDefinedComposites.push(serialNodeEdge);
+  // userDefinedComposites.push(serialNodeEdge);
 
   connectedWires.forEach((w) => {
     mainGraph().removeWire(w.id);
@@ -498,6 +504,8 @@ export const commitEncapsulation = (label: string) => {
   });
 
   cancelEncapsulation();
+
+  beginEditingComposite(newNodeId);
 };
 
 const cloneNodeEdge = (e: NodeEdge, selected: undefined | boolean = undefined) => {

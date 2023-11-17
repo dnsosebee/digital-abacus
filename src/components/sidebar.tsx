@@ -2,8 +2,10 @@ import { OP_TYPE, SerialNodeEdge } from "@/model/coords/edges/nodeEdge";
 import { BUILTIN_COMPOSITES } from "@/model/coords/operations/composites/compositeOperation";
 import { userDefinedComposites } from "@/model/store";
 import { AddNode } from "@/schema/node";
+import { ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useSnapshot } from "valtio";
 import { Draggable } from "./draggable";
+import { saveTemplate } from "./navbar";
 
 export const Sidebar = () => {
   return (
@@ -19,6 +21,52 @@ const ComponentSidebar = () => {
   const onDragStart = (event: React.DragEvent<HTMLElement>, addNode: AddNode) => {
     event.dataTransfer.setData("application/reactflow", JSON.stringify(addNode));
     event.dataTransfer.effectAllowed = "move";
+  };
+
+  const deleteHandler = (index: number) => {
+    const newComponents = [...userDefinedComposites];
+    newComponents.splice(index, 1);
+    userDefinedComposites.splice(0, userDefinedComposites.length, ...newComponents);
+  }
+
+  const saveHandler = async (composite: SerialNodeEdge) => {
+    const json = { node: composite, schemaVersion: 1 };
+    console.log(json);
+    try {
+      const newHandle = await (window as any).showSaveFilePicker({
+        suggestedName: "title.node.json",
+      });
+      const writableStream = await newHandle.createWritable();
+      await writableStream.write(JSON.stringify(json));
+      await writableStream.close();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadHandler = async () => {
+    try {
+      const [fileHandle] = await (window as any).showOpenFilePicker({
+        types: [
+          {
+            description: "JSON",
+            accept: {
+              "application/*": [".json"],
+            },
+          },
+        ],
+        excludeAcceptAllOption: true,
+        multiple: false,
+      });
+
+      // get file contents
+      const fileData = await fileHandle.getFile();
+      const stringData = await fileData.text();
+      const json = JSON.parse(stringData);
+      saveTemplate(json["node"]);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -361,21 +409,36 @@ const ComponentSidebar = () => {
         />
       </div>
 
-      <p className="text-gray-550 text-lg text-center">User Defined</p>
-      <div className={`flex flex-col items-center space-y-4 py-4`}>
-        {userDefinedSnapshot.map((composite) => (
-          <Draggable
-            key={composite.label}
-            symbol={composite.label}
-            onDragStart={(event: React.DragEvent<HTMLElement>) =>
-              onDragStart(event, {
-                type: "user defined composite",
-                data: { serialEdge: composite as SerialNodeEdge },
-                position: { x: 0, y: 0 },
-              })
-            }
-          />
+      <p className="text-gray-550 text-lg text-center">Your Templates</p>
+      <div className={`flex flex-col items-center space-y-4 py-4 overflow-x-hidden`}>
+        {userDefinedSnapshot.map((composite, idx) => (
+          <div className="flex flex-col" key={composite.label}>
+            <div className="flex-grow flex items-center justify-items-center overflow-x-hidden">
+              <Draggable
+                symbol={composite.label}
+                squeeze={composite.label.length > 6}
+                onDragStart={(event: React.DragEvent<HTMLElement>) =>
+                  onDragStart(event, {
+                    type: "user defined composite",
+                    data: { serialEdge: composite as SerialNodeEdge },
+                    position: { x: 0, y: 0 },
+                  })
+                }
+              />
+            </div>
+            <div className="btn-group mt-2 self-center">
+            <button className="btn btn-xs" onClick={() => saveHandler(composite as SerialNodeEdge)}>
+              <ArrowDownTrayIcon className="w-5 h-5 inline-block text-white" />
+            </button><div className="border-l-2 border-slate-500" />
+            <button className="btn btn-xs" onClick={() => deleteHandler(idx)}>
+              <TrashIcon className="w-5 h-5 inline-block text-red-400" />
+            </button>
+            </div>
+          </div>
         ))}
+        <button className="justify-self-stretch border border-1 border-white p-2 rounded-full hover:bg-gray-550 self-stretch" onClick={loadHandler}>
+          <ArrowUpTrayIcon className="w-5 h-5 inline-block text-white" />
+        </button>
       </div>
     </div>
   );
