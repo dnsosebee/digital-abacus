@@ -20,15 +20,24 @@ export const StickyNode = ({ data, selected, id }: StickyProps) => {
     updateStickyText(id, e.target.value);
   };
 
+  // updateStickyDimensions("todo", {})
+
+  const handleDrag = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log("dragging");
+  };
+
   return (
     <div>
       <NodeShell selected={selected} className="rounded-3xl px-4" id={id}>
-        <h1 className="text-2xl">✍️</h1>
+        <h1 className="text-2xl draggable">✍️</h1>
         <textarea
-          className="w-full h-full block rounded-xl border-0 py-1.5 bg-slate-900 shadow-sm ring-1 ring-inset ring-slate-700 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 px-2 resize-none"
+          className=""
           placeholder="Enter text here..."
           value={stickyText}
           onChange={onChange}
+          onDrag={handleDrag}
         />
       </NodeShell>
     </div>

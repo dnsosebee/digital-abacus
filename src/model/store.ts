@@ -104,7 +104,7 @@ export const popToAncestor = (ancestorIdx: number) => {
   while (store.ancestors.length > ancestorIdx) {
     endEditingComposite();
   }
-}
+};
 
 export const isEditingComposite = () => store.ancestors.length > 0;
 
@@ -132,6 +132,7 @@ setInterval(() => {
 
 const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
 const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
+
 
 export const updateNodePosition = (e: NodePositionChange) => {
   if (e.id === "left" || e.id === "right" || e.id === "top" || e.id === "bottom") {
@@ -164,8 +165,9 @@ export const addNode = (addNode: AddNode) => {
         id: genNodeId(),
         type: "sticky",
         position: addNode.position,
-        data: { text: "" },
+        data: { text: "", width: 200, height: 100 },
         selected: false,
+        dragHandle: ".draggable",
       });
       break;
     case "math":
@@ -296,6 +298,12 @@ export const updateCoord = (vertexId: VertexId, coord: Coord, graph = mainGraph(
 export const updateStickyText = (id: string, text: string) => {
   const sticky = findSticky(id);
   sticky.data.text = text;
+};
+
+export const updateStickyDimensions = (id: string, dimensions: { width: number | undefined; height: number | undefined }) => {
+  const sticky = findSticky(id);
+  sticky.data.width = dimensions.width ?? sticky.data.width;
+  sticky.data.height = dimensions.height ?? sticky.data.height;
 };
 
 export const updateLabel = (id: string, label: string) => {
@@ -473,8 +481,6 @@ export const commitEncapsulation = (label: string) => {
     label,
   };
 
-  // userDefinedComposites.push(serialNodeEdge);
-
   connectedWires.forEach((w) => {
     mainGraph().removeWire(w.id);
   });
@@ -581,8 +587,9 @@ export const cloneSelected = () => {
         id: newId,
         type: "sticky",
         position: s.position,
-        data: { text: s.data.text },
+        data: { text: s.data.text, width: s.data.width, height: s.data.height },
         selected: false,
+        dragHandle: ".draggable",
       });
     }
   });
@@ -656,7 +663,15 @@ export const useStore = (initial?: SerialState, cartesian = false) => {
         const internallyBound = internalVertex.isBound();
 
         const interfaceHandleId = handleNumToId(layoutSideIdx);
-        console.log({ interfaceHandleId, interfaceVertexId, internallyBound, side, layoutSideIdx, interfaceVertexIdsIdx, layout });
+        console.log({
+          interfaceHandleId,
+          interfaceVertexId,
+          internallyBound,
+          side,
+          layoutSideIdx,
+          interfaceVertexIdsIdx,
+          layout,
+        });
         wires.push({
           id: `interface-${side}-${layoutSideIdx}`,
           source: internallyBound ? interfaceVertexId.node : side,

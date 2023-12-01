@@ -41,8 +41,11 @@ const mathSchema = baseNodeSchema.extend({
 export const stickySchema = baseNodeSchema.extend({
   type: z.literal("sticky"),
   selected: z.boolean(),
+  dragHandle: z.literal('.draggable'),
   data: z.object({
     text: z.string(),
+    width: z.number(),
+    height: z.number(),
   }),
 });
 

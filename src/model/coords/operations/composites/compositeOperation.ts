@@ -178,7 +178,7 @@ export class CompositeOperation extends Constraint<DifferentialCoord> {
     this.boundArray.forEach((bound: number) => {
       deps[bound] = true;
     });
-
+    console.log({boundArray: this.boundArray, deps})
     return deps;
   }
 }

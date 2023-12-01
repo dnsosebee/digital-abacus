@@ -23,6 +23,7 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
     this.vertices = v;
     this.constraint = c;
     this.id = id;
+    console.log("in edge constructor")
     this.updateDependencies();
   }
 
@@ -77,10 +78,10 @@ export class Edge<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
       };
     });
 
-    // logger.debug({ free }, "free vertices");
+    logger.debug({ free }, "free vertices");
     for (let v of this.getBoundVertices()) {
       v.deps = v.deps.concat(free.slice());
-      // logger.debug({ deps: v.deps }, "bound vertex deps");
+      logger.debug({ deps: v.deps }, "bound vertex deps");
     }
   }
 
