@@ -43,7 +43,7 @@ export const stickySchema = baseNodeSchema.extend({
   selected: z.boolean(),
   dragHandle: z.literal('.draggable'),
   data: z.object({
-    text: z.string(),
+    tiptapJson: z.any(),
     width: z.number(),
     height: z.number(),
   }),

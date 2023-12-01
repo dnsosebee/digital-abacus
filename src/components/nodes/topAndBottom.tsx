@@ -30,7 +30,7 @@ export const TopAndBottomNode = ({ edge, selected }: TopAndBottomProps) => {
       ))}
       <NodeShell
         selected={selected}
-        className={`${bottom.length === 1 ? "round-binop" : "round-unop"}`}
+        className={`round-unop`}
         id={edge.id}
       >
         <div className="flex flex-row space-x-5 self-stretch justify-evenly">

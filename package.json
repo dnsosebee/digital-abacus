@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.17",
+    "@tiptap/pm": "^2.1.13",
+    "@tiptap/react": "^2.1.13",
+    "@tiptap/starter-kit": "^2.1.13",
     "@tisoap/react-flow-smart-edge": "^3.0.0",
     "@types/node": "18.15.0",
     "@types/p5": "^1.5.0",
@@ -30,6 +33,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.14",
     "pino-pretty": "^10.0.0",
     "postcss": "^8.4.21",

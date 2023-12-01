@@ -165,7 +165,7 @@ export const addNode = (addNode: AddNode) => {
         id: genNodeId(),
         type: "sticky",
         position: addNode.position,
-        data: { text: "", width: 200, height: 100 },
+        data: { tiptapJson: {}, width: 200, height: 100 },
         selected: false,
         dragHandle: ".draggable",
       });
@@ -295,9 +295,9 @@ export const updateCoord = (vertexId: VertexId, coord: Coord, graph = mainGraph(
   vertex.value.mut_sendTo(coord);
 };
 
-export const updateStickyText = (id: string, text: string) => {
+export const updateStickyJson = (id: string, json: any) => {
   const sticky = findSticky(id);
-  sticky.data.text = text;
+  sticky.data.tiptapJson = json;
 };
 
 export const updateStickyDimensions = (id: string, dimensions: { width: number | undefined; height: number | undefined }) => {
@@ -587,7 +587,7 @@ export const cloneSelected = () => {
         id: newId,
         type: "sticky",
         position: s.position,
-        data: { text: s.data.text, width: s.data.width, height: s.data.height },
+        data: { tiptapJson: s.data.tiptapJson, width: s.data.width, height: s.data.height },
         selected: false,
         dragHandle: ".draggable",
       });

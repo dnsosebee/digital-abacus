@@ -118,3 +118,8 @@ input::-webkit-inner-spin-button {
 .encapsulating .react-flow__nodesselection {
   display: none;
 }
+.tiptap {
+  @apply border border-gray-300 p-4 rounded-md;
+  min-width: 200px;
+  min-height: 50px;
+}
