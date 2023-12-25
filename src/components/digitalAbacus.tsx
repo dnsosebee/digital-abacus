@@ -36,7 +36,7 @@ export const DigitalAbacus = ({ serialState }: { serialState: SerialState }) => 
             <div className="flex-1 rounded-3xl split flex overflow-hidden m-1  border-8 border-gray-900">
               <Sidebar />
               <ReactFlowProvider>
-                <CircuitBoard serialState={serialState} />
+                <CircuitBoard />
               </ReactFlowProvider>
             </div>
             {showLinkages && (

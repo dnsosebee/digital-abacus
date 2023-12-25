@@ -615,7 +615,7 @@ export const serialStateSchema = z.object({
 
 export type SerialState = z.infer<typeof serialStateSchema>;
 
-export const useStore = (initial?: SerialState, cartesian = false) => {
+export const useStore = (cartesian = false) => {
   // logger.debug({ initial }, "useMainGraph called");
   const { visibleGraph: graphSnap, ancestors } = useSnapshot(store);
 

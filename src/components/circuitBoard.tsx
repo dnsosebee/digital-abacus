@@ -1,6 +1,5 @@
 import { logger as parentLogger } from "@/lib/logger";
 import {
-  SerialState,
   addNode,
   addWire,
   changeSelection,
@@ -8,7 +7,7 @@ import {
   removeNode,
   removeWire,
   updateNodePosition,
-  useStore
+  useStore,
 } from "@/model/store";
 import { AddNode, Math as MathSchema } from "@/schema/node";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -24,7 +23,7 @@ import ReactFlow, {
   OnEdgesChange,
   OnNodesChange,
   ReactFlowInstance,
-  SelectionMode
+  SelectionMode,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Navbar } from "./navbar";
@@ -47,8 +46,8 @@ const EDGE_TYPES = {
   // TODO: add LIST edge types
 };
 
-const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
-  const { nodes, wires, encapsulatedNodes} = useStore(serialState);
+const CircuitBoard = () => {
+  const { nodes, wires, encapsulatedNodes } = useStore();
   // const updateNodeInternals = useUpdateNodeInternals();
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const reactFlowWrapper = useRef<any>(null);
@@ -200,7 +199,7 @@ const CircuitBoard = ({ serialState }: { serialState: SerialState }) => {
   // logger.debug({ activeNodes }, "activeNodes");
 
   return (
-    <div className={`flex-grow flex flex-col ${encapsulatedNodes && 'encapsulating'}`}>
+    <div className={`flex-grow flex flex-col ${encapsulatedNodes && "encapsulating"}`}>
       <div className="flex-grow flex flex-col items-stretch">
         {/* <p>{store.edges.length}</p> */}
         {/* <CircuitsProvider altPressed={altPressed} copied={copied}> */}
@@ -271,4 +270,3 @@ function useKeyPress(targetKey: string) {
   }, []); // Empty array ensures that effect is only run on mount and unmount
   return keyPressed;
 }
-

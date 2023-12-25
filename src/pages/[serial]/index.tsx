@@ -36,6 +36,7 @@ export const DEFAULT_SERIAL_STATE = {
     edges: [],
     focus: null,
     mode: UPDATE_ITERATIVE,
+    stickies: [],
   },
   stickies: [],
 };
