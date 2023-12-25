@@ -1,6 +1,6 @@
 import { BUFFER } from "@/components/nodes/interfaceNode";
 import { handleIdToNum, handleNumToId } from "@/schema/handle";
-import { AddNode, CircuitNode, Sticky, genNodeId, stickySchema } from "@/schema/node";
+import { AddNode, CircuitNode, genNodeId, stickySchema } from "@/schema/node";
 import { Wire } from "@/schema/wire";
 import { Connection, NodePositionChange } from "reactflow";
 import { proxy, useSnapshot } from "valtio";
@@ -75,7 +75,6 @@ export const store = proxy({
   visibleGraph: initialGraph, // this exists for backwards compatibility, because a lot of the code need a pointer to the mainGraph to work
   // mainGraphSerialEdge: initialSerialNodeEdge,
   components: [] as SerialNodeEdge[],
-  stickies: [] as Sticky[],
 });
 
 export const beginEditingComposite = (nodeId: string) => {
@@ -110,7 +109,9 @@ export const isEditingComposite = () => store.ancestors.length > 0;
 
 export let mainGraph = () => store.visibleGraph; // would be better if const
 export const userDefinedComposites = store.components;
-export const stickies = store.stickies;
+export const stickies = () => {
+  return store.visibleGraph.stickies;
+};
 
 let locked = false;
 setInterval(() => {
@@ -130,9 +131,8 @@ setInterval(() => {
   locked = false;
 }, 1000 / 60);
 
-const isSticky = (id: string) => stickies.find((s) => s.id === id) !== undefined;
-const findSticky = (id: string) => stickies.find((s) => s.id === id)!;
-
+const isSticky = (id: string) => stickies().find((s) => s.id === id) !== undefined;
+const findSticky = (id: string) => stickies().find((s) => s.id === id)!;
 
 export const updateNodePosition = (e: NodePositionChange) => {
   if (e.id === "left" || e.id === "right" || e.id === "top" || e.id === "bottom") {
@@ -161,7 +161,7 @@ export const removeWire = (id: string) => mainGraph().removeWire(id);
 export const addNode = (addNode: AddNode) => {
   switch (addNode.type) {
     case "sticky":
-      stickies.push({
+      stickies().push({
         id: genNodeId(),
         type: "sticky",
         position: addNode.position,
@@ -260,7 +260,7 @@ export const addNode = (addNode: AddNode) => {
 
 export const removeNode = (id: string) => {
   if (isSticky(id)) {
-    stickies.splice(stickies.indexOf(findSticky(id)), 1);
+    stickies().splice(stickies().indexOf(findSticky(id)), 1);
   } else {
     mainGraph().removeNode(id);
   }
@@ -300,7 +300,10 @@ export const updateStickyJson = (id: string, json: any) => {
   sticky.data.tiptapJson = json;
 };
 
-export const updateStickyDimensions = (id: string, dimensions: { width: number | undefined; height: number | undefined }) => {
+export const updateStickyDimensions = (
+  id: string,
+  dimensions: { width: number | undefined; height: number | undefined }
+) => {
   const sticky = findSticky(id);
   sticky.data.width = dimensions.width ?? sticky.data.width;
   sticky.data.height = dimensions.height ?? sticky.data.height;
@@ -449,6 +452,7 @@ export const commitEncapsulation = (label: string) => {
     edges: [...internalNodes.map((n) => n.serialize()), ...internalWires.map((w) => w.serialize())],
     mode: UPDATE_MODE,
     focus: null,
+    stickies: [],
   };
   const interfaceVertexIds = [
     ...freeExternalVertices.map((v) => v.id),
@@ -580,10 +584,10 @@ export const cloneSelected = () => {
     }
   });
 
-  stickies.forEach((s) => {
+  stickies().forEach((s) => {
     if (s.selected) {
       const newId = genNodeId();
-      stickies.push({
+      stickies().push({
         id: newId,
         type: "sticky",
         position: s.position,
@@ -614,7 +618,6 @@ export type SerialState = z.infer<typeof serialStateSchema>;
 export const useStore = (initial?: SerialState, cartesian = false) => {
   // logger.debug({ initial }, "useMainGraph called");
   const { visibleGraph: graphSnap, ancestors } = useSnapshot(store);
-  const stickiesSnap = useSnapshot(stickies);
 
   // TODO: COMMENTING OUT URL ENCODING... for now
   // useEffect(() => {
@@ -730,7 +733,7 @@ export const useStore = (initial?: SerialState, cartesian = false) => {
     }
   });
 
-  nodes = nodes.concat(stickiesSnap);
+  nodes = nodes.concat(graphSnap.stickies);
   return {
     // shouldUpdateNodeInternals: graphSnap.shouldUpdateNodeInternals,
     nodes,

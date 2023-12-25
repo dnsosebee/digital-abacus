@@ -170,7 +170,7 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
       graph: this,
       v,
       seen,
-    })
+    });
     // :Vertex<T> -> [index(this.vertices)]
     // -> [index(this.vertices) x index(this.edges)]
     if (seen.includes(v.id)) {
@@ -356,10 +356,5 @@ export class RelGraph<T extends Serializable, V extends Vertex<T> = Vertex<T>> {
     //   str = str + "\n";
     // }
     // return str;
-  }
-
-  reset() {
-    this.vertices = [];
-    this.edges = [];
   }
 }

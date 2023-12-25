@@ -1,3 +1,4 @@
+import { stickySchema } from "@/schema/node";
 import { z } from "zod";
 import { serialNodeEdgeSchema } from "../coords/edges/nodeEdge";
 import { serialWireEdgeSchema } from "../coords/edges/wireEdge";
@@ -11,6 +12,7 @@ export const serialSubgraphSchema = serialRelGraphSchema.extend({
 export const serialCoordGraphSchema = serialSubgraphSchema.extend({
   mode: z.number(),
   focus: z.nullable(serialVertexIdSchema),
+  stickies: stickySchema.array(),
 });
 
 export type SerialCoordGraph = z.infer<typeof serialCoordGraphSchema>;
