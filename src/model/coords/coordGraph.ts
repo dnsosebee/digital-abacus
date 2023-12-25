@@ -1,5 +1,5 @@
 import { logger as parentLogger } from "@/lib/logger";
-import { genNodeId } from "@/schema/node";
+import { Sticky, genNodeId } from "@/schema/node";
 import { genWireId } from "@/schema/wire";
 import { makeEqualityConstraintBuilder } from "../graph/constraint";
 import { RelGraph } from "../graph/relGraph";
@@ -31,6 +31,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   encapsulationInterface: VertexId[] | null; // null if not encapsulating anything
   requiredInterfaceVertices: VertexId[] | null = null; // null if not encapsulating anything
   encapsulatedNodes: string[] | null = null;
+  stickies: Sticky[];
 
   // shouldUpdateNodeInternals: boolean;
 
@@ -39,7 +40,8 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     focus: CoordVertex | null = null,
     edges: CircuitEdge[] = [],
     vertices: CoordVertex[] = [],
-    encapsulationInterface: VertexId[] | null = null
+    encapsulationInterface: VertexId[] | null = null,
+    stickies: Sticky[] = []
   ) {
     let eq = CoordGraph.getEqualityConstraintBuilder(mode);
 
@@ -49,6 +51,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     this.mode = mode;
     this.encapsulationInterface = encapsulationInterface;
     // this.shouldUpdateNodeInternals = false;
+    this.stickies = stickies;
   }
 
   isEncapsulating() {
@@ -62,6 +65,10 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
     this.edges = other.edges;
     this.mode = other.mode;
     this.focus = other.focus;
+    this.encapsulationInterface = other.encapsulationInterface;
+    this.requiredInterfaceVertices = other.requiredInterfaceVertices;
+    this.encapsulatedNodes = other.encapsulatedNodes;
+    this.stickies = other.stickies;
   }
 
   static getEqualityConstraintBuilder(mode: number) {
@@ -92,6 +99,7 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
       edges: this.edges.map((e) => e.serialize() as SerialNodeEdge | SerialWireEdge),
       mode: this.mode,
       focus: this.focus?.id ?? null,
+      stickies: this.stickies,
     };
   }
 
@@ -303,4 +311,11 @@ export class CoordGraph extends RelGraph<DifferentialCoord, CoordVertex> {
   //   }
   //   return false;
   // }
+
+  reset() {
+    this.vertices = [];
+    this.edges = [];
+    this.stickies = [];
+    this.focus = null;
+  }
 }

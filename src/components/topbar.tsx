@@ -1,6 +1,7 @@
 import { deserializeGraph } from "@/model/deserializeGraph";
 import { settings } from "@/model/settings";
 import { endEditingComposite, mainGraph, stickies, store } from "@/model/store";
+import { Sticky, genNodeId } from "@/schema/node";
 import {
   AdjustmentsHorizontalIcon,
   ArrowDownTrayIcon,
@@ -21,7 +22,7 @@ const headingFont = Source_Code_Pro({
 });
 
 export const Topbar = () => {
-  const {ancestors} = useSnapshot(store);
+  const { ancestors } = useSnapshot(store);
   const isEditingComposite = ancestors.length > 0;
   return (
     <div
@@ -49,7 +50,6 @@ const Title = () => (
 );
 
 const GeneralSettings = () => {
-
   const saveHandler = async () => {
     const json = { mainGraph: mainGraph().serialize(), stickies: stickies };
     console.log(json);
@@ -85,7 +85,13 @@ const GeneralSettings = () => {
       const stringData = await fileData.text();
       const json = JSON.parse(stringData);
       mainGraph().mutateCopy(deserializeGraph(json["mainGraph"]));
-      stickies.splice(0, stickies.length, ...json["stickies"]);
+      if ("stickies" in json) {
+        stickies().splice(
+          0,
+          stickies.length,
+          ...json["stickies"].map((s: Sticky) => ({ ...s, id: genNodeId() }))
+        );
+      }
     } catch (e) {
       console.error(e);
     }
@@ -108,7 +114,7 @@ const GeneralSettings = () => {
   const eraseAll = () => {
     if (confirm("Erase all and start over?")) {
       mainGraph().reset();
-      stickies.splice(0, stickies.length);
+      stickies().splice(0, stickies.length);
     }
   };
 

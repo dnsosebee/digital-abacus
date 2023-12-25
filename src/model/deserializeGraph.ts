@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger";
+import { genNodeId } from "@/schema/node";
 import { Coord } from "./coords/coord/coord";
 import { DifferentialCoord } from "./coords/coord/differentialCoord";
 import { CoordGraph } from "./coords/coordGraph";
@@ -73,12 +74,14 @@ export const deserializeGraph = (data: SerialCoordGraph): CoordGraph => {
     e.updateDependencies();
   });
 
-  console.log("focus", data.focus);
+  const stickies = data.stickies ? data.stickies.map((s) => ({ ...s, id: genNodeId() })) : [];
 
   return new CoordGraph(
     data.mode,
     data.focus ? vertices.find((v) => v.id == data.focus) ?? undefined : undefined,
     [...nodeEdges, ...wireEdges],
-    vertices
+    vertices,
+    null,
+    stickies
   );
 };
